@@ -13,9 +13,16 @@ public class JumpKingMapGenerator : EditorWindow
     [SerializeField] private Tilemap targetTilemap;
     [SerializeField] private TileBase groundTile;     // dirt / body of platforms
     [SerializeField] private TileBase grassTile;      // top surface of platforms
+    [SerializeField] private TileBase leftWallTile;   // left side wall
+    [SerializeField] private TileBase rightWallTile;  // right side wall
     [SerializeField] private GameObject spawnPrefab;
     [SerializeField] private GameObject goalPrefab;
+    // .md mode
     [SerializeField] private int selectedMapIndex;
+    // Procedural mode
+    [SerializeField] private bool useProcedural;
+    [SerializeField] private int proceduralHeight = 60;
+    [SerializeField] private int selectedDifficulty; // 0=Easy, 1=Normal, 2=Hard
 
     private Vector2 scrollPosition;
     private List<MapData> cachedMaps;
@@ -39,31 +46,47 @@ public class JumpKingMapGenerator : EditorWindow
         if (groundTile == null)
             groundTile = AssetDatabase.LoadAssetAtPath<TileBase>(
                 "Assets/Sprites/Tiles/Forest_Tree_200.asset");
+        if (leftWallTile == null)
+            leftWallTile = AssetDatabase.LoadAssetAtPath<TileBase>(
+                "Assets/Sprites/Tiles/Forest_Tree_156.asset");
+        if (rightWallTile == null)
+            rightWallTile = AssetDatabase.LoadAssetAtPath<TileBase>(
+                "Assets/Sprites/Tiles/Forest_Tree_156.asset");
     }
 
     private void OnGUI()
     {
-        // Lazy-load on first draw so we're in the main thread
-        if (cachedMaps == null)
-            cachedMaps = LevelDefinitions.AllMaps;
-
         scrollPosition = EditorGUILayout.BeginScrollView(scrollPosition);
 
         DrawHeader();
         DrawReferences();
         DrawSeparator();
-        DrawMapControls();
+        DrawModeToggle();
+        DrawSeparator();
+
+        if (useProcedural)
+            DrawProceduralControls();
+        else
+            DrawMapControls();
+
         DrawSeparator();
         DrawLegend();
 
         EditorGUILayout.EndScrollView();
     }
 
+    private void DrawModeToggle()
+    {
+        EditorGUILayout.LabelField("Source Mode", EditorStyles.boldLabel);
+        useProcedural = GUILayout.Toolbar(useProcedural ? 1 : 0, new[] { "ASCII .md Files", "Procedural Generation" }) == 1;
+        EditorGUILayout.Space();
+    }
+
     private void DrawHeader()
     {
         EditorGUILayout.Space();
         EditorGUILayout.LabelField("Jump King Map Generator", EditorStyles.boldLabel);
-        EditorGUILayout.LabelField("Maps loaded from: docs/plan/maps/", EditorStyles.miniLabel);
+        EditorGUILayout.LabelField("Maps loaded from: Assets/MapAscii/", EditorStyles.miniLabel);
         EditorGUILayout.Space();
     }
 
@@ -73,6 +96,8 @@ public class JumpKingMapGenerator : EditorWindow
         targetTilemap = (Tilemap)EditorGUILayout.ObjectField("Target Tilemap", targetTilemap, typeof(Tilemap), true);
         groundTile = (TileBase)EditorGUILayout.ObjectField("Ground Tile (body)", groundTile, typeof(TileBase), false);
         grassTile = (TileBase)EditorGUILayout.ObjectField("Grass Tile (surface)", grassTile, typeof(TileBase), false);
+        leftWallTile = (TileBase)EditorGUILayout.ObjectField("Left Wall Tile", leftWallTile, typeof(TileBase), false);
+        rightWallTile = (TileBase)EditorGUILayout.ObjectField("Right Wall Tile", rightWallTile, typeof(TileBase), false);
         spawnPrefab = (GameObject)EditorGUILayout.ObjectField("Spawn Prefab (optional)", spawnPrefab, typeof(GameObject), false);
         goalPrefab = (GameObject)EditorGUILayout.ObjectField("Goal Prefab (optional)", goalPrefab, typeof(GameObject), false);
         EditorGUILayout.Space();
@@ -84,8 +109,55 @@ public class JumpKingMapGenerator : EditorWindow
         EditorGUILayout.Space();
     }
 
+    private void DrawProceduralControls()
+    {
+        EditorGUILayout.LabelField("Procedural Generation", EditorStyles.boldLabel);
+        EditorGUILayout.Space();
+
+        // Height input
+        proceduralHeight = EditorGUILayout.IntSlider("Map Height", proceduralHeight, 15, 200);
+        EditorGUILayout.LabelField($"Approx. sections: ~{proceduralHeight / 6}", EditorStyles.miniLabel);
+        EditorGUILayout.Space();
+
+        // Difficulty selector
+        selectedDifficulty = GUILayout.Toolbar(selectedDifficulty, new[] { "Easy", "Normal", "Hard" });
+        EditorGUILayout.Space();
+
+        // Generate button
+        string[] diffNames = { "Easy", "Normal", "Hard" };
+        bool canGenerate = targetTilemap != null && groundTile != null;
+        GUI.enabled = canGenerate;
+        if (GUILayout.Button($"Generate Procedural {diffNames[selectedDifficulty]} ({ProceduralMapGenerator.MAP_WIDTH}×{proceduralHeight})",
+            GUILayout.Height(36)))
+        {
+            GenerateProceduralMap();
+        }
+        GUI.enabled = true;
+
+        EditorGUILayout.Space();
+
+        // Clear button
+        GUI.enabled = targetTilemap != null;
+        if (GUILayout.Button("Clear Map", GUILayout.Height(28)))
+            ClearMap();
+        GUI.enabled = true;
+
+        EditorGUILayout.Space();
+        EditorGUILayout.HelpBox(
+            $"Width is fixed at {ProceduralMapGenerator.MAP_WIDTH} tiles.\n" +
+            "Easy: wide platforms, small gaps, recovery platforms.\n" +
+            "Normal & Hard: will be implemented in future updates.\n" +
+            "Currently only Easy generates a proper map.",
+            MessageType.Info
+        );
+    }
+
     private void DrawMapControls()
     {
+        // Lazy-load .md maps on first draw
+        if (cachedMaps == null)
+            cachedMaps = LevelDefinitions.AllMaps;
+
         EditorGUILayout.LabelField("Generate Map", EditorStyles.boldLabel);
 
         // Build display names with dimensions
@@ -149,6 +221,8 @@ public class JumpKingMapGenerator : EditorWindow
         EditorGUILayout.HelpBox(
             "g  = Grass surface tile\n" +
             "#  = Ground dirt / body\n" +
+            "[  = Left wall\n" +
+            "]  = Right wall\n" +
             ".  = Empty\n" +
             "S  = Spawn Point + Ground\n" +
             "G  = Goal Point\n" +
@@ -162,6 +236,41 @@ public class JumpKingMapGenerator : EditorWindow
 
     private void GenerateMap(int mapIndex)
     {
+        if (mapIndex < 0 || mapIndex >= cachedMaps.Count) return;
+        PlaceMapDataOnTilemap(cachedMaps[mapIndex]);
+    }
+
+    private void GenerateProceduralMap()
+    {
+        MapData mapData = null;
+
+        switch (selectedDifficulty)
+        {
+            case 0: // Easy
+                mapData = ProceduralMapGenerator.GenerateEasy(proceduralHeight);
+                break;
+            case 1: // Normal — not yet implemented
+                EditorUtility.DisplayDialog("Coming Soon",
+                    "Normal difficulty procedural generation is not yet implemented.\n" +
+                    "Please use Easy for now.", "OK");
+                return;
+            case 2: // Hard — not yet implemented
+                EditorUtility.DisplayDialog("Coming Soon",
+                    "Hard difficulty procedural generation is not yet implemented.\n" +
+                    "Please use Easy for now.", "OK");
+                return;
+        }
+
+        if (mapData != null)
+            PlaceMapDataOnTilemap(mapData);
+    }
+
+    /// <summary>
+    /// Takes a MapData and paints it onto the target Tilemap.
+    /// Shared between .md file maps and procedural maps.
+    /// </summary>
+    private void PlaceMapDataOnTilemap(MapData mapData)
+    {
         if (targetTilemap == null || groundTile == null)
         {
             EditorUtility.DisplayDialog("Missing References",
@@ -169,10 +278,6 @@ public class JumpKingMapGenerator : EditorWindow
             return;
         }
 
-        if (mapIndex < 0 || mapIndex >= cachedMaps.Count)
-            return;
-
-        MapData mapData = cachedMaps[mapIndex];
         Transform gridParent = targetTilemap.transform.parent;
 
         // Register undo
@@ -215,6 +320,23 @@ public class JumpKingMapGenerator : EditorWindow
                         // Ground body / recovery platform
                         targetTilemap.SetTile(cellPos, groundTile);
                         break;
+
+                    case '[':
+                        // Left wall
+                        targetTilemap.SetTile(cellPos, leftWallTile != null ? leftWallTile : groundTile);
+                        break;
+
+                    case ']':
+                    {
+                        // Right wall (flipped horizontally relative to left wall)
+                        TileBase wallTile = rightWallTile ?? leftWallTile ?? groundTile;
+                        targetTilemap.SetTile(cellPos, wallTile);
+                        // Flip horizontally so the right wall faces inward
+                        targetTilemap.SetTileFlags(cellPos, TileFlags.None);
+                        targetTilemap.SetTransformMatrix(cellPos,
+                            Matrix4x4.Scale(new Vector3(-1, 1, 1)));
+                        break;
+                    }
 
                     case 'S':
                         // Ground under spawn

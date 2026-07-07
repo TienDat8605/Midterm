@@ -22,6 +22,8 @@ public class MapData
     /// Legend:
     ///   g = Grass surface tile (top of platforms)
     ///   # = Ground tile (dirt / body of platforms)
+    ///   [ = Left wall tile
+    ///   ] = Right wall tile
     ///   . = Empty
     ///   S = Spawn point (ground placed underneath)
     ///   G = Goal point
@@ -127,6 +129,6 @@ public class MapData
     /// </summary>
     public static bool IsGroundChar(char c)
     {
-        return c == '#' || c == 'g' || c == 'R' || c == 'S';
+        return c == '#' || c == 'g' || c == 'R' || c == 'S' || c == '[' || c == ']';
     }
 }
