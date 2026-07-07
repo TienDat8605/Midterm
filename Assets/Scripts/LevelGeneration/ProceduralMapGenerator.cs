@@ -290,6 +290,167 @@ public static class ProceduralMapGenerator
     }
 
     /// <summary>
+    /// Generate a Hard difficulty map.
+    /// Tiny ledges, chain jumps, long punishment falls, hidden recovery, bait platforms.
+    /// </summary>
+    /// <param name="height">Total rows in the map (must be at least 12)</param>
+    public static MapData GenerateHard(int height)
+    {
+        height = Mathf.Max(height, 12);
+        char[][] grid = CreateEmptyGrid(height);
+
+        AddWalls(grid);
+
+        // --- Bottom section ---
+        int bottomRow = height - 1;
+        FillRow(grid, bottomRow, LEFT_WALL, RIGHT_WALL, '#');
+
+        // Spawn offset more (harder start)
+        int spawnX = LEFT_WALL + UnityEngine.Random.Range(3, 8);
+        grid[bottomRow - 1][spawnX] = 'S';
+
+        int currentRow = bottomRow - 4;
+
+        // Track direction for chains
+        int chainCount = 0;
+
+        while (currentRow > 5 && chainCount < 300)
+        {
+            // Platform width: 2-4 tiles (very tight)
+            int platWidth = UnityEngine.Random.Range(2, 5);
+
+            // 40% chance of a 1-tile-wide micro ledge (brutal)
+            if (UnityEngine.Random.value < 0.40f)
+                platWidth = 2 + (UnityEngine.Random.value < 0.5f ? 0 : 1);
+
+            // Place platform — can be on either side or in the middle
+            int platX;
+            float sideRoll = UnityEngine.Random.value;
+
+            if (sideRoll < 0.40f)
+            {
+                // Left edge
+                platX = LEFT_WALL + UnityEngine.Random.Range(0, 3);
+            }
+            else if (sideRoll < 0.80f)
+            {
+                // Right edge
+                platX = RIGHT_WALL - platWidth - UnityEngine.Random.Range(0, 3);
+            }
+            else
+            {
+                // Middle — harder to judge distance
+                platX = (MAP_WIDTH - platWidth) / 2 + UnityEngine.Random.Range(-2, 3);
+            }
+
+            platX = Mathf.Clamp(platX, LEFT_WALL, RIGHT_WALL - platWidth);
+
+            // Place platform
+            for (int x = platX; x < platX + platWidth && x <= RIGHT_WALL; x++)
+            {
+                grid[currentRow][x] = 'g';
+                if (currentRow + 1 < height && grid[currentRow + 1][x] == '.')
+                    grid[currentRow + 1][x] = '#';
+            }
+
+            // Vertical gap: 3-6 rows
+            int gap = UnityEngine.Random.Range(3, 7);
+
+            // Chain jumps: 35% chance to chain 2-3 platforms close together
+            if (UnityEngine.Random.value < 0.35f && chainCount < 3)
+            {
+                chainCount++;
+                // Chain platforms are very tight — gap of 2-3
+                gap = UnityEngine.Random.Range(2, 4);
+
+                // Narrower in a chain
+                int chainWidth = Mathf.Max(platWidth - 1, 2);
+                int chainX = platX + UnityEngine.Random.Range(-2, 3);
+                chainX = Mathf.Clamp(chainX, LEFT_WALL, RIGHT_WALL - chainWidth);
+
+                // Place chain platform a couple rows above
+                int chainRow = currentRow - gap;
+                if (chainRow > 5)
+                {
+                    for (int x = chainX; x < chainX + chainWidth && x <= RIGHT_WALL; x++)
+                    {
+                        grid[chainRow][x] = 'g';
+                        if (chainRow + 1 < height && grid[chainRow + 1][x] == '.')
+                            grid[chainRow + 1][x] = '#';
+                    }
+                    currentRow = chainRow;
+                }
+                continue; // skip the rest of the loop for this iteration
+            }
+            else
+            {
+                chainCount = 0;
+            }
+
+            // Hidden recovery: only on gaps >= 5, and OFFSET from the platform (not directly under)
+            if (gap >= 5)
+            {
+                int hiddenWidth = UnityEngine.Random.Range(2, 4);
+                int hiddenRow = currentRow + (gap / 2);
+                // Place on opposite side from the platform — hard to spot
+                int hiddenX = sideRoll < 0.5f
+                    ? RIGHT_WALL - hiddenWidth - UnityEngine.Random.Range(0, 3)
+                    : LEFT_WALL + UnityEngine.Random.Range(0, 3);
+                hiddenX = Mathf.Clamp(hiddenX, LEFT_WALL, RIGHT_WALL - hiddenWidth);
+
+                if (hiddenRow < height)
+                {
+                    for (int x = hiddenX; x < hiddenX + hiddenWidth && x <= RIGHT_WALL; x++)
+                    {
+                        grid[hiddenRow][x] = 'R';
+                    }
+                }
+            }
+
+            // Bait platform: 35% chance — looks like the main path but is a dead end
+            if (UnityEngine.Random.value < 0.35f)
+            {
+                int baitWidth = UnityEngine.Random.Range(2, 4);
+                int baitRow = currentRow + UnityEngine.Random.Range(1, 3);
+                int baitX = platX + platWidth + UnityEngine.Random.Range(3, 7);
+                if (baitX + baitWidth <= RIGHT_WALL && baitRow < height)
+                {
+                    for (int x = baitX; x < baitX + baitWidth; x++)
+                        grid[baitRow][x] = 'g';
+                }
+            }
+
+            currentRow -= gap;
+            chainCount++;
+        }
+
+        // --- Top section: goal platform (very small) ---
+        int goalRow = Mathf.Max(currentRow - 2, 2);
+        int goalWidth = UnityEngine.Random.Range(2, 4);
+        int goalX = (MAP_WIDTH - goalWidth) / 2 + UnityEngine.Random.Range(-2, 3);
+        goalX = Mathf.Clamp(goalX, LEFT_WALL, RIGHT_WALL - goalWidth);
+
+        for (int x = goalX; x < goalX + goalWidth && x <= RIGHT_WALL; x++)
+        {
+            grid[goalRow][x] = 'g';
+            if (goalRow + 1 < height && grid[goalRow + 1][x] == '.')
+                grid[goalRow + 1][x] = '#';
+        }
+
+        // Place goal markers (just 1 or 2)
+        int goalMarkers = Mathf.Min(goalWidth, 2);
+        int goalStart = goalX + (goalWidth - goalMarkers) / 2;
+        for (int i = 0; i < goalMarkers; i++)
+        {
+            int gx = goalStart + i;
+            if (gx >= LEFT_WALL && gx <= RIGHT_WALL)
+                grid[goalRow - 1][gx] = 'G';
+        }
+
+        return GridToMapData(grid, $"Procedural Hard ({height})");
+    }
+
+    /// <summary>
     /// Creates an empty height×MAP_WIDTH grid filled with '.'.
     /// </summary>
     private static char[][] CreateEmptyGrid(int height)
