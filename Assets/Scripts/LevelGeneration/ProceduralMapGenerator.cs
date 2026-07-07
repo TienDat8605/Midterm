@@ -134,6 +134,162 @@ public static class ProceduralMapGenerator
     }
 
     /// <summary>
+    /// Generate a Normal difficulty map.
+    /// Tighter platforms, bigger gaps, fewer recovery platforms, occasional shortcuts.
+    /// </summary>
+    /// <param name="height">Total rows in the map (must be at least 12)</param>
+    public static MapData GenerateNormal(int height)
+    {
+        height = Mathf.Max(height, 12);
+        char[][] grid = CreateEmptyGrid(height);
+
+        // Add side walls for every row
+        AddWalls(grid);
+
+        // --- Bottom section: ground floor with spawn ---
+        int bottomRow = height - 1;
+        FillRow(grid, bottomRow, LEFT_WALL, RIGHT_WALL, '#');
+
+        // Spawn offset slightly from center (less predictable)
+        int spawnX = MAP_WIDTH / 2 + (UnityEngine.Random.value < 0.5f ? -1 : 1);
+        grid[bottomRow - 1][spawnX] = 'S';
+
+        int currentRow = bottomRow - 3; // start a bit higher
+
+        // --- Generate platforms going upward ---
+        int iterations = 0;
+        bool side = false;
+        int lastPlatX = spawnX; // track for placement variety
+
+        while (currentRow > 5 && iterations < 200)
+        {
+            side = !side;
+
+            // Platform width: 4-6 tiles (tighter than easy)
+            int platWidth = UnityEngine.Random.Range(4, 7);
+
+            // Occasional narrow precision platform (1 in 4 chance)
+            if (UnityEngine.Random.value < 0.25f)
+                platWidth = UnityEngine.Random.Range(3, 5);
+
+            // Calculate X position with more variance
+            int platX;
+            if (side)
+            {
+                platX = LEFT_WALL + UnityEngine.Random.Range(0, 5);
+            }
+            else
+            {
+                platX = RIGHT_WALL - platWidth - UnityEngine.Random.Range(0, 5);
+            }
+
+            platX = Mathf.Clamp(platX, LEFT_WALL, RIGHT_WALL - platWidth);
+
+            // Place platform
+            for (int x = platX; x < platX + platWidth && x <= RIGHT_WALL; x++)
+            {
+                grid[currentRow][x] = 'g';
+                if (currentRow + 1 < height && grid[currentRow + 1][x] == '.')
+                    grid[currentRow + 1][x] = '#';
+            }
+
+            // Vertical gap: 3-5 rows (bigger than easy)
+            int gap = UnityEngine.Random.Range(3, 6);
+
+            // Recovery platform only under gaps >= 4 (less safety net)
+            if (gap >= 4)
+            {
+                // Recovery is narrower too
+                int recoveryWidth = Mathf.Min(platWidth - 1, 3);
+                if (recoveryWidth > 0)
+                {
+                    int recoveryRow = currentRow + 2;
+                    int recoveryX = platX + (platWidth - recoveryWidth) / 2;
+                    for (int x = recoveryX; x < recoveryX + recoveryWidth && x <= RIGHT_WALL; x++)
+                    {
+                        if (recoveryRow < height)
+                            grid[recoveryRow][x] = 'R';
+                    }
+                }
+            }
+
+            // ~30% chance: add a small shortcut/platform on the opposite side
+            if (UnityEngine.Random.value < 0.30f && gap >= 3)
+            {
+                int shortcutWidth = UnityEngine.Random.Range(2, 4);
+                int shortcutRow = currentRow + 1;
+                int shortcutX = side
+                    ? RIGHT_WALL - shortcutWidth - UnityEngine.Random.Range(0, 3)
+                    : LEFT_WALL + UnityEngine.Random.Range(0, 3);
+                shortcutX = Mathf.Clamp(shortcutX, LEFT_WALL, RIGHT_WALL - shortcutWidth);
+
+                for (int x = shortcutX; x < shortcutX + shortcutWidth && x <= RIGHT_WALL; x++)
+                {
+                    if (shortcutRow < height)
+                        grid[shortcutRow][x] = 'R';
+                }
+            }
+
+            // ~20% chance: fake bait platform that looks helpful but is offset
+            if (UnityEngine.Random.value < 0.20f)
+            {
+                int baitWidth = UnityEngine.Random.Range(2, 4);
+                int baitRow = currentRow + UnityEngine.Random.Range(1, 3);
+                int baitX = platX + platWidth + UnityEngine.Random.Range(2, 5);
+                if (baitX + baitWidth <= RIGHT_WALL)
+                {
+                    for (int x = baitX; x < baitX + baitWidth; x++)
+                    {
+                        if (baitRow < height)
+                            grid[baitRow][x] = 'g';
+                    }
+                }
+            }
+
+            currentRow -= gap;
+            lastPlatX = platX;
+            iterations++;
+        }
+
+        // --- Top section: goal platform ---
+        int goalRow = Mathf.Max(currentRow - 2, 2);
+        int goalWidth = UnityEngine.Random.Range(3, 6);
+        int goalX = (MAP_WIDTH - goalWidth) / 2;
+        for (int x = goalX; x < goalX + goalWidth && x <= RIGHT_WALL; x++)
+        {
+            grid[goalRow][x] = 'g';
+            if (goalRow + 1 < height && grid[goalRow + 1][x] == '.')
+                grid[goalRow + 1][x] = '#';
+        }
+
+        // Place goal markers
+        int goalMarkers = Mathf.Min(goalWidth - 1, 2);
+        int goalStart = goalX + (goalWidth - goalMarkers) / 2;
+        for (int i = 0; i < goalMarkers; i++)
+        {
+            int gx = goalStart + i;
+            if (gx >= LEFT_WALL && gx <= RIGHT_WALL)
+                grid[goalRow - 1][gx] = 'G';
+        }
+
+        // Midway bridge if gap between last platform and goal is large
+        if (goalRow > 5 && goalRow > currentRow + 5)
+        {
+            int midY = (goalRow + currentRow) / 2;
+            int midWidth = 4;
+            int midX = (MAP_WIDTH - midWidth) / 2;
+            for (int x = midX; x < midX + midWidth && x <= RIGHT_WALL; x++)
+            {
+                grid[midY][x] = 'g';
+                if (midY + 1 < height && grid[midY + 1][x] == '.')
+                    grid[midY + 1][x] = '#';
+            }
+        }
+
+        return GridToMapData(grid, $"Procedural Normal ({height})");
+    }
+
+    /// <summary>
     /// Creates an empty height×MAP_WIDTH grid filled with '.'.
     /// </summary>
     private static char[][] CreateEmptyGrid(int height)

@@ -146,8 +146,8 @@ public class JumpKingMapGenerator : EditorWindow
         EditorGUILayout.HelpBox(
             $"Width is fixed at {ProceduralMapGenerator.MAP_WIDTH} tiles.\n" +
             "Easy: wide platforms, small gaps, recovery platforms.\n" +
-            "Normal & Hard: will be implemented in future updates.\n" +
-            "Currently only Easy generates a proper map.",
+            "Normal: tighter platforms, bigger gaps, shortcuts, bait platforms.\n" +
+            "Hard: will be implemented in a future update.",
             MessageType.Info
         );
     }
@@ -249,11 +249,9 @@ public class JumpKingMapGenerator : EditorWindow
             case 0: // Easy
                 mapData = ProceduralMapGenerator.GenerateEasy(proceduralHeight);
                 break;
-            case 1: // Normal — not yet implemented
-                EditorUtility.DisplayDialog("Coming Soon",
-                    "Normal difficulty procedural generation is not yet implemented.\n" +
-                    "Please use Easy for now.", "OK");
-                return;
+            case 1: // Normal
+                mapData = ProceduralMapGenerator.GenerateNormal(proceduralHeight);
+                break;
             case 2: // Hard — not yet implemented
                 EditorUtility.DisplayDialog("Coming Soon",
                     "Hard difficulty procedural generation is not yet implemented.\n" +
