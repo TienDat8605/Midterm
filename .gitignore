@@ -109,3 +109,4 @@ InitTestScene*.unity*
 # Claude Code project files
 CLAUDE.md
 docs/
+.DS_Store

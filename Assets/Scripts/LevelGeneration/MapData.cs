@@ -1,8 +1,11 @@
+using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 
 /// <summary>
 /// Represents a handcrafted Jump King-style map as a grid of characters.
 /// Each character maps to a tile type (see legend below).
+/// Can be loaded from .md files or constructed programmatically.
 /// </summary>
 [System.Serializable]
 public class MapData
@@ -17,7 +20,8 @@ public class MapData
 
     /// <summary>
     /// Legend:
-    ///   # = Ground tile
+    ///   g = Grass surface tile (top of platforms)
+    ///   # = Ground tile (dirt / body of platforms)
     ///   . = Empty
     ///   S = Spawn point (ground placed underneath)
     ///   G = Goal point
@@ -39,5 +43,90 @@ public class MapData
         if (x >= rows[y].Length)
             return '.';
         return rows[y][x];
+    }
+
+    /// <summary>
+    /// Load a map from a .md file in the markdown format.
+    /// Expects: first # heading = map name, ``` block = raw map data rows.
+    /// </summary>
+    public static MapData LoadFromMarkdownFile(string filePath)
+    {
+        if (!File.Exists(filePath))
+        {
+            Debug.LogError($"[MapData] File not found: {filePath}");
+            return null;
+        }
+
+        string[] lines = File.ReadAllLines(filePath);
+        string name = Path.GetFileNameWithoutExtension(filePath);
+        var dataRows = new List<string>();
+        bool inCodeBlock = false;
+
+        foreach (string rawLine in lines)
+        {
+            string line = rawLine.TrimEnd();
+
+            // Extract name from first # heading
+            if (line.StartsWith("# ") && !inCodeBlock)
+            {
+                name = line.Substring(2).Trim();
+                continue;
+            }
+
+            // Toggle code block
+            if (line.TrimStart().StartsWith("```"))
+            {
+                inCodeBlock = !inCodeBlock;
+                continue;
+            }
+
+            // Collect data rows inside the code block
+            if (inCodeBlock && line.Length > 0)
+            {
+                dataRows.Add(line);
+            }
+        }
+
+        if (dataRows.Count == 0)
+        {
+            Debug.LogError($"[MapData] No data found in {filePath}");
+            return null;
+        }
+
+        return new MapData(name, dataRows.ToArray());
+    }
+
+    /// <summary>
+    /// Load all .md map files from a directory.
+    /// </summary>
+    public static List<MapData> LoadAllFromDirectory(string directoryPath)
+    {
+        var maps = new List<MapData>();
+
+        if (!Directory.Exists(directoryPath))
+        {
+            Debug.LogError($"[MapData] Directory not found: {directoryPath}");
+            return maps;
+        }
+
+        string[] files = Directory.GetFiles(directoryPath, "*.md");
+        System.Array.Sort(files); // consistent ordering
+
+        foreach (string file in files)
+        {
+            MapData map = LoadFromMarkdownFile(file);
+            if (map != null)
+                maps.Add(map);
+        }
+
+        return maps;
+    }
+
+    /// <summary>
+    /// Returns true if the given character represents a solid ground tile.
+    /// </summary>
+    public static bool IsGroundChar(char c)
+    {
+        return c == '#' || c == 'g' || c == 'R' || c == 'S';
     }
 }
