@@ -19,6 +19,7 @@ public class PlayerControllerWithPhysics : MonoBehaviour
     public LayerMask groundLayer;
 
     private Rigidbody2D rb;
+    private Animator anim;
     private float moveInput;
     private float jumpCharge;
     private float jumpDirection;
@@ -26,10 +27,12 @@ public class PlayerControllerWithPhysics : MonoBehaviour
     private bool isGrounded;
     private float defaultGravityScale;
     private float lastAirHorizontalSpeed;
+    private bool hasJumped;
 
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
+        anim = GetComponent<Animator>();
         defaultGravityScale = rb.gravityScale;
         if (groundCheckPoint == null)
             groundCheckPoint = transform.Find("GroundCheck");
@@ -53,6 +56,7 @@ public class PlayerControllerWithPhysics : MonoBehaviour
         {
             moveInput = 0f;
             isChargingJump = false;
+            if (anim) anim.SetBool("isCharging", false);
             return;
         }
 
@@ -62,6 +66,7 @@ public class PlayerControllerWithPhysics : MonoBehaviour
         {
             isChargingJump = true;
             jumpCharge = 0f;
+            if (anim) anim.SetBool("isCharging", true);
         }
 
         if (!isChargingJump)
@@ -77,13 +82,16 @@ public class PlayerControllerWithPhysics : MonoBehaviour
     void FixedUpdate()
     {
         UpdateGrounded();
+        if (anim) anim.SetBool("isGrounded", isGrounded);
 
-        if (isGrounded && !isChargingJump)
+        if (isGrounded && !isChargingJump && !hasJumped)
             rb.linearVelocity = new Vector2(moveInput * walkSpeed, rb.linearVelocity.y);
-        else if (isGrounded)
+        else if (isGrounded && !hasJumped)
             rb.linearVelocity = new Vector2(0f, rb.linearVelocity.y);
         else if (!Mathf.Approximately(rb.linearVelocity.x, 0f))
             lastAirHorizontalSpeed = rb.linearVelocity.x;
+
+        hasJumped = false;
     }
 
     private void Jump()
@@ -99,6 +107,13 @@ public class PlayerControllerWithPhysics : MonoBehaviour
         jumpCharge = 0f;
         isChargingJump = false;
         isGrounded = false;
+        hasJumped = true;
+        if (anim)
+        {
+            anim.SetBool("isCharging", false);
+            anim.SetBool("isGrounded", false);
+            anim.SetTrigger("doJump");
+        }
     }
 
     private void OnCollisionEnter2D(Collision2D collision)
