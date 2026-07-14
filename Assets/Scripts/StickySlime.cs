@@ -17,6 +17,12 @@ public class StickySlime : PlayerControllerWithPhysics
     public float wallContactSpeedThreshold = 0.5f;
 
     [Header("Tether Ability")]
+    [Tooltip("Prefab of the tether projectile to shoot.")]
+    public GameObject tetherProjectilePrefab;
+
+    [Tooltip("Speed of the tether projectile.")]
+    public float tetherProjectileSpeed = 20f;
+
     [Tooltip("Maximum range to shoot the tether.")]
     public float tetherMaxRange = 8f;
 
@@ -51,6 +57,8 @@ public class StickySlime : PlayerControllerWithPhysics
     {
         if (wallLayer.value == 0)
             wallLayer = groundLayer;
+        if (tetherTargetLayer.value == 0)
+            tetherTargetLayer = LayerMask.GetMask("Default");
 
         tetherLine = GetComponent<LineRenderer>();
         if (tetherLine == null)
@@ -84,7 +92,6 @@ public class StickySlime : PlayerControllerWithPhysics
 
         if (isTethered && tetheredTarget != null)
         {
-            UpdateTetherVisual();
             CheckTetherBreak();
         }
     }
@@ -154,23 +161,48 @@ public class StickySlime : PlayerControllerWithPhysics
             return;
         }
 
-        if (Keyboard.current.eKey.wasPressedThisFrame && tetherCooldownTimer <= 0f)
+        if (inputEnabled && Keyboard.current.eKey.wasPressedThisFrame && tetherCooldownTimer <= 0f)
             TryShootTether();
     }
 
     private void TryShootTether()
     {
-        Vector2 direction = new Vector2(moveInput != 0f ? Mathf.Sign(moveInput) : 1f, 0.3f).normalized;
-        RaycastHit2D hit = Physics2D.Raycast(rb.position, direction, tetherMaxRange, tetherTargetLayer);
+        if (tetherProjectilePrefab == null)
+        {
+            Debug.LogWarning("StickySlime: No tether projectile prefab assigned.");
+            return;
+        }
 
-        if (hit.collider == null)
+        Vector2 direction = GetAimDirection();
+
+        GameObject projectileObj = Instantiate(tetherProjectilePrefab, rb.position, Quaternion.identity);
+        TetherProjectile projectile = projectileObj.GetComponent<TetherProjectile>();
+        if (projectile != null)
+        {
+            projectile.extendSpeed = tetherProjectileSpeed;
+            projectile.hitMask = tetherTargetLayer;
+            projectile.Launch(this, direction);
+        }
+
+        tetherCooldownTimer = tetherCooldown;
+    }
+
+    private Vector2 GetAimDirection()
+    {
+        if (Mouse.current == null)
+            return new Vector2(1f, 0.3f).normalized;
+
+        Vector3 mouseWorld = Camera.main.ScreenToWorldPoint(Mouse.current.position.ReadValue());
+        mouseWorld.z = 0f;
+        return (mouseWorld - transform.position).normalized;
+    }
+
+    public void OnProjectileHit(Rigidbody2D target)
+    {
+        if (target == null)
             return;
 
-        Rigidbody2D targetRb = hit.collider.GetComponentInParent<Rigidbody2D>();
-        if (targetRb == null)
-            return;
-
-        StartTether(targetRb);
+        StartTether(target);
     }
 
     private void StartTether(Rigidbody2D target)
@@ -179,13 +211,6 @@ public class StickySlime : PlayerControllerWithPhysics
         tetherTimer = tetherDuration;
         tetheredTarget = target;
 
-        tetherJoint = gameObject.AddComponent<DistanceJoint2D>();
-        tetherJoint.connectedBody = target;
-        tetherJoint.distance = Vector2.Distance(rb.position, target.position);
-        tetherJoint.maxDistanceOnly = false;
-        tetherJoint.autoConfigureDistance = false;
-
-        tetherLine.enabled = true;
         if (anim) anim.SetBool("isTethered", true);
     }
 
@@ -216,14 +241,48 @@ public class StickySlime : PlayerControllerWithPhysics
 
     private void CheckTetherBreak()
     {
-        if (tetherJoint == null || tetheredTarget == null)
+        if (tetheredTarget == null)
             return;
 
         float currentDistance = Vector2.Distance(rb.position, tetheredTarget.position);
-        float stretch = currentDistance - tetherJoint.distance;
-
-        if (stretch * tetherPullForce > tetherBreakForce)
+        
+        if (currentDistance > 15f)
+        {
             EndTether();
+            return;
+        }
+
+        Vector2 toTarget = (tetheredTarget.position - rb.position).normalized;
+        
+        if (currentDistance > 1.5f)
+        {
+            float pullStrength = tetherPullForce * 10f;
+            rb.AddForce(toTarget * pullStrength, ForceMode2D.Force);
+            tetheredTarget.AddForce(-toTarget * pullStrength, ForceMode2D.Force);
+        }
+
+        if (currentDistance < 2.5f)
+        {
+            float approachSpeed = Vector2.Dot(rb.linearVelocity, toTarget);
+            if (approachSpeed > 2f)
+            {
+                rb.linearVelocity -= toTarget * (approachSpeed - 2f);
+            }
+
+            float targetApproachSpeed = Vector2.Dot(tetheredTarget.linearVelocity, -toTarget);
+            if (targetApproachSpeed > 2f)
+            {
+                tetheredTarget.linearVelocity -= (-toTarget) * (targetApproachSpeed - 2f);
+            }
+
+            Vector2 pushDirection = -toTarget;
+            if (pushDirection.sqrMagnitude < 0.01f)
+                pushDirection = Vector2.right;
+            
+            float pushStrength = (2.5f - currentDistance) * 400f;
+            rb.AddForce(pushDirection * pushStrength, ForceMode2D.Force);
+            tetheredTarget.AddForce(-pushDirection * pushStrength, ForceMode2D.Force);
+        }
     }
 
     public bool IsClinging => isClinging;

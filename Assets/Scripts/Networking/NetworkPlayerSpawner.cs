@@ -16,6 +16,9 @@ public sealed class NetworkPlayerSpawner : MonoBehaviour
 
     private IEnumerator Start()
     {
+        if (DirectMapTestCharacterSelector.IsDirectTestMode)
+            yield break;
+
         float timeoutAt = Time.realtimeSinceStartup + 10f;
         while ((!PhotonNetwork.InRoom || NetworkManager.Instance == null) &&
                Time.realtimeSinceStartup < timeoutAt)
