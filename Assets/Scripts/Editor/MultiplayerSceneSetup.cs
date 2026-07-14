@@ -30,6 +30,15 @@ public static class MultiplayerSceneSetup
         Debug.Log("[MultiplayerSetup] Catalog, lobby, Map1, MapScene, and Build Settings configured.");
     }
 
+    public static void ConfigureMapSceneDirectTest()
+    {
+        ConfigureGameplayScene(TestMapScenePath, new Vector3(-2f, 1f, 0f),
+            new Vector3(0f, 1f, 0f), new Vector3(2f, 1f, 0f), false);
+        AssetDatabase.SaveAssets();
+        AssetDatabase.Refresh();
+        Debug.Log("[MultiplayerSetup] MapScene direct character test configured.");
+    }
+
     private static MultiplayerMapCatalog EnsureMapCatalog()
     {
         MultiplayerMapCatalog catalog = AssetDatabase.LoadAssetAtPath<MultiplayerMapCatalog>(CatalogPath);
@@ -132,6 +141,9 @@ public static class MultiplayerSceneSetup
         serializedSpawner.FindProperty("stickySpawnPoint").objectReferenceValue = sticky;
         serializedSpawner.ApplyModifiedPropertiesWithoutUndo();
 
+        if (scenePath == TestMapScenePath)
+            ConfigureDirectMapTest(spawnerObject, bounce);
+
         Camera mainCamera = Camera.main;
         if (mainCamera != null && mainCamera.GetComponent<CameraFollow>() == null)
             mainCamera.gameObject.AddComponent<CameraFollow>();
@@ -141,6 +153,21 @@ public static class MultiplayerSceneSetup
 
         EditorSceneManager.MarkSceneDirty(scene);
         EditorSceneManager.SaveScene(scene);
+    }
+
+    private static void ConfigureDirectMapTest(GameObject host, Transform spawnPoint)
+    {
+        DirectMapTestCharacterSelector selector =
+            GetOrAdd<DirectMapTestCharacterSelector>(host);
+        SerializedObject serializedSelector = new SerializedObject(selector);
+        serializedSelector.FindProperty("anchorPrefab").objectReferenceValue =
+            AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/AnchorSlime.prefab");
+        serializedSelector.FindProperty("bouncyPrefab").objectReferenceValue =
+            AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/BouncySlime.prefab");
+        serializedSelector.FindProperty("stickyPrefab").objectReferenceValue =
+            AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/StickySlime.prefab");
+        serializedSelector.FindProperty("testSpawnPoint").objectReferenceValue = spawnPoint;
+        serializedSelector.ApplyModifiedPropertiesWithoutUndo();
     }
 
     private static void ConfigureMap1Ground()

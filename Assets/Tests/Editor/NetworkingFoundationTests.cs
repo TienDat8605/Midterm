@@ -185,6 +185,40 @@ public sealed class NetworkingFoundationTests
         }
     }
 
+    [Test]
+    public void MapScene_HasDirectTestSelectorWithAllCharacters()
+    {
+        Scene scene = EditorSceneManager.OpenScene(
+            "Assets/Scenes/MapScene.unity", OpenSceneMode.Additive);
+        try
+        {
+            DirectMapTestCharacterSelector selector = scene.GetRootGameObjects()
+                .SelectMany(root => root.GetComponentsInChildren<DirectMapTestCharacterSelector>(true))
+                .Single();
+            SerializedObject serializedSelector = new SerializedObject(selector);
+
+            AssertCharacterPrefab(serializedSelector, "anchorPrefab", typeof(AnchorSlime));
+            AssertCharacterPrefab(serializedSelector, "bouncyPrefab", typeof(BouncySlime));
+            AssertCharacterPrefab(serializedSelector, "stickyPrefab", typeof(StickySlime));
+            Assert.That(serializedSelector.FindProperty("testSpawnPoint").objectReferenceValue,
+                Is.Not.Null);
+        }
+        finally
+        {
+            EditorSceneManager.CloseScene(scene, true);
+        }
+    }
+
+    private static void AssertCharacterPrefab(
+        SerializedObject selector,
+        string propertyName,
+        System.Type controllerType)
+    {
+        GameObject prefab = (GameObject)selector.FindProperty(propertyName).objectReferenceValue;
+        Assert.That(prefab, Is.Not.Null, $"{propertyName} is not assigned.");
+        Assert.That(prefab.GetComponent(controllerType), Is.Not.Null);
+    }
+
     private static LobbyPlayerState Player(int actor, SlimeRole role, bool ready, int mapAcknowledgement = 0)
     {
         return new LobbyPlayerState(

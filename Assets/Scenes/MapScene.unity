@@ -129,6 +129,7 @@ GameObject:
   m_Component:
   - component: {fileID: 147304471}
   - component: {fileID: 147304472}
+  - component: {fileID: 147304473}
   m_Layer: 0
   m_Name: NetworkPlayerSpawner
   m_TagString: Untagged
@@ -172,6 +173,22 @@ MonoBehaviour:
   anchorSpawnPoint: {fileID: 613132553}
   bounceSpawnPoint: {fileID: 760279348}
   stickySpawnPoint: {fileID: 919581925}
+--- !u!114 &147304473
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 147304470}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e999fe343eb4e354c9ca844ce07073e0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DirectMapTestCharacterSelector
+  anchorPrefab: {fileID: 8273126385904430692, guid: 85bcce2848c9ce640ba275bb37fd4a38, type: 3}
+  bouncyPrefab: {fileID: 7858553399837401226, guid: 2750512f84d51cb43aa8faa1ce7803fd, type: 3}
+  stickyPrefab: {fileID: 1633179491631302778, guid: cfd455f0ab6f9e44a8c9c107d03b5787, type: 3}
+  testSpawnPoint: {fileID: 760279348}
 --- !u!1 &613132552
 GameObject:
   m_ObjectHideFlags: 0
