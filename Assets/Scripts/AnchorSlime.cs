@@ -25,7 +25,6 @@ public class AnchorSlime : PlayerControllerWithPhysics
 
     private bool isStone;
     private Vector3 originalScale;
-    private SpriteRenderer spriteRenderer;
     private Color originalColor;
     private RigidbodyType2D savedBodyType;
 
@@ -34,7 +33,6 @@ public class AnchorSlime : PlayerControllerWithPhysics
         if (rb != null)
             rb.mass = anchorMass;
         originalScale = transform.localScale;
-        spriteRenderer = GetComponent<SpriteRenderer>();
         if (spriteRenderer != null)
             originalColor = spriteRenderer.color;
     }

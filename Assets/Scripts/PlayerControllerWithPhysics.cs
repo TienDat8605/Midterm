@@ -35,6 +35,7 @@ public class PlayerControllerWithPhysics : MonoBehaviour
     protected Rigidbody2D rb;
     public Rigidbody2D Rigidbody => rb;
     protected Animator anim;
+    protected SpriteRenderer spriteRenderer;
     protected float moveInput;
     protected float jumpCharge;
     protected float jumpDirection;
@@ -51,6 +52,7 @@ public class PlayerControllerWithPhysics : MonoBehaviour
     {
         rb = GetComponent<Rigidbody2D>();
         anim = GetComponent<Animator>();
+        spriteRenderer = GetComponent<SpriteRenderer>();
         defaultGravityScale = gravityScale;
         rb.gravityScale = gravityScale;
         if (groundCheckPoint == null)
@@ -64,7 +66,7 @@ public class PlayerControllerWithPhysics : MonoBehaviour
         if (col != null && col.sharedMaterial == null)
         {
             PhysicsMaterial2D slimeFriction = new PhysicsMaterial2D("SlimeFriction");
-            slimeFriction.friction = 0.8f;
+            slimeFriction.friction = 0.3f;
             slimeFriction.bounciness = 0f;
             col.sharedMaterial = slimeFriction;
         }
@@ -130,13 +132,15 @@ public class PlayerControllerWithPhysics : MonoBehaviour
         {
             isChargingJump = true;
             jumpCharge = 0f;
+            jumpDirection = 0f;
             if (anim) anim.SetBool("isCharging", true);
         }
 
         if (!isChargingJump)
             return;
 
-        jumpDirection = horizontalInput;
+        if (horizontalInput != 0f)
+            jumpDirection = horizontalInput;
         jumpCharge = Mathf.Min(jumpCharge + Time.deltaTime, maxChargeTime);
 
         if (Keyboard.current.spaceKey.wasReleasedThisFrame || jumpCharge >= maxChargeTime)
@@ -160,10 +164,20 @@ public class PlayerControllerWithPhysics : MonoBehaviour
             {
                 rb.linearVelocity = new Vector2(moveInput * GetWalkSpeed(), rb.linearVelocity.y);
             }
+            
+            if (IsGroundedOnPlayer() && !IsAtEdgeOfPlayer())
+            {
+                rb.linearVelocity = new Vector2(rb.linearVelocity.x, Mathf.Min(rb.linearVelocity.y, 0f));
+            }
         }
         else if (!Mathf.Approximately(rb.linearVelocity.x, 0f))
         {
             lastAirHorizontalSpeed = rb.linearVelocity.x;
+        }
+
+        if (spriteRenderer != null && Mathf.Abs(rb.linearVelocity.x) > 0.1f)
+        {
+            spriteRenderer.flipX = rb.linearVelocity.x < 0f;
         }
 
         hasJumped = false;
@@ -287,6 +301,46 @@ public class PlayerControllerWithPhysics : MonoBehaviour
             if (overlapCache[i].CompareTag("Player") && overlapCache[i].transform != transform)
             {
                 return true;
+            }
+        }
+        return false;
+    }
+
+    private bool IsGroundedOnPlayer()
+    {
+        if (groundCheckPoint == null || !isGrounded)
+            return false;
+
+        int count = Physics2D.OverlapCircle(groundCheckPoint.position, groundCheckRadius, overlapFilter, overlapCache);
+        for (int i = 0; i < count; i++)
+        {
+            if (overlapCache[i].CompareTag("Player") && overlapCache[i].transform != transform)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private bool IsAtEdgeOfPlayer()
+    {
+        if (groundCheckPoint == null || !isGrounded)
+            return false;
+
+        int count = Physics2D.OverlapCircle(groundCheckPoint.position, groundCheckRadius, overlapFilter, overlapCache);
+        for (int i = 0; i < count; i++)
+        {
+            if (overlapCache[i].CompareTag("Player") && overlapCache[i].transform != transform)
+            {
+                float playerMinX = overlapCache[i].bounds.min.x;
+                float playerMaxX = overlapCache[i].bounds.max.x;
+                float myX = groundCheckPoint.position.x;
+                
+                float edgeThreshold = 0.15f;
+                if (myX < playerMinX + edgeThreshold || myX > playerMaxX - edgeThreshold)
+                {
+                    return true;
+                }
             }
         }
         return false;

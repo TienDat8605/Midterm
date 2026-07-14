@@ -26,13 +26,11 @@ public class BouncySlime : PlayerControllerWithPhysics
 
     private bool isTrampoline;
     private Vector3 originalScale;
-    private SpriteRenderer spriteRenderer;
     private float originalDrawWidth;
 
     protected override void Initialize()
     {
         originalScale = transform.localScale;
-        spriteRenderer = GetComponent<SpriteRenderer>();
         if (spriteRenderer != null && spriteRenderer.drawMode == SpriteDrawMode.Tiled)
             originalDrawWidth = spriteRenderer.size.x;
     }
