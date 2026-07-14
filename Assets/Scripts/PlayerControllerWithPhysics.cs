@@ -1,6 +1,12 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 
+/// <summary>
+/// Base physics controller for playable slimes (formerly the GreenSlime physics script).
+/// Implements charge-to-jump ("Jump King") ground movement + wall-bonk.
+/// Subclass per slime role (Anchor, Bouncy, Sticky) to tune stats and hook into
+/// jump/land events for abilities.
+/// </summary>
 public class PlayerControllerWithPhysics : MonoBehaviour
 {
     [Header("Ground Movement")]
@@ -18,29 +24,69 @@ public class PlayerControllerWithPhysics : MonoBehaviour
     public float groundCheckRadius = 0.2f;
     public LayerMask groundLayer;
 
-    private Rigidbody2D rb;
-    private float moveInput;
-    private float jumpCharge;
-    private float jumpDirection;
-    private bool isChargingJump;
-    private bool isGrounded;
-    private float defaultGravityScale;
-    private float lastAirHorizontalSpeed;
+    [Header("Input Control")]
+    [Tooltip("When false, this slime ignores player input but physics and abilities still run.")]
+    public bool inputEnabled = true;
+
+    protected Rigidbody2D rb;
+    protected Animator anim;
+    protected float moveInput;
+    protected float jumpCharge;
+    protected float jumpDirection;
+    protected bool isChargingJump;
+    protected bool isGrounded;
+    protected float defaultGravityScale;
+    protected float lastAirHorizontalSpeed;
+    protected bool hasJumped;
 
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
+        anim = GetComponent<Animator>();
         defaultGravityScale = rb.gravityScale;
         if (groundCheckPoint == null)
             groundCheckPoint = transform.Find("GroundCheck");
         if (groundLayer.value == 0)
             groundLayer = LayerMask.GetMask("Ground");
         UpdateGrounded();
+        Initialize();
+        TryAssignCamera();
     }
+
+    /// <summary>
+    /// Auto-assigns the main camera to follow this slime.
+    /// Works with CameraFollow2D (instant) and CameraFollow (smooth) on the Main Camera.
+    /// </summary>
+    private void TryAssignCamera()
+    {
+        Camera mainCam = Camera.main;
+        if (mainCam == null) return;
+
+        CameraFollow2D follow2D = mainCam.GetComponent<CameraFollow2D>();
+        if (follow2D != null)
+        {
+            follow2D.target = transform;
+            return;
+        }
+
+        CameraFollow follow = mainCam.GetComponent<CameraFollow>();
+        if (follow != null)
+            follow.SetTarget(transform);
+    }
+
+    /// <summary>
+    /// Override this instead of Start() to add per-slime setup.
+    /// </summary>
+    protected virtual void Initialize() { }
 
     void Update()
     {
         if (Keyboard.current == null)
+            return;
+
+        UpdateAbility();
+
+        if (!inputEnabled)
             return;
 
         float horizontalInput = 0f;
@@ -53,15 +99,17 @@ public class PlayerControllerWithPhysics : MonoBehaviour
         {
             moveInput = 0f;
             isChargingJump = false;
+            if (anim) anim.SetBool("isCharging", false);
             return;
         }
 
         moveInput = isChargingJump ? 0f : horizontalInput;
 
-        if (Keyboard.current.spaceKey.wasPressedThisFrame)
+        if (CanChargeJump() && Keyboard.current.spaceKey.wasPressedThisFrame)
         {
             isChargingJump = true;
             jumpCharge = 0f;
+            if (anim) anim.SetBool("isCharging", true);
         }
 
         if (!isChargingJump)
@@ -74,44 +122,91 @@ public class PlayerControllerWithPhysics : MonoBehaviour
             Jump();
     }
 
+    protected virtual void UpdateAbility() { }
+
     void FixedUpdate()
     {
         UpdateGrounded();
+        if (anim) anim.SetBool("isGrounded", isGrounded);
 
-        if (isGrounded && !isChargingJump)
-            rb.linearVelocity = new Vector2(moveInput * walkSpeed, rb.linearVelocity.y);
-        else if (isGrounded)
+        if (isGrounded && !isChargingJump && !hasJumped)
+            rb.linearVelocity = new Vector2(moveInput * GetWalkSpeed(), rb.linearVelocity.y);
+        else if (isGrounded && !hasJumped)
             rb.linearVelocity = new Vector2(0f, rb.linearVelocity.y);
         else if (!Mathf.Approximately(rb.linearVelocity.x, 0f))
             lastAirHorizontalSpeed = rb.linearVelocity.x;
+
+        hasJumped = false;
+        FixedUpdateAbility();
     }
 
-    private void Jump()
+    protected virtual void FixedUpdateAbility() { }
+
+    /// <summary>
+    /// Override to change ground movement speed (e.g. Anchor moves slower).
+    /// </summary>
+    protected virtual float GetWalkSpeed()
+    {
+        return walkSpeed;
+    }
+
+    /// <summary>
+    /// Override to forbid charging in specific states (e.g. Sticky wall-cling).
+    /// </summary>
+    protected virtual bool CanChargeJump()
+    {
+        return true;
+    }
+
+    protected virtual void Jump()
     {
         float chargePercent = maxChargeTime <= 0f ? 1f : jumpCharge / maxChargeTime;
-        float upSpeed = Mathf.Lerp(minJumpUpSpeed, maxJumpUpSpeed, chargePercent);
-        float sideSpeed = jumpDirection * Mathf.Lerp(minJumpHorizontalSpeed, maxJumpHorizontalSpeed, chargePercent);
+        Vector2 launchVelocity = ComputeJumpVelocity(chargePercent, jumpDirection);
 
         rb.gravityScale = defaultGravityScale;
-        rb.linearVelocity = new Vector2(sideSpeed, upSpeed);
-        lastAirHorizontalSpeed = sideSpeed;
+        rb.linearVelocity = launchVelocity;
+        lastAirHorizontalSpeed = launchVelocity.x;
         moveInput = 0f;
         jumpCharge = 0f;
         isChargingJump = false;
         isGrounded = false;
+        hasJumped = true;
+        if (anim)
+        {
+            anim.SetBool("isCharging", false);
+            anim.SetBool("isGrounded", false);
+            anim.SetTrigger("doJump");
+        }
+
+        OnJumpLaunched(launchVelocity);
     }
 
-    private void OnCollisionEnter2D(Collision2D collision)
+    /// <summary>
+    /// Override to change jump velocity per role (e.g. Anchor jumps lower, Bouncy jumps higher).
+    /// </summary>
+    protected virtual Vector2 ComputeJumpVelocity(float chargePercent, float direction)
+    {
+        float upSpeed = Mathf.Lerp(minJumpUpSpeed, maxJumpUpSpeed, chargePercent);
+        float sideSpeed = direction * Mathf.Lerp(minJumpHorizontalSpeed, maxJumpHorizontalSpeed, chargePercent);
+        return new Vector2(sideSpeed, upSpeed);
+    }
+
+    /// <summary>
+    /// Called right after the jump velocity has been applied.
+    /// </summary>
+    protected virtual void OnJumpLaunched(Vector2 launchVelocity) { }
+
+    protected virtual void OnCollisionEnter2D(Collision2D collision)
     {
         WallBonk(collision);
     }
 
-    private void OnCollisionStay2D(Collision2D collision)
+    protected virtual void OnCollisionStay2D(Collision2D collision)
     {
         WallBonk(collision);
     }
 
-    private void WallBonk(Collision2D collision)
+    protected virtual void WallBonk(Collision2D collision)
     {
         if (isGrounded || Mathf.Approximately(lastAirHorizontalSpeed, 0f))
             return;
@@ -129,11 +224,20 @@ public class PlayerControllerWithPhysics : MonoBehaviour
         }
     }
 
-    private void UpdateGrounded()
+    protected virtual void UpdateGrounded()
     {
+        bool wasGrounded = isGrounded;
         isGrounded = groundCheckPoint != null &&
             Physics2D.OverlapCircle(groundCheckPoint.position, groundCheckRadius, groundLayer);
+
+        if (wasGrounded != isGrounded)
+            OnGroundedChanged(isGrounded);
     }
+
+    /// <summary>
+    /// Called when grounded state changes.
+    /// </summary>
+    protected virtual void OnGroundedChanged(bool grounded) { }
 
     private void OnDrawGizmosSelected()
     {
