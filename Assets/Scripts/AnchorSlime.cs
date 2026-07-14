@@ -16,20 +16,17 @@ public class AnchorSlime : PlayerControllerWithPhysics
     [Tooltip("Maximum upward jump speed when fully charged.")]
     public float anchorMaxJumpUpSpeed = 12f;
 
-    [Header("Brace Ability")]
-    [Tooltip("Duration the anchor stays braced (seconds).")]
-    public float braceDuration = 3f;
+    [Header("Stone Ability")]
+    [Tooltip("Visual scale when turned to stone (squash effect).")]
+    public Vector3 stoneScale = new Vector3(1.2f, 0.8f, 1f);
 
-    [Tooltip("Cooldown before Brace can be used again (seconds).")]
-    public float braceCooldown = 5f;
+    [Tooltip("Color tint when turned to stone (darker).")]
+    public Color stoneColor = new Color(0.4f, 0.4f, 0.4f, 1f);
 
-    [Tooltip("Visual scale when braced (squash effect).")]
-    public Vector3 bracedScale = new Vector3(1.2f, 0.8f, 1f);
-
-    private bool isBraced;
-    private float braceTimer;
-    private float cooldownTimer;
+    private bool isStone;
     private Vector3 originalScale;
+    private SpriteRenderer spriteRenderer;
+    private Color originalColor;
     private RigidbodyType2D savedBodyType;
 
     protected override void Initialize()
@@ -37,6 +34,9 @@ public class AnchorSlime : PlayerControllerWithPhysics
         if (rb != null)
             rb.mass = anchorMass;
         originalScale = transform.localScale;
+        spriteRenderer = GetComponent<SpriteRenderer>();
+        if (spriteRenderer != null)
+            originalColor = spriteRenderer.color;
     }
 
     protected override float GetWalkSpeed()
@@ -53,53 +53,55 @@ public class AnchorSlime : PlayerControllerWithPhysics
 
     protected override bool CanChargeJump()
     {
-        return !isBraced;
+        return !isStone;
     }
 
     protected override void UpdateAbility()
     {
-        if (cooldownTimer > 0f)
-            cooldownTimer -= Time.deltaTime;
-
-        if (isBraced)
+        if (inputEnabled && Keyboard.current.eKey.wasPressedThisFrame)
         {
-            braceTimer -= Time.deltaTime;
-            if (braceTimer <= 0f)
-                EndBrace();
-            return;
+            if (isStone)
+                EndStone();
+            else if (isGrounded)
+                StartStone();
         }
-
-        if (Keyboard.current.eKey.wasPressedThisFrame && isGrounded && cooldownTimer <= 0f)
-            StartBrace();
     }
 
     protected override void FixedUpdateAbility()
     {
-        if (isBraced)
+        if (isStone)
         {
             rb.linearVelocity = Vector2.zero;
             rb.angularVelocity = 0f;
         }
     }
 
-    private void StartBrace()
+    private void StartStone()
     {
-        isBraced = true;
-        braceTimer = braceDuration;
+        isStone = true;
         savedBodyType = rb.bodyType;
         rb.bodyType = RigidbodyType2D.Kinematic;
-        transform.localScale = bracedScale;
-        if (anim) anim.SetBool("isBraced", true);
+        if (spriteRenderer != null)
+            spriteRenderer.color = stoneColor;
+        if (anim)
+        {
+            anim.speed = 0f;
+            anim.SetBool("isBraced", true);
+        }
     }
 
-    private void EndBrace()
+    private void EndStone()
     {
-        isBraced = false;
+        isStone = false;
         rb.bodyType = savedBodyType;
-        transform.localScale = originalScale;
-        cooldownTimer = braceCooldown;
-        if (anim) anim.SetBool("isBraced", false);
+        if (spriteRenderer != null)
+            spriteRenderer.color = originalColor;
+        if (anim)
+        {
+            anim.speed = 1f;
+            anim.SetBool("isBraced", false);
+        }
     }
 
-    public bool IsBraced => isBraced;
+    public bool IsStone => isStone;
 }

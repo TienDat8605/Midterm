@@ -408,24 +408,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 744b1159984638f4b9d7de95819e9bff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  slimeRoots:
-  - {fileID: 500000003}
-  - {fileID: 600000003}
-  - {fileID: 700000003}
+  slimeRoots: []
   cameraFollow2D: {fileID: 100000005}
   cameraFollow: {fileID: 0}
   activeColor: {r: 1, g: 1, b: 1, a: 1}
   inactiveColor: {r: 0.7, g: 0.7, b: 0.7, a: 1}
---- !u!1 &500000001 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 8273126385904430692, guid: 85bcce2848c9ce640ba275bb37fd4a38, type: 3}
-  m_PrefabInstance: {fileID: 500000002}
-  m_PrefabAsset: {fileID: 0}
---- !u!4 &500000003 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 7749952820001609931, guid: 85bcce2848c9ce640ba275bb37fd4a38, type: 3}
-  m_PrefabInstance: {fileID: 500000002}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &500000002
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -434,6 +421,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1000000000000000003, guid: 85bcce2848c9ce640ba275bb37fd4a38, type: 3}
+      propertyPath: gravityScale
+      value: 2
+      objectReference: {fileID: 0}
     - target: {fileID: 7749952820001609931, guid: 85bcce2848c9ce640ba275bb37fd4a38, type: 3}
       propertyPath: m_LocalPosition.x
       value: -2
@@ -487,16 +478,6 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 85bcce2848c9ce640ba275bb37fd4a38, type: 3}
---- !u!1 &600000001 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 7858553399837401226, guid: 2750512f84d51cb43aa8faa1ce7803fd, type: 3}
-  m_PrefabInstance: {fileID: 600000002}
-  m_PrefabAsset: {fileID: 0}
---- !u!4 &600000003 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 5541059187905051440, guid: 2750512f84d51cb43aa8faa1ce7803fd, type: 3}
-  m_PrefabInstance: {fileID: 600000002}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &600000002
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -505,6 +486,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 2000000000000000003, guid: 2750512f84d51cb43aa8faa1ce7803fd, type: 3}
+      propertyPath: gravityScale
+      value: 2
+      objectReference: {fileID: 0}
     - target: {fileID: 5541059187905051440, guid: 2750512f84d51cb43aa8faa1ce7803fd, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -558,16 +543,6 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 2750512f84d51cb43aa8faa1ce7803fd, type: 3}
---- !u!1 &700000001 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 1633179491631302778, guid: cfd455f0ab6f9e44a8c9c107d03b5787, type: 3}
-  m_PrefabInstance: {fileID: 700000002}
-  m_PrefabAsset: {fileID: 0}
---- !u!4 &700000003 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 3570430728216023809, guid: cfd455f0ab6f9e44a8c9c107d03b5787, type: 3}
-  m_PrefabInstance: {fileID: 700000002}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &700000002
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -584,6 +559,14 @@ PrefabInstance:
       propertyPath: m_TagString
       value: Player
       objectReference: {fileID: 0}
+    - target: {fileID: 3000000000000000003, guid: cfd455f0ab6f9e44a8c9c107d03b5787, type: 3}
+      propertyPath: gravityScale
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 3000000000000000003, guid: cfd455f0ab6f9e44a8c9c107d03b5787, type: 3}
+      propertyPath: tetherProjectilePrefab
+      value: 
+      objectReference: {fileID: 1000000000000000001, guid: d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9, type: 3}
     - target: {fileID: 3570430728216023809, guid: cfd455f0ab6f9e44a8c9c107d03b5787, type: 3}
       propertyPath: m_LocalPosition.x
       value: 2

@@ -12,6 +12,10 @@ public class PlayerControllerWithPhysics : MonoBehaviour
     [Header("Ground Movement")]
     public float walkSpeed = 7f;
 
+    [Header("Physics")]
+    [Tooltip("Overrides the Rigidbody2D gravity scale at start.")]
+    public float gravityScale = 1f;
+
     [Header("Jump King Jump")]
     public float maxChargeTime = 1f;
     public float minJumpUpSpeed = 8f;
@@ -29,6 +33,7 @@ public class PlayerControllerWithPhysics : MonoBehaviour
     public bool inputEnabled = true;
 
     protected Rigidbody2D rb;
+    public Rigidbody2D Rigidbody => rb;
     protected Animator anim;
     protected float moveInput;
     protected float jumpCharge;
@@ -39,15 +44,31 @@ public class PlayerControllerWithPhysics : MonoBehaviour
     protected float lastAirHorizontalSpeed;
     protected bool hasJumped;
 
+    private Collider2D[] overlapCache = new Collider2D[8];
+    private ContactFilter2D overlapFilter;
+
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
         anim = GetComponent<Animator>();
-        defaultGravityScale = rb.gravityScale;
+        defaultGravityScale = gravityScale;
+        rb.gravityScale = gravityScale;
         if (groundCheckPoint == null)
             groundCheckPoint = transform.Find("GroundCheck");
         if (groundLayer.value == 0)
             groundLayer = LayerMask.GetMask("Ground");
+        overlapFilter = new ContactFilter2D();
+        overlapFilter.useTriggers = false;
+        
+        Collider2D col = GetComponent<Collider2D>();
+        if (col != null && col.sharedMaterial == null)
+        {
+            PhysicsMaterial2D slimeFriction = new PhysicsMaterial2D("SlimeFriction");
+            slimeFriction.friction = 0.8f;
+            slimeFriction.bounciness = 0f;
+            col.sharedMaterial = slimeFriction;
+        }
+        
         UpdateGrounded();
         Initialize();
         TryAssignCamera();
@@ -129,12 +150,21 @@ public class PlayerControllerWithPhysics : MonoBehaviour
         UpdateGrounded();
         if (anim) anim.SetBool("isGrounded", isGrounded);
 
-        if (isGrounded && !isChargingJump && !hasJumped)
-            rb.linearVelocity = new Vector2(moveInput * GetWalkSpeed(), rb.linearVelocity.y);
-        else if (isGrounded && !hasJumped)
-            rb.linearVelocity = new Vector2(0f, rb.linearVelocity.y);
+        if (isGrounded && !hasJumped)
+        {
+            if (isChargingJump)
+            {
+                rb.linearVelocity = new Vector2(0f, rb.linearVelocity.y);
+            }
+            else if (inputEnabled)
+            {
+                rb.linearVelocity = new Vector2(moveInput * GetWalkSpeed(), rb.linearVelocity.y);
+            }
+        }
         else if (!Mathf.Approximately(rb.linearVelocity.x, 0f))
+        {
             lastAirHorizontalSpeed = rb.linearVelocity.x;
+        }
 
         hasJumped = false;
         FixedUpdateAbility();
@@ -208,6 +238,9 @@ public class PlayerControllerWithPhysics : MonoBehaviour
 
     protected virtual void WallBonk(Collision2D collision)
     {
+        if (collision.gameObject.CompareTag("Player"))
+            return;
+
         if (isGrounded || Mathf.Approximately(lastAirHorizontalSpeed, 0f))
             return;
 
@@ -227,11 +260,36 @@ public class PlayerControllerWithPhysics : MonoBehaviour
     protected virtual void UpdateGrounded()
     {
         bool wasGrounded = isGrounded;
-        isGrounded = groundCheckPoint != null &&
-            Physics2D.OverlapCircle(groundCheckPoint.position, groundCheckRadius, groundLayer);
+
+        if (groundCheckPoint != null)
+        {
+            isGrounded = Physics2D.OverlapCircle(groundCheckPoint.position, groundCheckRadius, groundLayer);
+            if (!isGrounded)
+                isGrounded = CheckForPlayerBelow();
+        }
+        else
+        {
+            isGrounded = false;
+        }
 
         if (wasGrounded != isGrounded)
             OnGroundedChanged(isGrounded);
+    }
+
+    private bool CheckForPlayerBelow()
+    {
+        if (groundCheckPoint == null)
+            return false;
+
+        int count = Physics2D.OverlapCircle(groundCheckPoint.position, groundCheckRadius, overlapFilter, overlapCache);
+        for (int i = 0; i < count; i++)
+        {
+            if (overlapCache[i].CompareTag("Player") && overlapCache[i].transform != transform)
+            {
+                return true;
+            }
+        }
+        return false;
     }
 
     /// <summary>
