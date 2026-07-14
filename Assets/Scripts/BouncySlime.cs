@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.InputSystem;
 
 public class BouncySlime : PlayerControllerWithPhysics
@@ -77,6 +77,10 @@ public class BouncySlime : PlayerControllerWithPhysics
     protected override void OnCollisionEnter2D(Collision2D collision)
     {
         base.OnCollisionEnter2D(collision);
+
+        if (!HasInputAuthority)
+            return;
+
         HandleBounceCollision(collision);
     }
 

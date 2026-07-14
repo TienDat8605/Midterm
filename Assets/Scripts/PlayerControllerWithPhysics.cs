@@ -1,5 +1,6 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.InputSystem;
+using Photon.Pun;
 
 /// <summary>
 /// Base physics controller for playable slimes (formerly the GreenSlime physics script).
@@ -7,7 +8,7 @@ using UnityEngine.InputSystem;
 /// Subclass per slime role (Anchor, Bouncy, Sticky) to tune stats and hook into
 /// jump/land events for abilities.
 /// </summary>
-public class PlayerControllerWithPhysics : MonoBehaviour
+public class PlayerControllerWithPhysics : MonoBehaviourPun, IPunObservable
 {
     [Header("Ground Movement")]
     public float walkSpeed = 7f;
@@ -39,18 +40,50 @@ public class PlayerControllerWithPhysics : MonoBehaviour
     protected float lastAirHorizontalSpeed;
     protected bool hasJumped;
 
+    [Header("Network Smoothing")]
+    [SerializeField] private float networkPositionLerpSpeed = 12f;
+    [SerializeField] private float networkRotationLerpSpeed = 12f;
+
+    private Vector2 networkPosition;
+    private Vector2 networkVelocity;
+    private float networkRotation;
+    private Vector3 networkScale;
+    private bool networkIsGrounded;
+    private bool networkIsChargingJump;
+
+    /// <summary>
+    /// Local scene instances remain controllable. Photon-instantiated instances are
+    /// controlled and simulated only by their owning client.
+    /// </summary>
+    protected bool HasInputAuthority =>
+        photonView == null || photonView.ViewID == 0 || photonView.IsMine;
+
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
         anim = GetComponent<Animator>();
         defaultGravityScale = rb.gravityScale;
+        networkPosition = rb.position;
+        networkVelocity = rb.linearVelocity;
+        networkRotation = rb.rotation;
+        networkScale = transform.localScale;
         if (groundCheckPoint == null)
             groundCheckPoint = transform.Find("GroundCheck");
         if (groundLayer.value == 0)
             groundLayer = LayerMask.GetMask("Ground");
-        UpdateGrounded();
         Initialize();
-        TryAssignCamera();
+
+        if (HasInputAuthority)
+        {
+            UpdateGrounded();
+            TryAssignCamera();
+        }
+        else
+        {
+            inputEnabled = false;
+            rb.bodyType = RigidbodyType2D.Kinematic;
+            rb.linearVelocity = Vector2.zero;
+        }
     }
 
     /// <summary>
@@ -81,6 +114,12 @@ public class PlayerControllerWithPhysics : MonoBehaviour
 
     void Update()
     {
+        if (!HasInputAuthority)
+        {
+            UpdateRemoteVisuals();
+            return;
+        }
+
         if (Keyboard.current == null)
             return;
 
@@ -126,6 +165,12 @@ public class PlayerControllerWithPhysics : MonoBehaviour
 
     void FixedUpdate()
     {
+        if (!HasInputAuthority)
+        {
+            SmoothRemoteMovement();
+            return;
+        }
+
         UpdateGrounded();
         if (anim) anim.SetBool("isGrounded", isGrounded);
 
@@ -198,11 +243,17 @@ public class PlayerControllerWithPhysics : MonoBehaviour
 
     protected virtual void OnCollisionEnter2D(Collision2D collision)
     {
+        if (!HasInputAuthority)
+            return;
+
         WallBonk(collision);
     }
 
     protected virtual void OnCollisionStay2D(Collision2D collision)
     {
+        if (!HasInputAuthority)
+            return;
+
         WallBonk(collision);
     }
 
@@ -238,6 +289,62 @@ public class PlayerControllerWithPhysics : MonoBehaviour
     /// Called when grounded state changes.
     /// </summary>
     protected virtual void OnGroundedChanged(bool grounded) { }
+
+    private void SmoothRemoteMovement()
+    {
+        Vector2 smoothedPosition = Vector2.Lerp(
+            rb.position,
+            networkPosition,
+            networkPositionLerpSpeed * Time.fixedDeltaTime);
+        float smoothedRotation = Mathf.LerpAngle(
+            rb.rotation,
+            networkRotation,
+            networkRotationLerpSpeed * Time.fixedDeltaTime);
+
+        rb.MovePosition(smoothedPosition);
+        rb.MoveRotation(smoothedRotation);
+    }
+
+    private void UpdateRemoteVisuals()
+    {
+        transform.localScale = Vector3.Lerp(
+            transform.localScale,
+            networkScale,
+            networkPositionLerpSpeed * Time.deltaTime);
+
+        if (anim == null)
+            return;
+
+        anim.SetBool("isGrounded", networkIsGrounded);
+        anim.SetBool("isCharging", networkIsChargingJump);
+    }
+
+    public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
+    {
+        if (rb == null)
+            rb = GetComponent<Rigidbody2D>();
+
+        if (stream.IsWriting)
+        {
+            stream.SendNext(rb.position);
+            stream.SendNext(rb.linearVelocity);
+            stream.SendNext(rb.rotation);
+            stream.SendNext(transform.localScale);
+            stream.SendNext(isGrounded);
+            stream.SendNext(isChargingJump);
+            return;
+        }
+
+        Vector2 receivedPosition = (Vector2)stream.ReceiveNext();
+        networkVelocity = (Vector2)stream.ReceiveNext();
+        networkRotation = (float)stream.ReceiveNext();
+        networkScale = (Vector3)stream.ReceiveNext();
+        networkIsGrounded = (bool)stream.ReceiveNext();
+        networkIsChargingJump = (bool)stream.ReceiveNext();
+
+        float lag = Mathf.Clamp((float)(PhotonNetwork.Time - info.SentServerTime), 0f, 1f);
+        networkPosition = receivedPosition + networkVelocity * lag;
+    }
 
     private void OnDrawGizmosSelected()
     {

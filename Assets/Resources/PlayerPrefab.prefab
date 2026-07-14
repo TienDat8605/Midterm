@@ -17,7 +17,7 @@ GameObject:
   - component: {fileID: 4391625998809674034}
   m_Layer: 0
   m_Name: PlayerPrefab
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -224,21 +224,23 @@ MonoBehaviour:
   m_GameObject: {fileID: 5412914231196962920}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 36209cd9b4c0bba4f87be868363b6a71, type: 3}
+  m_Script: {fileID: 11500000, guid: b4c2f91793a0d284b8e840ce386d7fd9, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PlayerControllerMulti
-  maxSpeed: 7
-  acceleration: 35
-  deceleration: 25
-  maxJumpHeight: 3.5
-  jumpUpSpeed: 15
-  maxFallSpeed: 20
-  fallGravityMultiplier: 3
-  groundCheckPoint: {fileID: 0}
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerControllerWithPhysics
+  walkSpeed: 7
+  maxChargeTime: 1
+  minJumpUpSpeed: 8
+  maxJumpUpSpeed: 15
+  minJumpHorizontalSpeed: 3
+  maxJumpHorizontalSpeed: 9
+  groundCheckPoint: {fileID: 1309777201628836033}
   groundCheckRadius: 0.2
   groundLayer:
     serializedVersion: 2
     m_Bits: 0
+  inputEnabled: 1
+  networkPositionLerpSpeed: 12
+  networkRotationLerpSpeed: 12
 --- !u!1 &8296432258929102094
 GameObject:
   m_ObjectHideFlags: 0
