@@ -42,7 +42,8 @@ public enum NetworkErrorCode
     StartRequirementsNotMet,
     NotMasterClient,
     OperationInProgress,
-    PhotonError
+    PhotonError,
+    InvalidMap
 }
 
 [Serializable]
@@ -57,6 +58,7 @@ public sealed class LobbyPlayerState
     public bool IsInactive { get; }
     public bool IsMasterClient { get; }
     public int Ping { get; }
+    public int MapAcknowledgement { get; }
 
     public LobbyPlayerState(
         int actorNumber,
@@ -67,7 +69,8 @@ public sealed class LobbyPlayerState
         bool isLoaded,
         bool isInactive,
         bool isMasterClient,
-        int ping)
+        int ping,
+        int mapAcknowledgement = 0)
     {
         ActorNumber = actorNumber;
         UserId = userId;
@@ -78,6 +81,7 @@ public sealed class LobbyPlayerState
         IsInactive = isInactive;
         IsMasterClient = isMasterClient;
         Ping = ping;
+        MapAcknowledgement = mapAcknowledgement;
     }
 }
 
@@ -86,12 +90,18 @@ public sealed class LobbySnapshot
     public static readonly LobbySnapshot Empty = new LobbySnapshot(
         string.Empty,
         RoomPhase.None,
+        string.Empty,
+        string.Empty,
+        0,
         false,
         false,
         Array.Empty<LobbyPlayerState>());
 
     public string RoomCode { get; }
     public RoomPhase Phase { get; }
+    public string SelectedMapId { get; }
+    public string SelectedMapDisplayName { get; }
+    public int MapRevision { get; }
     public bool IsMasterClient { get; }
     public bool CanStartGame { get; }
     public IReadOnlyList<LobbyPlayerState> Players { get; }
@@ -99,12 +109,18 @@ public sealed class LobbySnapshot
     public LobbySnapshot(
         string roomCode,
         RoomPhase phase,
+        string selectedMapId,
+        string selectedMapDisplayName,
+        int mapRevision,
         bool isMasterClient,
         bool canStartGame,
         IReadOnlyList<LobbyPlayerState> players)
     {
         RoomCode = roomCode;
         Phase = phase;
+        SelectedMapId = selectedMapId;
+        SelectedMapDisplayName = selectedMapDisplayName;
+        MapRevision = mapRevision;
         IsMasterClient = isMasterClient;
         CanStartGame = canStartGame;
         Players = players;

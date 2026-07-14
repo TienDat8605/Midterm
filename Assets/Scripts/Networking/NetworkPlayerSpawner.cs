@@ -34,8 +34,10 @@ public sealed class NetworkPlayerSpawner : MonoBehaviour
 
     private void SpawnLocalPlayerIfNeeded()
     {
-        if (HasLocalNetworkPlayer())
+        GameObject existingLocalPlayer = FindLocalNetworkPlayer();
+        if (existingLocalPlayer != null)
         {
+            FollowLocalPlayer(existingLocalPlayer);
             NetworkManager.Instance.MarkLocalPlayerLoaded();
             return;
         }
@@ -50,11 +52,19 @@ public sealed class NetworkPlayerSpawner : MonoBehaviour
 
         Transform spawnPoint = GetSpawnPoint(role);
         Vector3 position = spawnPoint != null ? spawnPoint.position : GetFallbackPosition(role);
-        PhotonNetwork.Instantiate(prefabName, position, Quaternion.identity);
+        GameObject localPlayer = PhotonNetwork.Instantiate(prefabName, position, Quaternion.identity);
+        FollowLocalPlayer(localPlayer);
         NetworkManager.Instance.MarkLocalPlayerLoaded();
     }
 
-    private static bool HasLocalNetworkPlayer()
+    private static void FollowLocalPlayer(GameObject localPlayer)
+    {
+        CameraFollow cameraFollow = FindFirstObjectByType<CameraFollow>();
+        if (cameraFollow != null && localPlayer != null)
+            cameraFollow.SetTarget(localPlayer.transform);
+    }
+
+    private static GameObject FindLocalNetworkPlayer()
     {
         PhotonView[] views = FindObjectsByType<PhotonView>(FindObjectsSortMode.None);
         for (int i = 0; i < views.Length; i++)
@@ -63,11 +73,11 @@ public sealed class NetworkPlayerSpawner : MonoBehaviour
             if (view.OwnerActorNr == PhotonNetwork.LocalPlayer.ActorNumber &&
                 view.GetComponent<PlayerControllerWithPhysics>() != null)
             {
-                return true;
+                return view.gameObject;
             }
         }
 
-        return false;
+        return null;
     }
 
     private string GetPrefabName(SlimeRole role)

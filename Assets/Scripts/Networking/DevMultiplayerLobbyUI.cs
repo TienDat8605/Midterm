@@ -1,4 +1,5 @@
 using Photon.Pun;
+using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
@@ -109,6 +110,20 @@ public sealed class DevMultiplayerLobbyUI : MonoBehaviour
         GUILayout.EndHorizontal();
 
         GUILayout.Label($"Phase: {lobby.Phase}    Local Actor: {PhotonNetwork.LocalPlayer.ActorNumber}    Master: {lobby.IsMasterClient}");
+        GUILayout.Label($"Selected map: {lobby.SelectedMapDisplayName} ({lobby.SelectedMapId})");
+        GUILayout.BeginHorizontal();
+        IReadOnlyList<MultiplayerMapEntry> maps = manager.AvailableMaps;
+        for (int i = 0; i < maps.Count; i++)
+        {
+            MultiplayerMapEntry map = maps[i];
+            GUI.enabled = manager.CanSelectMap && map.Id != lobby.SelectedMapId;
+            if (GUILayout.Button(map.DisplayName, GUILayout.Height(30f)))
+                manager.SelectMap(map.Id);
+        }
+        GUI.enabled = true;
+        GUILayout.EndHorizontal();
+        if (!manager.CanSelectMap)
+            GUILayout.Label("Only the Master Client can select a map while in the Lobby.");
         GUILayout.Space(8f);
         GUILayout.Label("Players");
 
@@ -119,7 +134,7 @@ public sealed class DevMultiplayerLobbyUI : MonoBehaviour
             string inactive = player.IsInactive ? " DISCONNECTED" : string.Empty;
             GUILayout.Label(
                 $"Slot {i + 1}: {player.Nickname}{master} | {player.Role} | " +
-                $"{(player.IsReady ? "READY" : "Not Ready")} | {player.Ping} ms{inactive}");
+                $"{(player.IsReady ? "READY" : "Not Ready")} | map ack {player.MapAcknowledgement}/{lobby.MapRevision} | {player.Ping} ms{inactive}");
         }
 
         for (int i = lobby.Players.Count; i < 3; i++)
@@ -146,7 +161,7 @@ public sealed class DevMultiplayerLobbyUI : MonoBehaviour
         GUI.enabled = true;
 
         if (!manager.CanStartGame)
-            GUILayout.Label("Start needs exactly 3 active players, Anchor + Bounce + Sticky, and all Ready.");
+            GUILayout.Label("Start needs exactly 3 active players, all roles, current map acknowledged, and all Ready.");
 
         GUILayout.Space(8f);
         GUI.enabled = !manager.IsOperationInProgress;
