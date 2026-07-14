@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UnityEngine.InputSystem;
 using Photon.Pun;
 
@@ -12,6 +12,10 @@ public class PlayerControllerWithPhysics : MonoBehaviourPun, IPunObservable
 {
     [Header("Ground Movement")]
     public float walkSpeed = 7f;
+
+    [Header("Physics")]
+    [Tooltip("Overrides the Rigidbody2D gravity scale at start.")]
+    public float gravityScale = 1f;
 
     [Header("Jump King Jump")]
     public float maxChargeTime = 1f;
@@ -30,7 +34,9 @@ public class PlayerControllerWithPhysics : MonoBehaviourPun, IPunObservable
     public bool inputEnabled = true;
 
     protected Rigidbody2D rb;
+    public Rigidbody2D Rigidbody => rb;
     protected Animator anim;
+    protected SpriteRenderer spriteRenderer;
     protected float moveInput;
     protected float jumpCharge;
     protected float jumpDirection;
@@ -57,12 +63,16 @@ public class PlayerControllerWithPhysics : MonoBehaviourPun, IPunObservable
     /// </summary>
     protected bool HasInputAuthority =>
         photonView == null || photonView.ViewID == 0 || photonView.IsMine;
+    private Collider2D[] overlapCache = new Collider2D[8];
+    private ContactFilter2D overlapFilter;
 
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
         anim = GetComponent<Animator>();
-        defaultGravityScale = rb.gravityScale;
+        spriteRenderer = GetComponent<SpriteRenderer>();
+        defaultGravityScale = gravityScale;
+        rb.gravityScale = gravityScale;
         networkPosition = rb.position;
         networkVelocity = rb.linearVelocity;
         networkRotation = rb.rotation;
@@ -71,6 +81,18 @@ public class PlayerControllerWithPhysics : MonoBehaviourPun, IPunObservable
             groundCheckPoint = transform.Find("GroundCheck");
         if (groundLayer.value == 0)
             groundLayer = LayerMask.GetMask("Ground");
+        overlapFilter = new ContactFilter2D();
+        overlapFilter.useTriggers = false;
+        
+        Collider2D col = GetComponent<Collider2D>();
+        if (col != null && col.sharedMaterial == null)
+        {
+            PhysicsMaterial2D slimeFriction = new PhysicsMaterial2D("SlimeFriction");
+            slimeFriction.friction = 0.3f;
+            slimeFriction.bounciness = 0f;
+            col.sharedMaterial = slimeFriction;
+        }
+
         Initialize();
 
         if (HasInputAuthority)
@@ -148,13 +170,15 @@ public class PlayerControllerWithPhysics : MonoBehaviourPun, IPunObservable
         {
             isChargingJump = true;
             jumpCharge = 0f;
+            jumpDirection = 0f;
             if (anim) anim.SetBool("isCharging", true);
         }
 
         if (!isChargingJump)
             return;
 
-        jumpDirection = horizontalInput;
+        if (horizontalInput != 0f)
+            jumpDirection = horizontalInput;
         jumpCharge = Mathf.Min(jumpCharge + Time.deltaTime, maxChargeTime);
 
         if (Keyboard.current.spaceKey.wasReleasedThisFrame || jumpCharge >= maxChargeTime)
@@ -174,12 +198,31 @@ public class PlayerControllerWithPhysics : MonoBehaviourPun, IPunObservable
         UpdateGrounded();
         if (anim) anim.SetBool("isGrounded", isGrounded);
 
-        if (isGrounded && !isChargingJump && !hasJumped)
-            rb.linearVelocity = new Vector2(moveInput * GetWalkSpeed(), rb.linearVelocity.y);
-        else if (isGrounded && !hasJumped)
-            rb.linearVelocity = new Vector2(0f, rb.linearVelocity.y);
+        if (isGrounded && !hasJumped)
+        {
+            if (isChargingJump)
+            {
+                rb.linearVelocity = new Vector2(0f, rb.linearVelocity.y);
+            }
+            else if (inputEnabled)
+            {
+                rb.linearVelocity = new Vector2(moveInput * GetWalkSpeed(), rb.linearVelocity.y);
+            }
+            
+            if (IsGroundedOnPlayer() && !IsAtEdgeOfPlayer())
+            {
+                rb.linearVelocity = new Vector2(rb.linearVelocity.x, Mathf.Min(rb.linearVelocity.y, 0f));
+            }
+        }
         else if (!Mathf.Approximately(rb.linearVelocity.x, 0f))
+        {
             lastAirHorizontalSpeed = rb.linearVelocity.x;
+        }
+
+        if (spriteRenderer != null && Mathf.Abs(rb.linearVelocity.x) > 0.1f)
+        {
+            spriteRenderer.flipX = rb.linearVelocity.x < 0f;
+        }
 
         hasJumped = false;
         FixedUpdateAbility();
@@ -259,6 +302,9 @@ public class PlayerControllerWithPhysics : MonoBehaviourPun, IPunObservable
 
     protected virtual void WallBonk(Collision2D collision)
     {
+        if (collision.gameObject.CompareTag("Player"))
+            return;
+
         if (isGrounded || Mathf.Approximately(lastAirHorizontalSpeed, 0f))
             return;
 
@@ -278,11 +324,76 @@ public class PlayerControllerWithPhysics : MonoBehaviourPun, IPunObservable
     protected virtual void UpdateGrounded()
     {
         bool wasGrounded = isGrounded;
-        isGrounded = groundCheckPoint != null &&
-            Physics2D.OverlapCircle(groundCheckPoint.position, groundCheckRadius, groundLayer);
+
+        if (groundCheckPoint != null)
+        {
+            isGrounded = Physics2D.OverlapCircle(groundCheckPoint.position, groundCheckRadius, groundLayer);
+            if (!isGrounded)
+                isGrounded = CheckForPlayerBelow();
+        }
+        else
+        {
+            isGrounded = false;
+        }
 
         if (wasGrounded != isGrounded)
             OnGroundedChanged(isGrounded);
+    }
+
+    private bool CheckForPlayerBelow()
+    {
+        if (groundCheckPoint == null)
+            return false;
+
+        int count = Physics2D.OverlapCircle(groundCheckPoint.position, groundCheckRadius, overlapFilter, overlapCache);
+        for (int i = 0; i < count; i++)
+        {
+            if (overlapCache[i].CompareTag("Player") && overlapCache[i].transform != transform)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private bool IsGroundedOnPlayer()
+    {
+        if (groundCheckPoint == null || !isGrounded)
+            return false;
+
+        int count = Physics2D.OverlapCircle(groundCheckPoint.position, groundCheckRadius, overlapFilter, overlapCache);
+        for (int i = 0; i < count; i++)
+        {
+            if (overlapCache[i].CompareTag("Player") && overlapCache[i].transform != transform)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private bool IsAtEdgeOfPlayer()
+    {
+        if (groundCheckPoint == null || !isGrounded)
+            return false;
+
+        int count = Physics2D.OverlapCircle(groundCheckPoint.position, groundCheckRadius, overlapFilter, overlapCache);
+        for (int i = 0; i < count; i++)
+        {
+            if (overlapCache[i].CompareTag("Player") && overlapCache[i].transform != transform)
+            {
+                float playerMinX = overlapCache[i].bounds.min.x;
+                float playerMaxX = overlapCache[i].bounds.max.x;
+                float myX = groundCheckPoint.position.x;
+                
+                float edgeThreshold = 0.15f;
+                if (myX < playerMinX + edgeThreshold || myX > playerMaxX - edgeThreshold)
+                {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     /// <summary>

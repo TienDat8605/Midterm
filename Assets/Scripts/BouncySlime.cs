@@ -12,29 +12,27 @@ public class BouncySlime : PlayerControllerWithPhysics
 
     [Header("Passive Bounce")]
     [Tooltip("Upward velocity applied when another slime lands on this one.")]
-    public float passiveBounceForce = 12f;
+    public float passiveBounceForce = 18f;
 
     [Header("Trampoline Ability")]
-    [Tooltip("Duration the trampoline stays active (seconds).")]
-    public float trampolineDuration = 4f;
-
-    [Tooltip("Cooldown before Trampoline can be used again (seconds).")]
-    public float trampolineCooldown = 6f;
-
     [Tooltip("Upward launch velocity for teammates in trampoline mode.")]
-    public float trampolineLaunchForce = 20f;
+    public float trampolineLaunchForce = 25f;
 
-    [Tooltip("Visual scale when in trampoline mode (squash effect).")]
-    public Vector3 trampolineScale = new Vector3(1.4f, 0.5f, 1f);
+    [Tooltip("How wide the slime stretches in trampoline mode.")]
+    public float trampolineWidthScale = 1.6f;
+
+    [Tooltip("How flat the slime becomes in trampoline mode.")]
+    public float trampolineHeightScale = 0.4f;
 
     private bool isTrampoline;
-    private float trampolineTimer;
-    private float cooldownTimer;
     private Vector3 originalScale;
+    private float originalDrawWidth;
 
     protected override void Initialize()
     {
         originalScale = transform.localScale;
+        if (spriteRenderer != null && spriteRenderer.drawMode == SpriteDrawMode.Tiled)
+            originalDrawWidth = spriteRenderer.size.x;
     }
 
     protected override Vector2 ComputeJumpVelocity(float chargePercent, float direction)
@@ -51,19 +49,13 @@ public class BouncySlime : PlayerControllerWithPhysics
 
     protected override void UpdateAbility()
     {
-        if (cooldownTimer > 0f)
-            cooldownTimer -= Time.deltaTime;
-
-        if (isTrampoline)
+        if (inputEnabled && Keyboard.current.eKey.wasPressedThisFrame && isGrounded)
         {
-            trampolineTimer -= Time.deltaTime;
-            if (trampolineTimer <= 0f)
+            if (isTrampoline)
                 EndTrampoline();
-            return;
+            else
+                StartTrampoline();
         }
-
-        if (Keyboard.current.eKey.wasPressedThisFrame && isGrounded && cooldownTimer <= 0f)
-            StartTrampoline();
     }
 
     protected override void FixedUpdateAbility()
@@ -108,8 +100,7 @@ public class BouncySlime : PlayerControllerWithPhysics
     private void StartTrampoline()
     {
         isTrampoline = true;
-        trampolineTimer = trampolineDuration;
-        transform.localScale = trampolineScale;
+        transform.localScale = new Vector3(originalScale.x * trampolineWidthScale, originalScale.y * trampolineHeightScale, originalScale.z);
         if (anim) anim.SetBool("isTrampoline", true);
     }
 
@@ -117,7 +108,6 @@ public class BouncySlime : PlayerControllerWithPhysics
     {
         isTrampoline = false;
         transform.localScale = originalScale;
-        cooldownTimer = trampolineCooldown;
         if (anim) anim.SetBool("isTrampoline", false);
     }
 

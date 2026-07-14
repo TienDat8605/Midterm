@@ -162,36 +162,14 @@ BoxCollider2D:
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 0.4, y: 0.36}
-    newSize: {x: 0.4, y: 0.36}
+    oldSize: {x: 0.38, y: 0.34}
+    newSize: {x: 0.38, y: 0.34}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
   m_Size: {x: 0.36, y: 0.32}
   m_EdgeRadius: 0
---- !u!95 &3000000000000000006
-Animator:
-  serializedVersion: 7
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1633179491631302778}
-  m_Enabled: 1
-  m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: 5186e711b0fc42f6bf468bced48feaa0, type: 2}
-  m_CullingMode: 0
-  m_UpdateMode: 0
-  m_ApplyRootMotion: 0
-  m_LinearVelocityBlending: 0
-  m_StabilizeFeet: 0
-  m_AnimatePhysics: 0
-  m_WarningMessage: 
-  m_HasTransformHierarchy: 1
-  m_AllowConstantClipSamplingOptimization: 1
-  m_KeepAnimatorStateOnDisable: 0
-  m_WriteDefaultValuesOnDisable: 0
 --- !u!114 &3000000000000000003
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -215,6 +193,45 @@ MonoBehaviour:
   groundLayer:
     serializedVersion: 2
     m_Bits: 64
+  inputEnabled: 1
+  maxClingDuration: 2
+  clingGravityScale: 0.1
+  wallLayer:
+    serializedVersion: 2
+    m_Bits: 0
+  wallContactSpeedThreshold: 0.5
+  tetherProjectilePrefab: {fileID: 1000000000000000001, guid: d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9, type: 3}
+  tetherProjectileSpeed: 20
+  tetherMaxRange: 8
+  tetherPullForce: 15
+  tetherBreakForce: 50
+  tetherDuration: 3
+  tetherCooldown: 5
+  tetherTargetLayer:
+    serializedVersion: 2
+    m_Bits: 0
+--- !u!95 &3000000000000000006
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1633179491631302778}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 5186e711b0fc42f6bf468bced48feaa0, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!114 &3000000000000000007
 MonoBehaviour:
   m_ObjectHideFlags: 0
