@@ -165,7 +165,7 @@ public class PlayerControllerWithPhysics : MonoBehaviour
                 rb.linearVelocity = new Vector2(moveInput * GetWalkSpeed(), rb.linearVelocity.y);
             }
             
-            if (IsGroundedOnPlayer() && !IsAtEdgeOfPlayer())
+            if (IsGroundedOnPlayer() && !IsAtEdgeOfPlayer() && !IsGroundedOnTrampoline())
             {
                 rb.linearVelocity = new Vector2(rb.linearVelocity.x, Mathf.Min(rb.linearVelocity.y, 0f));
             }
@@ -317,6 +317,26 @@ public class PlayerControllerWithPhysics : MonoBehaviour
             if (overlapCache[i].CompareTag("Player") && overlapCache[i].transform != transform)
             {
                 return true;
+            }
+        }
+        return false;
+    }
+
+    private bool IsGroundedOnTrampoline()
+    {
+        if (groundCheckPoint == null || !isGrounded)
+            return false;
+
+        int count = Physics2D.OverlapCircle(groundCheckPoint.position, groundCheckRadius, overlapFilter, overlapCache);
+        for (int i = 0; i < count; i++)
+        {
+            if (overlapCache[i].CompareTag("Player") && overlapCache[i].transform != transform)
+            {
+                BouncySlime bouncySlime = overlapCache[i].GetComponent<BouncySlime>();
+                if (bouncySlime != null && bouncySlime.IsTrampoline)
+                {
+                    return true;
+                }
             }
         }
         return false;

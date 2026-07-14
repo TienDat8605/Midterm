@@ -15,8 +15,11 @@ public class BouncySlime : PlayerControllerWithPhysics
     public float passiveBounceForce = 18f;
 
     [Header("Trampoline Ability")]
-    [Tooltip("Upward launch velocity for teammates in trampoline mode.")]
-    public float trampolineLaunchForce = 25f;
+    [Tooltip("Multiplier for incoming velocity - higher values give bigger boost.")]
+    public float trampolineBoostMultiplier = 1.5f;
+
+    [Tooltip("Maximum upward launch velocity cap.")]
+    public float trampolineMaxLaunchForce = 30f;
 
     [Tooltip("How wide the slime stretches in trampoline mode.")]
     public float trampolineWidthScale = 1.6f;
@@ -87,8 +90,18 @@ public class BouncySlime : PlayerControllerWithPhysics
             if (otherRb == null)
                 continue;
 
-            float launchForce = isTrampoline ? trampolineLaunchForce : passiveBounceForce;
-            otherRb.linearVelocity = new Vector2(otherRb.linearVelocity.x, launchForce);
+            if (isTrampoline)
+            {
+                float incomingSpeed = Mathf.Abs(otherRb.linearVelocity.y);
+                float boostedSpeed = incomingSpeed * trampolineBoostMultiplier;
+                float finalSpeed = Mathf.Min(boostedSpeed, trampolineMaxLaunchForce);
+                finalSpeed = Mathf.Max(finalSpeed, passiveBounceForce);
+                otherRb.linearVelocity = new Vector2(otherRb.linearVelocity.x, finalSpeed);
+            }
+            else
+            {
+                otherRb.linearVelocity = new Vector2(otherRb.linearVelocity.x, passiveBounceForce);
+            }
             break;
         }
     }
