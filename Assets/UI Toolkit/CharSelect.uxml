@@ -1,0 +1,10 @@
+<ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <Style src="project://database/Assets/Stylesheet.uss?fileID=7433441132597879392&amp;guid=0bfe2cb5c3c612d4cb0c50b728ac6707&amp;type=3#Stylesheet"/>
+    <ui:VisualElement name="Container" style="flex-grow: 1; flex-direction: column; align-items: center; justify-content: flex-start; background-image: url(&quot;project://database/Assets/Sprites/UI/menu_bg.png?fileID=2800000&amp;guid=bb1531562487d8e4d80c5854b9bec2ff&amp;type=3#menu_bg&quot;);">
+        <ui:Button text="Button" name="Char1" style="position: absolute; top: 463px; left: 307px; height: 232px; width: 322px;"/>
+        <ui:Button text="Button" name="Char2" style="position: absolute; top: 429px; left: 899px; height: 295px; width: 281px;"/>
+        <ui:Button text="Button" name="Char3" style="position: absolute; top: 376px; left: 1395px; height: 272px; width: 365px;"/>
+        <ui:VisualElement name="Title" style="flex-grow: 1; position: absolute; height: 233px; width: 626px; left: 816px; top: 47px; background-color: rgb(0, 0, 0);"/>
+        <ui:Button text="Button" name="SelectButton" style="position: absolute; top: 932px; left: 1422px; height: 38px; width: 170px;"/>
+    </ui:VisualElement>
+</ui:UXML>

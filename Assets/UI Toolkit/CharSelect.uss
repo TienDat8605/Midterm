@@ -1,0 +1,317 @@
+/* ================================================================
+   CHARACTER SELECT — RETRO PIXEL-ART STYLESHEET
+   Earthy palette: dark browns / warm beige / black canvas / green accent
+   All borders are thick, blocky and square (border-radius: 0 everywhere)
+   ================================================================ */
+
+/* ----------------------------------------------------------------
+   COLOR REFERENCE (kept as comments since USS has no variables)
+   Canvas Black      : #000000
+   Panel Brown Dark   : #4A3524
+   Panel Brown Mid    : #6B4A30
+   Border Brown Dark  : #2B1C10
+   Beige Fill         : #E8C99B
+   Beige Fill Light   : #F3DDB0
+   Beige Border       : #C79B5C
+   Green Fill         : #A9D66B
+   Green Fill Light   : #C6EA8F  (inner border accent)
+   Green Border Dark  : #4F7A2A
+   Text Cream         : #F3E3C3
+   Text Brown         : #3B2A1A
+   ------------------------------------------------------------- */
+
+/* ================================================================
+   ROOT / CANVAS
+   ================================================================ */
+.root-canvas {
+    flex-grow: 1;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    background-color: rgb(0, 0, 0);
+    padding-top: 24px;
+    padding-bottom: 24px;
+}
+
+/* ================================================================
+   UNIVERSAL TEXT CLASSES
+   Assign your imported pixel font (e.g. "Press Start 2P") to each
+   of these in UI Builder via the Font Asset field.
+   ================================================================ */
+.text-title {
+    font-size: 48px;
+    color: rgb(243, 227, 195);
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+    letter-spacing: 4px;
+    /* -unity-font-definition: url("your-pixel-font.asset"); */
+}
+
+.text-subtitle {
+    font-size: 20px;
+    color: rgb(243, 227, 195);
+    -unity-text-align: middle-center;
+    letter-spacing: 2px;
+}
+
+.text-label {
+    font-size: 18px;
+    color: rgb(59, 42, 26);
+    -unity-text-align: middle-center;
+    letter-spacing: 1px;
+}
+
+.text-tag {
+    font-size: 16px;
+    color: rgb(59, 42, 26);
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+}
+
+.text-button {
+    font-size: 22px;
+    color: rgb(59, 42, 26);
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+    letter-spacing: 2px;
+}
+
+/* ================================================================
+   HEADER SECTION
+   ================================================================ */
+.header-section {
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    padding-top: 8px;
+    margin-bottom: 24px;
+}
+
+/* Reserved strip for decorative icons (cat heads / paw prints row).
+   Height acts as layout padding above the title; populate with
+   Image children in UI Builder. */
+.header-icon-row {
+    height: 48px;
+    width: 60%;
+    margin-bottom: 12px;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.title-frame {
+    background-color: rgb(0, 0, 0);
+    border-width: 6px;
+    border-color: rgb(199, 155, 92);
+    border-radius: 0;
+    padding: 16px 48px;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 10px;
+}
+
+.title-label {
+    margin: 0;
+}
+
+.subtitle-label {
+    margin-top: 4px;
+}
+
+/* ================================================================
+   CHARACTER SELECT ROW / SHOWCASE
+   ================================================================ */
+.character-select-row {
+    flex-direction: row;
+    justify-content: center;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    width: 92%;
+    margin-bottom: 20px;
+}
+
+.character-card {
+    flex-direction: column;
+    align-items: center;
+    width: 150px;
+    margin-left: 8px;
+    margin-right: 8px;
+    background-color: rgb(232, 201, 155);
+    border-width: 5px;
+    border-color: rgb(43, 28, 16);
+    border-radius: 0;
+    padding: 10px 8px 14px 8px;
+}
+
+.card-selected {
+    background-color: rgb(140, 190, 235);
+    border-color: rgb(38, 108, 176);
+    border-width: 6px;
+}
+
+.card-tag {
+    background-color: rgb(199, 155, 92);
+    border-width: 3px;
+    border-color: rgb(43, 28, 16);
+    border-radius: 0;
+    width: 36px;
+    height: 28px;
+    margin-bottom: 6px;
+    -unity-text-align: middle-center;
+}
+
+.player-tag {
+    position: absolute;
+    top: -30px;
+    color: rgb(38, 108, 176);
+    -unity-font-style: bold;
+    font-size: 14px;
+}
+
+.character-portrait-button {
+    width: 120px;
+    height: 120px;
+    background-color: rgb(255, 255, 255);
+    border-width: 3px;
+    border-color: rgb(43, 28, 16);
+    border-radius: 0;
+    margin-bottom: 10px;
+}
+
+.card-name-label {
+    color: rgb(59, 42, 26);
+    -unity-font-style: bold;
+    font-size: 16px;
+}
+
+/* ================================================================
+   CONTROLS HINT BAR (MOVE / SELECT / BACK strip)
+   ================================================================ */
+.controls-bar {
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    width: 80%;
+    height: 56px;
+    background-color: rgb(74, 53, 36);
+    border-width: 5px;
+    border-color: rgb(43, 28, 16);
+    border-radius: 0;
+    margin-bottom: 20px;
+}
+
+.controls-hint-label {
+    color: rgb(243, 227, 195);
+    font-size: 16px;
+    margin-left: 14px;
+    margin-right: 14px;
+}
+
+.controls-divider {
+    width: 3px;
+    height: 60%;
+    background-color: rgb(107, 74, 48);
+}
+
+/* ================================================================
+   BOTTOM JOIN / STATUS PANEL
+   Dark brown panel spanning the bottom of the screen, laid out
+   horizontally: [BACK] .... [status | entry slot] .... [READY]
+   ================================================================ */
+.bottom-panel {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    width: 94%;
+    min-height: 90px;
+    background-color: rgb(74, 53, 36);
+    border-width: 6px;
+    border-color: rgb(43, 28, 16);
+    border-radius: 0;
+    padding: 14px 20px;
+    margin-top: 10px;
+}
+
+.status-group {
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    flex-grow: 1;
+}
+
+.status-label {
+    color: rgb(243, 227, 195);
+    margin-right: 14px;
+}
+
+/* Beige styled slot for text / join-code entry */
+.entry-slot {
+    background-color: rgb(232, 201, 155);
+    border-width: 4px;
+    border-color: rgb(43, 28, 16);
+    border-radius: 0;
+    min-width: 180px;
+    height: 44px;
+    justify-content: center;
+    padding: 0 10px;
+}
+
+.entry-field {
+    background-color: rgba(0, 0, 0, 0);
+    border-width: 0;
+    color: rgb(59, 42, 26);
+    -unity-text-align: middle-center;
+    font-size: 18px;
+}
+
+/* Prominent green READY / JOIN button with light green inner border accent */
+.ready-button {
+    background-color: rgb(169, 214, 107);
+    border-width: 5px;
+    border-color: rgb(43, 28, 16);
+    border-radius: 0;
+    min-width: 160px;
+    height: 56px;
+    justify-content: center;
+    align-items: center;
+}
+
+.ready-button:hover {
+    background-color: rgb(184, 224, 128);
+}
+
+.ready-button:active {
+    background-color: rgb(150, 196, 92);
+}
+
+/* Inner border accent — place as a thin inset frame inside the button */
+.ready-button-inner-border {
+    position: absolute;
+    top: 4px;
+    left: 4px;
+    right: 4px;
+    bottom: 4px;
+    border-width: 2px;
+    border-color: rgb(198, 234, 143);
+    border-radius: 0;
+}
+
+/* Simple beige BACK button (bottom-left of panel / screen) */
+.back-button {
+    background-color: rgb(232, 201, 155);
+    border-width: 5px;
+    border-color: rgb(43, 28, 16);
+    border-radius: 0;
+    min-width: 120px;
+    height: 50px;
+    justify-content: center;
+    align-items: center;
+}
+
+.back-button:hover {
+    background-color: rgb(243, 221, 176);
+}
+
+.back-button:active {
+    background-color: rgb(199, 155, 92);
+}

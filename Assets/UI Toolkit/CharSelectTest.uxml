@@ -1,0 +1,43 @@
+<ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <Style src="project://database/Assets/Stylesheet.uss?fileID=7433441132597879392&amp;guid=0bfe2cb5c3c612d4cb0c50b728ac6707&amp;type=3#Stylesheet"/>
+    <Style src="project://database/Assets/UI%20Toolkit/CharSelect.uss?fileID=7433441132597879392&amp;guid=2c31384ed16fb504d95205766c3bce37&amp;type=3#CharSelect"/>
+    <ui:VisualElement name="Container" class="root-canvas">
+        <ui:VisualElement name="Header" class="header-section">
+            <ui:VisualElement name="HeaderIconRow" class="header-icon-row"/>
+            <ui:VisualElement name="TitleFrame" class="title-frame">
+                <ui:Label text="CHOOSE YOUR CHARACTER" name="TitleLabel" class="text-title title-label"/>
+            </ui:VisualElement>
+        </ui:VisualElement>
+        <ui:VisualElement name="CharacterSelectRow" class="character-select-row">
+            <ui:VisualElement name="CharSlot2" class="character-card card-selected">
+                <ui:Label text="P1" name="PlayerTag2" class="text-tag player-tag"/>
+                <ui:Label text="2" name="CharTag2" class="text-tag card-tag"/>
+                <ui:Button text="" name="Char2" class="character-portrait-button" style="background-image: url(&quot;project://database/Assets/Sprites/Slimes/BlueSlime.png?fileID=5088316998373936774&amp;guid=3e9e4d71384b7499c90e3fa0084b202a&amp;type=3#0_0&quot;);"/>
+                <ui:Label text="BLUE" name="CharLabel2" class="text-label card-name-label"/>
+            </ui:VisualElement>
+            <ui:VisualElement name="CharSlot3" class="character-card">
+                <ui:Label text="3" name="CharTag3" class="text-tag card-tag"/>
+                <ui:Button text="" name="Char3" class="character-portrait-button" style="background-image: url(&quot;project://database/Assets/Sprites/Slimes/4.png?fileID=-4178046375966092550&amp;guid=8a234d2aa3fc7405f8b5287b8919da8e&amp;type=3#4_0&quot;);"/>
+                <ui:Label text="GREEN" name="CharLabel3" class="text-label card-name-label"/>
+            </ui:VisualElement>
+            <ui:VisualElement name="CharSlot4" class="character-card">
+                <ui:Label text="4" name="CharTag4" class="text-tag card-tag"/>
+                <ui:Button text="" name="Char4" class="character-portrait-button" style="background-image: url(&quot;project://database/Assets/Sprites/Slimes/12.png?fileID=-1540426309290004842&amp;guid=3f2286a69733947c9adb5efd083b2027&amp;type=3#12_0&quot;);"/>
+                <ui:Label text="PINK" name="CharLabel4" class="text-label card-name-label"/>
+            </ui:VisualElement>
+        </ui:VisualElement>
+        <ui:VisualElement name="ControlsBar" class="controls-bar">
+            <ui:Label text="MOVE" name="MoveHintLabel" class="text-label controls-hint-label"/>
+            <ui:VisualElement name="ControlsDivider1" class="controls-divider"/>
+            <ui:Label text="Z  SELECT" name="SelectHintLabel" class="text-label controls-hint-label"/>
+            <ui:VisualElement name="ControlsDivider2" class="controls-divider"/>
+            <ui:Label text="X  BACK" name="BackHintLabel" class="text-label controls-hint-label"/>
+        </ui:VisualElement>
+        <ui:VisualElement name="BottomPanel" class="bottom-panel">
+            <ui:Button text="BACK" name="BackButton" class="text-button back-button"/>
+            <ui:Button text="READY" name="SelectButton" class="text-button ready-button">
+                <ui:VisualElement name="ReadyButtonInnerBorder" class="ready-button-inner-border"/>
+            </ui:Button>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

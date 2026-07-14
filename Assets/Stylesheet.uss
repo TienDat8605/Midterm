@@ -1,0 +1,22 @@
+:root {
+}
+
+.button {
+    background-image: url("project://database/Assets/Sprites/UI/UI%20Big%20Play%20Button.png?fileID=-7635131891296033614&guid=0614e562b2a1560449f74e3b38c5f2c8&type=3#UI Big Play Button_0");
+    -unity-font-definition: resource("Fonts & Materials/pixelFont-7-8x14-sproutLands");
+    -unity-font-style: bold;
+    color: rgb(160, 82, 45);
+    background-color: rgba(0, 0, 0, 0);
+    border-left-width: 0;
+    border-right-width: 0;
+    border-top-width: 0;
+    border-bottom-width: 0;
+}
+
+.unity-text-field__input {
+    background-color: rgba(0, 0, 0, 0);
+    border-left-width: 0;
+    border-right-width: 0;
+    border-top-width: 0;
+    border-bottom-width: 0;
+}
