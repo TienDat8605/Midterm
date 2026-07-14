@@ -21,7 +21,7 @@ AnimatorState:
   m_MirrorParameterActive: 0
   m_CycleOffsetParameterActive: 0
   m_TimeParameterActive: 0
-  m_Motion: {fileID: 7400000, guid: c80fd3a5792fdc64abf25e3d219788df, type: 2}
+  m_Motion: {fileID: 7400000, guid: 4c64897bf40147a2959c2d154d0228ec, type: 2}
   m_Tag: 
   m_SpeedParameter: 
   m_MirrorParameter: 
@@ -33,7 +33,7 @@ AnimatorController:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: GreenSlimeController
+  m_Name: BouncySlimeController
   serializedVersion: 5
   m_AnimatorParameters:
   - m_Name: isCharging
@@ -163,7 +163,7 @@ AnimatorState:
   m_MirrorParameterActive: 0
   m_CycleOffsetParameterActive: 0
   m_TimeParameterActive: 0
-  m_Motion: {fileID: 7400000, guid: bc467905ede9d984d8f163263a4dc0af, type: 2}
+  m_Motion: {fileID: 7400000, guid: 2e78b4f1a9974e51a6cd67f20d48bbdf, type: 2}
   m_Tag: 
   m_SpeedParameter: 
   m_MirrorParameter: 
@@ -190,7 +190,7 @@ AnimatorState:
   m_MirrorParameterActive: 0
   m_CycleOffsetParameterActive: 0
   m_TimeParameterActive: 0
-  m_Motion: {fileID: 7400000, guid: 04b67902a29bc6242bd4c641b3db6805, type: 2}
+  m_Motion: {fileID: 7400000, guid: 5496cafcb18b42e9b488d0a5eeda195a, type: 2}
   m_Tag: 
   m_SpeedParameter: 
   m_MirrorParameter: 
