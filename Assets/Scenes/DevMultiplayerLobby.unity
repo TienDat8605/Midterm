@@ -238,7 +238,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8d488a349223bc7429409dd7d06e85a0, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DevMultiplayerLobbyUI
 --- !u!114 &1167550361
 MonoBehaviour:
@@ -250,12 +250,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ab32750f73743d148a6ed938b859c1bf, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::NetworkManager
-  gameVersion: 0.5.0
+  gameVersion: 0.6.0
   developmentRegion: asia
   connectOnStart: 1
-  gameplaySceneName: MapScene
+  mapCatalog: {fileID: 11400000, guid: d08ba54833cec1a428bc46a54608f5fb, type: 2}
   networkPlayerPrefabs:
   - {fileID: 8273126385904430692, guid: 85bcce2848c9ce640ba275bb37fd4a38, type: 3}
   - {fileID: 7858553399837401226, guid: 2750512f84d51cb43aa8faa1ce7803fd, type: 3}

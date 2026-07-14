@@ -4,6 +4,7 @@ public static class NetworkPropertyKeys
     public const string SaveOwner = "so";
     public const string Phase = "phase";
     public const string Map = "map";
+    public const string MapRevision = "maprev";
     public const string Mode = "mode";
     public const string Checkpoint = "cp";
     public const string Eggs = "eggs";
@@ -19,6 +20,7 @@ public static class NetworkPropertyKeys
     public const string PlayerConnection = "conn";
     public const string PlayerLoaded = "loaded";
     public const string PlayerPing = "ping";
+    public const string PlayerMapAcknowledgement = "mapack";
 
     public static string ReservationKey(SlimeRole role)
     {

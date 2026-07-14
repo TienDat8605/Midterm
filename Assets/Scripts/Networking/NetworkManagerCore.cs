@@ -22,10 +22,10 @@ public abstract class NetworkManagerCore : MonoBehaviourPunCallbacks
     public static NetworkManager Instance { get; private set; }
 
     [Header("Photon")]
-    [SerializeField] private string gameVersion = "0.5.0";
+    [SerializeField] private string gameVersion = "0.6.0";
     [SerializeField] private string developmentRegion = "asia";
     [SerializeField] private bool connectOnStart = true;
-    [SerializeField] private string gameplaySceneName = "MapScene";
+    [SerializeField] private MultiplayerMapCatalog mapCatalog;
 
     [Header("Network player prefabs")]
     [Tooltip("Prefabs registered with PUN's DefaultPool. They may live outside Resources.")]
@@ -46,7 +46,12 @@ public abstract class NetworkManagerCore : MonoBehaviourPunCallbacks
     public string Region => PhotonNetwork.CloudRegion ?? developmentRegion;
     public string CurrentRoomCode => PhotonNetwork.InRoom ? PhotonNetwork.CurrentRoom.Name : string.Empty;
     public bool IsMasterClient => PhotonNetwork.InRoom && PhotonNetwork.IsMasterClient;
-    public bool CanStartGame => CurrentLobby.CanStartGame && IsMasterClient;
+    public bool CanStartGame =>
+        CurrentLobby.CanStartGame && IsMasterClient && !isMapSelectionPending;
+    public bool CanSelectMap =>
+        IsMasterClient && ReadPhase() == RoomPhase.Lobby && !isMapSelectionPending;
+    public IReadOnlyList<MultiplayerMapEntry> AvailableMaps =>
+        ResolvedMapCatalog != null ? ResolvedMapCatalog.Maps : Array.Empty<MultiplayerMapEntry>();
     public bool IsOperationInProgress { get; private set; }
     public SlimeRole LocalRole => PhotonNetwork.InRoom
         ? ReadRole(PhotonNetwork.LocalPlayer.CustomProperties)
@@ -57,6 +62,16 @@ public abstract class NetworkManagerCore : MonoBehaviourPunCallbacks
     private SlimeRole pendingRole = SlimeRole.None;
     private Coroutine pendingRoleTimeout;
     private float nextPingUpdateAt;
+    private bool isMapSelectionPending;
+    private MultiplayerMapCatalog ResolvedMapCatalog
+    {
+        get
+        {
+            if (mapCatalog == null)
+                mapCatalog = Resources.Load<MultiplayerMapCatalog>("MultiplayerMapCatalog");
+            return mapCatalog;
+        }
+    }
 
     protected virtual void Awake()
     {
@@ -122,6 +137,9 @@ public abstract class NetworkManagerCore : MonoBehaviourPunCallbacks
     public void CreateRoom()
     {
         if (!CanBeginRoomOperation())
+            return;
+        if (!TryResolveMap(ResolvedMapCatalog != null ? ResolvedMapCatalog.DefaultMapId : string.Empty,
+                true, out _))
             return;
 
         ClearError();
@@ -199,8 +217,48 @@ public abstract class NetworkManagerCore : MonoBehaviourPunCallbacks
 
         PhotonNetwork.LocalPlayer.SetCustomProperties(new PhotonHashtable
         {
-            { NetworkPropertyKeys.PlayerReady, ready }
+            { NetworkPropertyKeys.PlayerReady, ready },
+            { NetworkPropertyKeys.PlayerMapAcknowledgement, ReadMapRevision() }
         });
+    }
+
+    public bool SelectMap(string mapId)
+    {
+        if (!PhotonNetwork.InRoom || !PhotonNetwork.IsMasterClient)
+        {
+            ReportError(NetworkErrorCode.NotMasterClient, "Only the Master Client can select a map.");
+            return false;
+        }
+
+        if (ReadPhase() != RoomPhase.Lobby)
+        {
+            ReportError(NetworkErrorCode.InvalidMap, "Maps can only be selected while in the lobby.");
+            return false;
+        }
+
+        if (isMapSelectionPending)
+        {
+            ReportError(NetworkErrorCode.OperationInProgress, "A map selection is already pending.");
+            return false;
+        }
+
+        if (!TryResolveMap(mapId, true, out MultiplayerMapEntry map))
+            return false;
+
+        PhotonHashtable room = PhotonNetwork.CurrentRoom.CustomProperties;
+        string currentMapId = ReadString(room, NetworkPropertyKeys.Map, string.Empty);
+        if (currentMapId == map.Id)
+            return true;
+
+        int currentRevision = ReadInt(room, NetworkPropertyKeys.MapRevision, 0);
+        isMapSelectionPending = true;
+        RaiseSnapshotChanged();
+        PhotonNetwork.CurrentRoom.SetCustomProperties(new PhotonHashtable
+        {
+            { NetworkPropertyKeys.Map, map.Id },
+            { NetworkPropertyKeys.MapRevision, currentRevision + 1 }
+        });
+        return true;
     }
 
     public void StartGame()
@@ -212,12 +270,15 @@ public abstract class NetworkManagerCore : MonoBehaviourPunCallbacks
         }
 
         RaiseSnapshotChanged();
-        if (!CurrentLobby.CanStartGame || !ReservationsMatchPlayers(CurrentLobby.Players))
+        if (!CanStartGame || !ReservationsMatchPlayers(CurrentLobby.Players))
         {
             ReportError(NetworkErrorCode.StartRequirementsNotMet,
                 "Start requires three active players, all roles, and everyone Ready.");
             return;
         }
+
+        if (!TryResolveMap(CurrentLobby.SelectedMapId, true, out MultiplayerMapEntry selectedMap))
+            return;
 
         PhotonNetwork.CurrentRoom.IsOpen = false;
         PhotonNetwork.CurrentRoom.SetCustomProperties(new PhotonHashtable
@@ -230,7 +291,7 @@ public abstract class NetworkManagerCore : MonoBehaviourPunCallbacks
         });
 
         SetConnectionState(NetworkConnectionState.LoadingGame);
-        PhotonNetwork.LoadLevel(gameplaySceneName);
+        PhotonNetwork.LoadLevel(selectedMap.SceneName);
     }
 
     public void MarkLocalPlayerLoaded()
@@ -297,6 +358,7 @@ public abstract class NetworkManagerCore : MonoBehaviourPunCallbacks
         IsOperationInProgress = false;
         pendingRoomCode = PhotonNetwork.CurrentRoom.Name;
         EnsureLocalPlayerProperties();
+        AcknowledgeMapRevision();
         SetConnectionState(ReadPhase() == RoomPhase.Loading
             ? NetworkConnectionState.LoadingGame
             : NetworkConnectionState.InRoom);
@@ -307,6 +369,7 @@ public abstract class NetworkManagerCore : MonoBehaviourPunCallbacks
     public override void OnLeftRoom()
     {
         IsOperationInProgress = false;
+        isMapSelectionPending = false;
         pendingRoomCode = string.Empty;
         CurrentLobby = LobbySnapshot.Empty;
         CurrentRoomState = RoomStateSnapshot.Empty;
@@ -339,6 +402,12 @@ public abstract class NetworkManagerCore : MonoBehaviourPunCallbacks
     public override void OnRoomPropertiesUpdate(PhotonHashtable changedProps)
     {
         ConfirmPendingRoleIfPossible();
+        if (changedProps.ContainsKey(NetworkPropertyKeys.Map) ||
+            changedProps.ContainsKey(NetworkPropertyKeys.MapRevision))
+        {
+            isMapSelectionPending = false;
+            AcknowledgeMapRevision();
+        }
         RaiseSnapshotChanged();
     }
 
@@ -352,6 +421,7 @@ public abstract class NetworkManagerCore : MonoBehaviourPunCallbacks
     public override void OnDisconnected(DisconnectCause cause)
     {
         IsOperationInProgress = false;
+        isMapSelectionPending = false;
         CurrentLobby = LobbySnapshot.Empty;
         CurrentRoomState = RoomStateSnapshot.Empty;
         SetConnectionState(NetworkConnectionState.Failed);
@@ -417,12 +487,22 @@ public abstract class NetworkManagerCore : MonoBehaviourPunCallbacks
     {
         createAttemptCount++;
         pendingRoomCode = RoomCodeService.Generate();
+        MultiplayerMapEntry defaultMap;
+        if (!TryResolveMap(ResolvedMapCatalog != null ? ResolvedMapCatalog.DefaultMapId : string.Empty,
+                true, out defaultMap))
+        {
+            IsOperationInProgress = false;
+            SetConnectionState(NetworkConnectionState.ConnectedToMaster);
+            return;
+        }
+
         PhotonHashtable properties = new PhotonHashtable
         {
             { NetworkPropertyKeys.SchemaVersion, 1 },
             { NetworkPropertyKeys.SaveOwner, PhotonNetwork.AuthValues.UserId },
             { NetworkPropertyKeys.Phase, PhaseToString(RoomPhase.Lobby) },
-            { NetworkPropertyKeys.Map, gameplaySceneName },
+            { NetworkPropertyKeys.Map, defaultMap.Id },
+            { NetworkPropertyKeys.MapRevision, 0 },
             { NetworkPropertyKeys.Mode, "normal" },
             { NetworkPropertyKeys.Checkpoint, -1 },
             { NetworkPropertyKeys.Eggs, 0 },
@@ -459,7 +539,8 @@ public abstract class NetworkManagerCore : MonoBehaviourPunCallbacks
                 { NetworkPropertyKeys.PlayerItem, "none" },
                 { NetworkPropertyKeys.PlayerConnection, "connected" },
                 { NetworkPropertyKeys.PlayerLoaded, false },
-                { NetworkPropertyKeys.PlayerPing, PhotonNetwork.GetPing() }
+                { NetworkPropertyKeys.PlayerPing, PhotonNetwork.GetPing() },
+                { NetworkPropertyKeys.PlayerMapAcknowledgement, ReadMapRevision() }
             });
             return;
         }
@@ -470,6 +551,7 @@ public abstract class NetworkManagerCore : MonoBehaviourPunCallbacks
         AddDefault(defaults, current, NetworkPropertyKeys.PlayerConnection, "connected");
         AddDefault(defaults, current, NetworkPropertyKeys.PlayerLoaded, false);
         AddDefault(defaults, current, NetworkPropertyKeys.PlayerPing, PhotonNetwork.GetPing());
+        AddDefault(defaults, current, NetworkPropertyKeys.PlayerMapAcknowledgement, ReadMapRevision());
         if (defaults.Count > 0)
             PhotonNetwork.LocalPlayer.SetCustomProperties(defaults);
     }
@@ -496,6 +578,26 @@ public abstract class NetworkManagerCore : MonoBehaviourPunCallbacks
     private static void AddDefault(PhotonHashtable destination, PhotonHashtable current, string key, object value)
     {
         if (!current.ContainsKey(key)) destination[key] = value;
+    }
+
+    private void AcknowledgeMapRevision()
+    {
+        if (!PhotonNetwork.InRoom || ReadPhase() != RoomPhase.Lobby)
+            return;
+
+        int revision = ReadMapRevision();
+        PhotonHashtable player = PhotonNetwork.LocalPlayer.CustomProperties;
+        if (ReadInt(player, NetworkPropertyKeys.PlayerMapAcknowledgement, -1) == revision &&
+            !ReadBool(player, NetworkPropertyKeys.PlayerReady, false))
+        {
+            return;
+        }
+
+        PhotonNetwork.LocalPlayer.SetCustomProperties(new PhotonHashtable
+        {
+            { NetworkPropertyKeys.PlayerReady, false },
+            { NetworkPropertyKeys.PlayerMapAcknowledgement, revision }
+        });
     }
 
     private IEnumerator WaitForRoleClaim(SlimeRole requestedRole)
@@ -611,13 +713,26 @@ public abstract class NetworkManagerCore : MonoBehaviourPunCallbacks
             players.Add(BuildPlayerState(player));
         players.Sort((a, b) => a.ActorNumber.CompareTo(b.ActorNumber));
 
+        PhotonHashtable room = PhotonNetwork.CurrentRoom.CustomProperties;
+        string selectedMapId = ReadString(room, NetworkPropertyKeys.Map,
+            ResolvedMapCatalog != null ? ResolvedMapCatalog.DefaultMapId : string.Empty);
+        int mapRevision = ReadInt(room, NetworkPropertyKeys.MapRevision, 0);
+        string selectedMapDisplayName = selectedMapId;
+        if (ResolvedMapCatalog != null &&
+            ResolvedMapCatalog.TryGetMap(selectedMapId, out MultiplayerMapEntry selectedMap))
+        {
+            selectedMapDisplayName = selectedMap.DisplayName;
+        }
+
         CurrentLobby = new LobbySnapshot(
             PhotonNetwork.CurrentRoom.Name,
             ReadPhase(),
+            selectedMapId,
+            selectedMapDisplayName,
+            mapRevision,
             PhotonNetwork.IsMasterClient,
-            LobbyRules.CanStart(players),
+            LobbyRules.CanStart(players, mapRevision) && !isMapSelectionPending,
             players);
-        PhotonHashtable room = PhotonNetwork.CurrentRoom.CustomProperties;
         CurrentRoomState = new RoomStateSnapshot(
             ReadInt(room, NetworkPropertyKeys.Checkpoint, -1),
             ReadInt(room, NetworkPropertyKeys.Eggs, 0),
@@ -640,7 +755,48 @@ public abstract class NetworkManagerCore : MonoBehaviourPunCallbacks
             ReadBool(player.CustomProperties, NetworkPropertyKeys.PlayerLoaded, false),
             player.IsInactive,
             PhotonNetwork.MasterClient != null && player.ActorNumber == PhotonNetwork.MasterClient.ActorNumber,
-            ReadInt(player.CustomProperties, NetworkPropertyKeys.PlayerPing, 0));
+            ReadInt(player.CustomProperties, NetworkPropertyKeys.PlayerPing, 0),
+            ReadInt(player.CustomProperties, NetworkPropertyKeys.PlayerMapAcknowledgement, -1));
+    }
+
+    private int ReadMapRevision()
+    {
+        return PhotonNetwork.InRoom
+            ? ReadInt(PhotonNetwork.CurrentRoom.CustomProperties, NetworkPropertyKeys.MapRevision, 0)
+            : 0;
+    }
+
+    private bool TryResolveMap(string mapId, bool requireBuildScene, out MultiplayerMapEntry map)
+    {
+        map = null;
+        MultiplayerMapCatalog catalog = ResolvedMapCatalog;
+        if (catalog == null)
+        {
+            ReportError(NetworkErrorCode.InvalidMap, "Multiplayer map catalog is missing.");
+            return false;
+        }
+
+        if (!catalog.IsValid(out string catalogError))
+        {
+            ReportError(NetworkErrorCode.InvalidMap, catalogError);
+            return false;
+        }
+
+        if (!catalog.TryGetMap(mapId, out map))
+        {
+            ReportError(NetworkErrorCode.InvalidMap, $"Unknown multiplayer map id: '{mapId}'.");
+            return false;
+        }
+
+        if (requireBuildScene && !Application.CanStreamedLevelBeLoaded(map.SceneName))
+        {
+            ReportError(NetworkErrorCode.InvalidMap,
+                $"Scene '{map.SceneName}' for map '{map.Id}' is not enabled in Build Settings.");
+            map = null;
+            return false;
+        }
+
+        return true;
     }
 
     private RoomPhase ReadPhase()
