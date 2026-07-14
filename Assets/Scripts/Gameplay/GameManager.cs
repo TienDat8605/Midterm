@@ -117,6 +117,7 @@ public class GameManager : MonoBehaviour
     {
         if (isRespawning) return;
         isRespawning = true;
+        AudioManager.Instance?.PlaySFX(SFX.Death);
 
         if (playerInstance != null)
         {
@@ -142,6 +143,7 @@ public class GameManager : MonoBehaviour
     {
         State = GameState.Won;
         Debug.Log("[GameManager] You reached the goal! You win!");
+        AudioManager.Instance?.PlaySFX(SFX.Win);
 
         // Disable player control
         if (playerController != null)
