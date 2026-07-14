@@ -11,15 +11,51 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     [Header("Settings")]
     public int maxPlayers = 10;
 
-    [Tooltip("Your Player prefab name — must be inside a Resources/ folder")]
-    public string playerPrefabName = "PlayerPrefab";
+    [Tooltip("Name of the prefab registered with PUN and spawned for the local player.")]
+    public string playerPrefabName = "BouncySlime";
+
+    [Tooltip("Player prefabs registered with PUN. These can live outside a Resources folder.")]
+    [SerializeField] private GameObject[] networkPlayerPrefabs;
 
     [Tooltip("Where players spawn. If empty, spawns at (0, 0, 0)")]
     public Transform[] spawnPoints;
 
+    private void Awake()
+    {
+        RegisterNetworkPrefabs();
+    }
+
+    private void RegisterNetworkPrefabs()
+    {
+        if (!(PhotonNetwork.PrefabPool is DefaultPool defaultPool))
+        {
+            Debug.LogWarning("[Network] A custom prefab pool is active. Skipping DefaultPool registration.");
+            return;
+        }
+
+        if (networkPlayerPrefabs == null)
+            return;
+
+        foreach (GameObject playerPrefab in networkPlayerPrefabs)
+        {
+            if (playerPrefab == null)
+                continue;
+
+            PhotonView prefabView = playerPrefab.GetComponent<PhotonView>();
+            if (prefabView == null)
+            {
+                Debug.LogError($"[Network] Cannot register {playerPrefab.name}: PhotonView is missing.");
+                continue;
+            }
+
+            defaultPool.ResourceCache[playerPrefab.name] = playerPrefab;
+            Debug.Log($"[Network] Registered prefab: {playerPrefab.name}");
+        }
+    }
+
     void Start()
     {
-            Debug.Log("[Network] Connecting...");
+        Debug.Log("[Network] Connecting...");
         PhotonNetwork.ConnectUsingSettings();
     }
 

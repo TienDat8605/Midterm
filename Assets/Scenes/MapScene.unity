@@ -164,7 +164,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::NetworkManager
   maxPlayers: 10
-  playerPrefabName: PlayerPrefab
+  playerPrefabName: BouncySlime
+  networkPlayerPrefabs:
+  - {fileID: 7858553399837401226, guid: 2750512f84d51cb43aa8faa1ce7803fd, type: 3}
+  - {fileID: 8273126385904430692, guid: 85bcce2848c9ce640ba275bb37fd4a38, type: 3}
+  - {fileID: 1633179491631302778, guid: cfd455f0ab6f9e44a8c9c107d03b5787, type: 3}
   spawnPoints: []
 --- !u!1 &825539311
 GameObject:
