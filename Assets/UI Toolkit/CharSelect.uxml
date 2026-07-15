@@ -1,10 +1,60 @@
 <ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
-    <Style src="project://database/Assets/Stylesheet.uss?fileID=7433441132597879392&amp;guid=0bfe2cb5c3c612d4cb0c50b728ac6707&amp;type=3#Stylesheet"/>
-    <ui:VisualElement name="Container" style="flex-grow: 1; flex-direction: column; align-items: center; justify-content: flex-start; background-image: url(&quot;project://database/Assets/Sprites/UI/menu_bg.png?fileID=2800000&amp;guid=bb1531562487d8e4d80c5854b9bec2ff&amp;type=3#menu_bg&quot;);">
-        <ui:Button text="Button" name="Char1" style="position: absolute; top: 463px; left: 307px; height: 232px; width: 322px;"/>
-        <ui:Button text="Button" name="Char2" style="position: absolute; top: 429px; left: 899px; height: 295px; width: 281px;"/>
-        <ui:Button text="Button" name="Char3" style="position: absolute; top: 376px; left: 1395px; height: 272px; width: 365px;"/>
-        <ui:VisualElement name="Title" style="flex-grow: 1; position: absolute; height: 233px; width: 626px; left: 816px; top: 47px; background-color: rgb(0, 0, 0);"/>
-        <ui:Button text="Button" name="SelectButton" style="position: absolute; top: 932px; left: 1422px; height: 38px; width: 170px;"/>
+    <Style src="project://database/Assets/UI%20Toolkit/CharSelect.uss?fileID=7433441132597879392&amp;guid=2c31384ed16fb504d95205766c3bce37&amp;type=3#CharSelect"/>
+    <ui:VisualElement name="Root" class="root-canvas">
+        <ui:VisualElement name="Header" class="header-section">
+            <ui:VisualElement name="TitleFrame" class="title-frame">
+                <ui:Label text="CHARACTER SELECTION" name="TitleLabel" class="text-title"/>
+                <ui:Label text="CHOOSE YOUR SLIME" name="SubtitleLabel" class="text-subtitle"/>
+            </ui:VisualElement>
+        </ui:VisualElement>
+        <ui:VisualElement name="SlotRow" class="slot-row">
+            <ui:VisualElement name="Slot1" class="player-slot">
+                <ui:Label text="PLAYER 1" name="PlayerLabel1" class="player-label"/>
+                <ui:VisualElement name="CharDisplay1" class="char-display">
+                    <ui:Button text="&lt;" name="LeftArrow1" class="arrow-button"/>
+                    <ui:VisualElement name="CharPortrait1" class="char-portrait">
+                        <ui:VisualElement name="CharImage1" class="char-image" style="background-image: url(&quot;project://database/Assets/Sprites/Slimes/4.png?fileID=-4178046375966092550&amp;guid=8a234d2aa3fc7405f8b5287b8919da8e&amp;type=3#4_0&quot;);"/>
+                        <ui:Label text="ANCHOR" name="CharName1" class="char-name-label"/>
+                        <ui:Label text="Slime Da" name="CharTag1" class="char-tag-label"/>
+                    </ui:VisualElement>
+                    <ui:Button text="&gt;" name="RightArrow1" class="arrow-button"/>
+                </ui:VisualElement>
+                <ui:Label text="Heavy and stable. Brace to anchor to surfaces." name="CharDesc1" class="char-desc-label"/>
+                <ui:Button text="READY" name="ReadyBtn1" class="ready-slot-button"/>
+            </ui:VisualElement>
+            <ui:VisualElement name="Slot2" class="player-slot slot-center">
+                <ui:Label text="PLAYER 2" name="PlayerLabel2" class="player-label"/>
+                <ui:VisualElement name="CharDisplay2" class="char-display">
+                    <ui:Button text="&lt;" name="LeftArrow2" class="arrow-button"/>
+                    <ui:VisualElement name="CharPortrait2" class="char-portrait">
+                        <ui:VisualElement name="CharImage2" class="char-image" style="background-image: url(&quot;project://database/Assets/Sprites/Slimes/BlueSlime.png?fileID=5088316998373936774&amp;guid=3e9e4d71384b7499c90e3fa0084b202a&amp;type=3#0_0&quot;);"/>
+                        <ui:Label text="BOUNCE" name="CharName2" class="char-name-label"/>
+                        <ui:Label text="Slime Lo Xo" name="CharTag2" class="char-tag-label"/>
+                    </ui:VisualElement>
+                    <ui:Button text="&gt;" name="RightArrow2" class="arrow-button"/>
+                </ui:VisualElement>
+                <ui:Label text="High bounce. Trampoline to launch allies." name="CharDesc2" class="char-desc-label"/>
+                <ui:Button text="READY" name="ReadyBtn2" class="ready-slot-button"/>
+            </ui:VisualElement>
+            <ui:VisualElement name="Slot3" class="player-slot">
+                <ui:Label text="PLAYER 3" name="PlayerLabel3" class="player-label"/>
+                <ui:VisualElement name="CharDisplay3" class="char-display">
+                    <ui:Button text="&lt;" name="LeftArrow3" class="arrow-button"/>
+                    <ui:VisualElement name="CharPortrait3" class="char-portrait">
+                        <ui:VisualElement name="CharImage3" class="char-image" style="background-image: url(&quot;project://database/Assets/Sprites/Slimes/12.png?fileID=-1540426309290004842&amp;guid=3f2286a69733947c9adb5efd083b2027&amp;type=3#12_0&quot;);"/>
+                        <ui:Label text="STICKY" name="CharName3" class="char-name-label"/>
+                        <ui:Label text="Slime Dinh" name="CharTag3" class="char-tag-label"/>
+                    </ui:VisualElement>
+                    <ui:Button text="&gt;" name="RightArrow3" class="arrow-button"/>
+                </ui:VisualElement>
+                <ui:Label text="Stick to walls. Tether to pull or rescue allies." name="CharDesc3" class="char-desc-label"/>
+                <ui:Button text="READY" name="ReadyBtn3" class="ready-slot-button"/>
+            </ui:VisualElement>
+        </ui:VisualElement>
+        <ui:VisualElement name="BottomPanel" class="bottom-panel">
+            <ui:Button text="BACK" name="BackButton" class="back-button text-button"/>
+            <ui:Label text="All 3 different roles are required to Start." name="StatusLabel" class="status-label"/>
+            <ui:Button text="START" name="StartButton" class="start-button text-button"/>
+        </ui:VisualElement>
     </ui:VisualElement>
 </ui:UXML>

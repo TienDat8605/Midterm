@@ -230,7 +230,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: UnityEngine.dll::UnityEngine.UIElements.UIDocument
   m_PanelSettings: {fileID: 11400000, guid: f6db9b6aeff441d4a8bb81caee21b178, type: 2}
   m_ParentUI: {fileID: 0}
-  sourceAsset: {fileID: 9197481963319205126, guid: 78d63b86d9af38f47be9feaf94adda83, type: 3}
+  sourceAsset: {fileID: 9197481963319205126, guid: 54032b265dd87fa498f9f889f8083e7e, type: 3}
   m_SortingOrder: 0
   m_Position: 0
   m_WorldSpaceSizeMode: 1
@@ -266,7 +266,31 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e885366f37a70704693c3200b12c8a80, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CharSelectController
-  selectedClass: card-selected
+  characters:
+  - charName: ANCHOR
+    charTag: "Slime \u0110\xE1"
+    description: 'Heavy and stable.
+
+      Brace to anchor
+
+      to surfaces.'
+    portrait: {fileID: -4178046375966092550, guid: 8a234d2aa3fc7405f8b5287b8919da8e, type: 3}
+  - charName: BOUNCE
+    charTag: "Slime L\xF2 Xo"
+    description: 'High bounce.
+
+      Trampoline to
+
+      launch allies.'
+    portrait: {fileID: 5088316998373936774, guid: 3e9e4d71384b7499c90e3fa0084b202a, type: 3}
+  - charName: STICKY
+    charTag: "Slime D\xEDnh"
+    description: 'Stick to walls.
+
+      Tether to pull
+
+      or rescue allies.'
+    portrait: {fileID: -1540426309290004842, guid: 3f2286a69733947c9adb5efd083b2027, type: 3}
 --- !u!1 &874781644
 GameObject:
   m_ObjectHideFlags: 0
