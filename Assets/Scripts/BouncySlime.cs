@@ -11,15 +11,18 @@ public class BouncySlime : PlayerControllerWithPhysics
     public float bouncyMaxJumpUpSpeed = 18f;
 
     [Header("Passive Bounce")]
-    [Tooltip("Upward velocity applied when another slime lands on this one.")]
-    public float passiveBounceForce = 18f;
+    [Tooltip("Upward velocity applied when another slime lands on this one in normal mode.")]
+    public float passiveBounceForce = 0f;
 
     [Header("Trampoline Ability")]
+    [Tooltip("Fixed upward velocity applied when another slime lands on trampoline.")]
+    public float trampolineBounceForce = 35f;
+
     [Tooltip("Multiplier for incoming velocity - higher values give bigger boost.")]
     public float trampolineBoostMultiplier = 1.5f;
 
     [Tooltip("Maximum upward launch velocity cap.")]
-    public float trampolineMaxLaunchForce = 30f;
+    public float trampolineMaxLaunchForce = 50f;
 
     [Tooltip("How wide the slime stretches in trampoline mode.")]
     public float trampolineWidthScale = 1.6f;
@@ -30,10 +33,15 @@ public class BouncySlime : PlayerControllerWithPhysics
     private bool isTrampoline;
     private Vector3 originalScale;
     private float originalDrawWidth;
+    private Vector2 originalBoxSize;
+    private BoxCollider2D boxCollider;
 
     protected override void Initialize()
     {
         originalScale = transform.localScale;
+        boxCollider = GetComponent<BoxCollider2D>();
+        if (boxCollider != null)
+            originalBoxSize = boxCollider.size;
         if (spriteRenderer != null && spriteRenderer.drawMode == SpriteDrawMode.Tiled)
             originalDrawWidth = spriteRenderer.size.x;
     }
@@ -80,22 +88,26 @@ public class BouncySlime : PlayerControllerWithPhysics
         if (!collision.gameObject.CompareTag("Player"))
             return;
 
+        Rigidbody2D otherRb = collision.gameObject.GetComponent<Rigidbody2D>();
+        if (otherRb == null)
+            return;
+
+        // Only bounce when the other slime is falling onto us.
+        if (otherRb.linearVelocity.y > -0.5f)
+            return;
+
         for (int i = 0; i < collision.contactCount; i++)
         {
             Vector2 normal = collision.GetContact(i).normal;
             if (normal.y < 0.5f)
                 continue;
 
-            Rigidbody2D otherRb = collision.gameObject.GetComponent<Rigidbody2D>();
-            if (otherRb == null)
-                continue;
-
             if (isTrampoline)
             {
                 float incomingSpeed = Mathf.Abs(otherRb.linearVelocity.y);
                 float boostedSpeed = incomingSpeed * trampolineBoostMultiplier;
-                float finalSpeed = Mathf.Min(boostedSpeed, trampolineMaxLaunchForce);
-                finalSpeed = Mathf.Max(finalSpeed, passiveBounceForce);
+                float finalSpeed = Mathf.Max(boostedSpeed, trampolineBounceForce);
+                finalSpeed = Mathf.Min(finalSpeed, trampolineMaxLaunchForce);
                 otherRb.linearVelocity = new Vector2(otherRb.linearVelocity.x, finalSpeed);
             }
             else
@@ -109,14 +121,29 @@ public class BouncySlime : PlayerControllerWithPhysics
     private void StartTrampoline()
     {
         isTrampoline = true;
-        transform.localScale = new Vector3(originalScale.x * trampolineWidthScale, originalScale.y * trampolineHeightScale, originalScale.z);
+
+        Vector3 newScale = new Vector3(originalScale.x * trampolineWidthScale, originalScale.y * trampolineHeightScale, originalScale.z);
+        float oldHalfHeight = (originalBoxSize.y * originalScale.y) * 0.5f;
+        float newHalfHeight = (originalBoxSize.y * newScale.y) * 0.5f;
+        float yOffset = oldHalfHeight - newHalfHeight;
+
+        transform.localScale = newScale;
+        transform.position += new Vector3(0f, -yOffset, 0f);
+
         if (anim) anim.SetBool("isTrampoline", true);
     }
 
     private void EndTrampoline()
     {
         isTrampoline = false;
+
+        float currentHalfHeight = (originalBoxSize.y * transform.localScale.y) * 0.5f;
+        float newHalfHeight = (originalBoxSize.y * originalScale.y) * 0.5f;
+        float yOffset = currentHalfHeight - newHalfHeight;
+
         transform.localScale = originalScale;
+        transform.position += new Vector3(0f, yOffset, 0f);
+
         if (anim) anim.SetBool("isTrampoline", false);
     }
 

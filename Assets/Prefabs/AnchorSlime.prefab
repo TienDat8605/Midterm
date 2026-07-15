@@ -16,7 +16,7 @@ GameObject:
   - component: {fileID: 1000000000000000006}
   m_Layer: 0
   m_Name: AnchorSlime
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -161,14 +161,14 @@ BoxCollider2D:
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 0.38, y: 0.32}
-    newSize: {x: 0.38, y: 0.32}
+    oldSize: {x: 0.36, y: 0.3}
+    newSize: {x: 0.36, y: 0.3}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 0.34, y: 0.28}
-  m_EdgeRadius: 0
+  m_Size: {x: 0.36, y: 0.3}
+  m_EdgeRadius: 0.05
 --- !u!95 &1000000000000000006
 Animator:
   serializedVersion: 7
@@ -210,7 +210,7 @@ MonoBehaviour:
   minJumpHorizontalSpeed: 3
   maxJumpHorizontalSpeed: 9
   groundCheckPoint: {fileID: 1000000000000000005}
-  groundCheckRadius: 0.05
+  groundCheckRadius: 0.1
   groundLayer:
     serializedVersion: 2
     m_Bits: 64
@@ -243,7 +243,7 @@ Transform:
   m_GameObject: {fileID: 1000000000000000004}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: -0.15, z: 0}
+  m_LocalPosition: {x: 0, y: -0.2, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

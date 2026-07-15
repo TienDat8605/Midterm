@@ -1,19 +1,12 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-/// <summary>
-/// Base physics controller for playable slimes (formerly the GreenSlime physics script).
-/// Implements charge-to-jump ("Jump King") ground movement + wall-bonk.
-/// Subclass per slime role (Anchor, Bouncy, Sticky) to tune stats and hook into
-/// jump/land events for abilities.
-/// </summary>
 public class PlayerControllerWithPhysics : MonoBehaviour
 {
     [Header("Ground Movement")]
     public float walkSpeed = 7f;
 
     [Header("Physics")]
-    [Tooltip("Overrides the Rigidbody2D gravity scale at start.")]
     public float gravityScale = 1f;
 
     [Header("Jump King Jump")]
@@ -29,7 +22,6 @@ public class PlayerControllerWithPhysics : MonoBehaviour
     public LayerMask groundLayer;
 
     [Header("Input Control")]
-    [Tooltip("When false, this slime ignores player input but physics and abilities still run.")]
     public bool inputEnabled = true;
 
     protected Rigidbody2D rb;
@@ -45,8 +37,8 @@ public class PlayerControllerWithPhysics : MonoBehaviour
     protected float lastAirHorizontalSpeed;
     protected bool hasJumped;
 
-    private Collider2D[] overlapCache = new Collider2D[8];
-    private ContactFilter2D overlapFilter;
+    private LayerMask groundAndPlayerMask;
+    private RaycastHit2D[] raycastHitBuffer = new RaycastHit2D[8];
 
     void Start()
     {
@@ -59,27 +51,23 @@ public class PlayerControllerWithPhysics : MonoBehaviour
             groundCheckPoint = transform.Find("GroundCheck");
         if (groundLayer.value == 0)
             groundLayer = LayerMask.GetMask("Ground");
-        overlapFilter = new ContactFilter2D();
-        overlapFilter.useTriggers = false;
-        
+
+        groundAndPlayerMask = groundLayer | LayerMask.GetMask("Default");
+
         Collider2D col = GetComponent<Collider2D>();
         if (col != null && col.sharedMaterial == null)
         {
             PhysicsMaterial2D slimeFriction = new PhysicsMaterial2D("SlimeFriction");
-            slimeFriction.friction = 0.3f;
+            slimeFriction.friction = 0.5f;
             slimeFriction.bounciness = 0f;
             col.sharedMaterial = slimeFriction;
         }
-        
+
         UpdateGrounded();
         Initialize();
         TryAssignCamera();
     }
 
-    /// <summary>
-    /// Auto-assigns the main camera to follow this slime.
-    /// Works with CameraFollow2D (instant) and CameraFollow (smooth) on the Main Camera.
-    /// </summary>
     private void TryAssignCamera()
     {
         Camera mainCam = Camera.main;
@@ -97,9 +85,6 @@ public class PlayerControllerWithPhysics : MonoBehaviour
             follow.SetTarget(transform);
     }
 
-    /// <summary>
-    /// Override this instead of Start() to add per-slime setup.
-    /// </summary>
     protected virtual void Initialize() { }
 
     void Update()
@@ -164,11 +149,6 @@ public class PlayerControllerWithPhysics : MonoBehaviour
             {
                 rb.linearVelocity = new Vector2(moveInput * GetWalkSpeed(), rb.linearVelocity.y);
             }
-            
-            if (IsGroundedOnPlayer() && !IsAtEdgeOfPlayer() && !IsGroundedOnTrampoline())
-            {
-                rb.linearVelocity = new Vector2(rb.linearVelocity.x, Mathf.Min(rb.linearVelocity.y, 0f));
-            }
         }
         else if (!Mathf.Approximately(rb.linearVelocity.x, 0f))
         {
@@ -186,17 +166,11 @@ public class PlayerControllerWithPhysics : MonoBehaviour
 
     protected virtual void FixedUpdateAbility() { }
 
-    /// <summary>
-    /// Override to change ground movement speed (e.g. Anchor moves slower).
-    /// </summary>
     protected virtual float GetWalkSpeed()
     {
         return walkSpeed;
     }
 
-    /// <summary>
-    /// Override to forbid charging in specific states (e.g. Sticky wall-cling).
-    /// </summary>
     protected virtual bool CanChargeJump()
     {
         return true;
@@ -225,9 +199,6 @@ public class PlayerControllerWithPhysics : MonoBehaviour
         OnJumpLaunched(launchVelocity);
     }
 
-    /// <summary>
-    /// Override to change jump velocity per role (e.g. Anchor jumps lower, Bouncy jumps higher).
-    /// </summary>
     protected virtual Vector2 ComputeJumpVelocity(float chargePercent, float direction)
     {
         float upSpeed = Mathf.Lerp(minJumpUpSpeed, maxJumpUpSpeed, chargePercent);
@@ -235,9 +206,6 @@ public class PlayerControllerWithPhysics : MonoBehaviour
         return new Vector2(sideSpeed, upSpeed);
     }
 
-    /// <summary>
-    /// Called right after the jump velocity has been applied.
-    /// </summary>
     protected virtual void OnJumpLaunched(Vector2 launchVelocity) { }
 
     protected virtual void OnCollisionEnter2D(Collision2D collision)
@@ -274,101 +242,48 @@ public class PlayerControllerWithPhysics : MonoBehaviour
     protected virtual void UpdateGrounded()
     {
         bool wasGrounded = isGrounded;
+        isGrounded = false;
 
         if (groundCheckPoint != null)
         {
-            isGrounded = Physics2D.OverlapCircle(groundCheckPoint.position, groundCheckRadius, groundLayer);
-            if (!isGrounded)
-                isGrounded = CheckForPlayerBelow();
-        }
-        else
-        {
-            isGrounded = false;
+            Collider2D col = GetComponent<Collider2D>();
+            float halfWidth = col != null ? col.bounds.size.x * 0.5f : 0.3f;
+            float rayLength = groundCheckRadius + 0.1f;
+
+            Vector2 origin = groundCheckPoint.position;
+            Vector2 leftOrigin = new Vector2(origin.x - halfWidth * 0.4f, origin.y);
+            Vector2 rightOrigin = new Vector2(origin.x + halfWidth * 0.4f, origin.y);
+
+            if (CheckGroundRay(origin, rayLength) ||
+                CheckGroundRay(leftOrigin, rayLength) ||
+                CheckGroundRay(rightOrigin, rayLength))
+            {
+                isGrounded = true;
+            }
         }
 
         if (wasGrounded != isGrounded)
             OnGroundedChanged(isGrounded);
     }
 
-    private bool CheckForPlayerBelow()
+    private bool CheckGroundRay(Vector2 origin, float length)
     {
-        if (groundCheckPoint == null)
-            return false;
-
-        int count = Physics2D.OverlapCircle(groundCheckPoint.position, groundCheckRadius, overlapFilter, overlapCache);
+        int count = Physics2D.RaycastNonAlloc(origin, Vector2.down, raycastHitBuffer, length, groundAndPlayerMask);
         for (int i = 0; i < count; i++)
         {
-            if (overlapCache[i].CompareTag("Player") && overlapCache[i].transform != transform)
-            {
+            Collider2D hitCol = raycastHitBuffer[i].collider;
+            if (hitCol == null || hitCol.transform == transform)
+                continue;
+
+            if (hitCol.CompareTag("Player"))
                 return true;
-            }
-        }
-        return false;
-    }
 
-    private bool IsGroundedOnPlayer()
-    {
-        if (groundCheckPoint == null || !isGrounded)
-            return false;
-
-        int count = Physics2D.OverlapCircle(groundCheckPoint.position, groundCheckRadius, overlapFilter, overlapCache);
-        for (int i = 0; i < count; i++)
-        {
-            if (overlapCache[i].CompareTag("Player") && overlapCache[i].transform != transform)
-            {
+            if (((1 << hitCol.gameObject.layer) & groundLayer.value) != 0)
                 return true;
-            }
         }
         return false;
     }
 
-    private bool IsGroundedOnTrampoline()
-    {
-        if (groundCheckPoint == null || !isGrounded)
-            return false;
-
-        int count = Physics2D.OverlapCircle(groundCheckPoint.position, groundCheckRadius, overlapFilter, overlapCache);
-        for (int i = 0; i < count; i++)
-        {
-            if (overlapCache[i].CompareTag("Player") && overlapCache[i].transform != transform)
-            {
-                BouncySlime bouncySlime = overlapCache[i].GetComponent<BouncySlime>();
-                if (bouncySlime != null && bouncySlime.IsTrampoline)
-                {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
-    private bool IsAtEdgeOfPlayer()
-    {
-        if (groundCheckPoint == null || !isGrounded)
-            return false;
-
-        int count = Physics2D.OverlapCircle(groundCheckPoint.position, groundCheckRadius, overlapFilter, overlapCache);
-        for (int i = 0; i < count; i++)
-        {
-            if (overlapCache[i].CompareTag("Player") && overlapCache[i].transform != transform)
-            {
-                float playerMinX = overlapCache[i].bounds.min.x;
-                float playerMaxX = overlapCache[i].bounds.max.x;
-                float myX = groundCheckPoint.position.x;
-                
-                float edgeThreshold = 0.15f;
-                if (myX < playerMinX + edgeThreshold || myX > playerMaxX - edgeThreshold)
-                {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
-    /// <summary>
-    /// Called when grounded state changes.
-    /// </summary>
     protected virtual void OnGroundedChanged(bool grounded) { }
 
     private void OnDrawGizmosSelected()
@@ -376,7 +291,17 @@ public class PlayerControllerWithPhysics : MonoBehaviour
         if (groundCheckPoint == null)
             return;
 
+        Collider2D col = GetComponent<Collider2D>();
+        float halfWidth = col != null ? col.bounds.size.x * 0.5f : 0.3f;
+        float rayLength = groundCheckRadius + 0.1f;
+
+        Vector2 origin = groundCheckPoint.position;
+        Vector2 leftOrigin = new Vector2(origin.x - halfWidth * 0.4f, origin.y);
+        Vector2 rightOrigin = new Vector2(origin.x + halfWidth * 0.4f, origin.y);
+
         Gizmos.color = Color.red;
-        Gizmos.DrawWireSphere(groundCheckPoint.position, groundCheckRadius);
+        Gizmos.DrawLine(origin, origin + Vector2.down * rayLength);
+        Gizmos.DrawLine(leftOrigin, leftOrigin + Vector2.down * rayLength);
+        Gizmos.DrawLine(rightOrigin, rightOrigin + Vector2.down * rayLength);
     }
 }

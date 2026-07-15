@@ -94,6 +94,8 @@ public class StickySlime : PlayerControllerWithPhysics
         {
             CheckTetherBreak();
         }
+
+        UpdateTetherVisual();
     }
 
     private void UpdateCling()
@@ -210,6 +212,9 @@ public class StickySlime : PlayerControllerWithPhysics
         isTethered = true;
         tetherTimer = tetherDuration;
         tetheredTarget = target;
+
+        if (tetherLine != null)
+            tetherLine.enabled = true;
 
         if (anim) anim.SetBool("isTethered", true);
     }
