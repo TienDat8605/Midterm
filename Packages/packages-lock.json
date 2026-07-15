@@ -1,7 +1,11 @@
 {
   "dependencies": {
     "com.coplaydev.unity-mcp": {
+<<<<<<< HEAD
       "version": "https://github.com/CoplayDev/unity-mcp.git?path=/MCPForUnity#main",
+=======
+      "version": "https://github.com/CoplayDev/unity-mcp.git?path=/MCPForUnity#v10.0.0",
+>>>>>>> d9697eaefc3bb742bc3ae560b158735936f9f3fc
       "depth": 0,
       "source": "git",
       "dependencies": {
@@ -15,7 +19,11 @@
         "com.unity.nuget.newtonsoft-json": "3.0.2",
         "com.unity.test-framework": "1.1.31"
       },
+<<<<<<< HEAD
       "hash": "c14de1e6dc01ab42d2bb358730cff954bce0ce6b"
+=======
+      "hash": "d49ae2953580f3481beb1e084a1da2682f0b5610"
+>>>>>>> d9697eaefc3bb742bc3ae560b158735936f9f3fc
     },
     "com.unity.2d.animation": {
       "version": "13.0.5",
@@ -222,6 +230,13 @@
       "dependencies": {},
       "url": "https://packages.unity.com"
     },
+    "com.unity.nuget.newtonsoft-json": {
+      "version": "3.2.2",
+      "depth": 1,
+      "source": "registry",
+      "dependencies": {},
+      "url": "https://packages.unity.com"
+    },
     "com.unity.render-pipelines.core": {
       "version": "17.3.0",
       "depth": 1,
@@ -320,6 +335,13 @@
         "com.unity.modules.jsonserialize": "1.0.0"
       },
       "url": "https://packages.unity.com"
+    },
+    "com.veriorpies.parrelsync": {
+      "version": "https://github.com/VeriorPies/ParrelSync.git?path=/ParrelSync",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {},
+      "hash": "a122dc90cbe2d4cc2669ddad00b12b3917ef934b"
     },
     "com.unity.modules.accessibility": {
       "version": "1.0.0",

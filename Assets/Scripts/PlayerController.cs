@@ -27,6 +27,7 @@ public class PlayerController : MonoBehaviour
     private float targetHorizontalInput;
     private float currentHorizontalSpeed;
     private bool isGrounded;
+    private bool wasGrounded;
     private float defaultGravityScale;
 
     void Start()
@@ -49,6 +50,7 @@ public class PlayerController : MonoBehaviour
             if (Keyboard.current.spaceKey.wasPressedThisFrame && isGrounded)
             {
                 rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpUpSpeed);
+                AudioManager.Instance?.PlaySFX(SFX.Jump);
             }
         }
     }
@@ -89,14 +91,18 @@ public class PlayerController : MonoBehaviour
         }
 
         // 3. Ground Check
+        wasGrounded = isGrounded;
         if (groundCheckPoint != null)
         {
             isGrounded = Physics2D.OverlapCircle(groundCheckPoint.position, groundCheckRadius, groundLayer);
         }
         else
         {
-            isGrounded = true; 
+            isGrounded = true;
         }
+
+        if (!wasGrounded && isGrounded)
+            AudioManager.Instance?.PlaySFX(SFX.Land);
     }
 
     private void OnDrawGizmosSelected()
