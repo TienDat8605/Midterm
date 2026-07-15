@@ -198,99 +198,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &299876165
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 299876167}
-  - component: {fileID: 299876166}
-  - component: {fileID: 299876168}
-  m_Layer: 5
-  m_Name: CharSelect
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &299876166
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 299876165}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 19102, guid: 0000000000000000e000000000000000, type: 0}
-  m_Name: 
-  m_EditorClassIdentifier: UnityEngine.dll::UnityEngine.UIElements.UIDocument
-  m_PanelSettings: {fileID: 11400000, guid: f6db9b6aeff441d4a8bb81caee21b178, type: 2}
-  m_ParentUI: {fileID: 0}
-  sourceAsset: {fileID: 9197481963319205126, guid: 54032b265dd87fa498f9f889f8083e7e, type: 3}
-  m_SortingOrder: 0
-  m_Position: 0
-  m_WorldSpaceSizeMode: 1
-  m_WorldSpaceWidth: 1920
-  m_WorldSpaceHeight: 1080
-  m_PivotReferenceSize: 0
-  m_Pivot: 0
-  m_WorldSpaceCollider: {fileID: 0}
---- !u!4 &299876167
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 299876165}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &299876168
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 299876165}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e885366f37a70704693c3200b12c8a80, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::CharSelectController
-  characters:
-  - charName: ANCHOR
-    charTag: "Slime \u0110\xE1"
-    description: 'Heavy and stable.
-
-      Brace to anchor
-
-      to surfaces.'
-    portrait: {fileID: -4178046375966092550, guid: 8a234d2aa3fc7405f8b5287b8919da8e, type: 3}
-  - charName: BOUNCE
-    charTag: "Slime L\xF2 Xo"
-    description: 'High bounce.
-
-      Trampoline to
-
-      launch allies.'
-    portrait: {fileID: 5088316998373936774, guid: 3e9e4d71384b7499c90e3fa0084b202a, type: 3}
-  - charName: STICKY
-    charTag: "Slime D\xEDnh"
-    description: 'Stick to walls.
-
-      Tether to pull
-
-      or rescue allies.'
-    portrait: {fileID: -1540426309290004842, guid: 3f2286a69733947c9adb5efd083b2027, type: 3}
 --- !u!1 &874781644
 GameObject:
   m_ObjectHideFlags: 0
@@ -1021,6 +928,88 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1814133239}
   m_CullTransparentMesh: 1
+--- !u!1 &1977723259
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1977723262}
+  - component: {fileID: 1977723261}
+  - component: {fileID: 1977723260}
+  m_Layer: 5
+  m_Name: UIManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1977723260
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1977723259}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1caebd4a42af8594c82c5500c43ca742, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UIManager
+  placeholderCode: 3XLY62
+  characters:
+  - charName: ANCHOR
+    charTag: Slime Da
+    description: Heavy and stable. Brace to anchor to surfaces.
+    portrait: {fileID: -4178046375966092550, guid: 8a234d2aa3fc7405f8b5287b8919da8e, type: 3}
+  - charName: BOUNCE
+    charTag: Slime Lo Xo
+    description: High bounce. Trampoline to launch allies.
+    portrait: {fileID: 5088316998373936774, guid: 3e9e4d71384b7499c90e3fa0084b202a, type: 3}
+  - charName: STICKY
+    charTag: Slime Dinh
+    description: Stick to walls. Tether to pull or rescue allies.
+    portrait: {fileID: -1540426309290004842, guid: 3f2286a69733947c9adb5efd083b2027, type: 3}
+--- !u!114 &1977723261
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1977723259}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 19102, guid: 0000000000000000e000000000000000, type: 0}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.dll::UnityEngine.UIElements.UIDocument
+  m_PanelSettings: {fileID: 11400000, guid: f6db9b6aeff441d4a8bb81caee21b178, type: 2}
+  m_ParentUI: {fileID: 0}
+  sourceAsset: {fileID: 9197481963319205126, guid: c9ad5b1650464834db929e64926828d5, type: 3}
+  m_SortingOrder: 0
+  m_Position: 0
+  m_WorldSpaceSizeMode: 1
+  m_WorldSpaceWidth: 1920
+  m_WorldSpaceHeight: 1080
+  m_PivotReferenceSize: 0
+  m_Pivot: 0
+  m_WorldSpaceCollider: {fileID: 0}
+--- !u!4 &1977723262
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1977723259}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2071153942
 GameObject:
   m_ObjectHideFlags: 0
@@ -1296,4 +1285,4 @@ SceneRoots:
   - {fileID: 1116362110}
   - {fileID: 125894863}
   - {fileID: 2071153944}
-  - {fileID: 299876167}
+  - {fileID: 1977723262}

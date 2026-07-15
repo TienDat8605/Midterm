@@ -1,15 +1,34 @@
 <ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
-    <Style src="project://database/Assets/UI%20Toolkit/CharSelect.uss?fileID=7433441132597879392&amp;guid=2c31384ed16fb504d95205766c3bce37&amp;type=3#CharSelect"/>
+    <Style src="project://database/Assets/UI%20Toolkit/Lobby.uss?fileID=7433441132597879392&amp;guid=2c31384ed16fb504d95205766c3bce37&amp;type=3#Lobby"/>
+    
     <ui:VisualElement name="Root" class="root-canvas">
+        
+        <!-- HEADER: ROOM INFO -->
         <ui:VisualElement name="Header" class="header-section">
-            <ui:VisualElement name="TitleFrame" class="title-frame">
-                <ui:Label text="CHARACTER SELECTION" name="TitleLabel" class="text-title"/>
-                <ui:Label text="CHOOSE YOUR SLIME" name="SubtitleLabel" class="text-subtitle"/>
+            <ui:VisualElement class="header-left">
+                <ui:Label text="ROOM CODE" class="room-code-title"/>
+                <ui:VisualElement class="room-code-row">
+                    <ui:Label text="------" name="RoomCodeLabel" class="room-code-text"/>
+                    <ui:Button text="COPY" name="CopyBtn" class="copy-button"/>
+                </ui:VisualElement>
+            </ui:VisualElement>
+            
+            <ui:VisualElement class="header-right">
+                <ui:Label text="MAP: DINO PARK" name="MapLabel" class="info-badge"/>
+                <ui:Label text="MODE: NORMAL" name="ModeLabel" class="info-badge"/>
             </ui:VisualElement>
         </ui:VisualElement>
+
+        <!-- PLAYER SLOTS -->
         <ui:VisualElement name="SlotRow" class="slot-row">
+            
+            <!-- SLOT 1 -->
             <ui:VisualElement name="Slot1" class="player-slot">
-                <ui:Label text="PLAYER 1" name="PlayerLabel1" class="player-label"/>
+                <ui:VisualElement class="player-title-row">
+                    <ui:Label text="HOST" name="HostCrown1" class="host-label"/>
+                    <ui:Label text="Player 1" name="PlayerLabel1" class="player-label"/>
+                </ui:VisualElement>
+                
                 <ui:VisualElement name="CharDisplay1" class="char-display">
                     <ui:Button text="&lt;" name="LeftArrow1" class="arrow-button"/>
                     <ui:VisualElement name="CharPortrait1" class="char-portrait">
@@ -19,11 +38,19 @@
                     </ui:VisualElement>
                     <ui:Button text="&gt;" name="RightArrow1" class="arrow-button"/>
                 </ui:VisualElement>
-                <ui:Label text="Heavy and stable. Brace to anchor to surfaces." name="CharDesc1" class="char-desc-label"/>
+                
+                <ui:Label text="PING: --ms" name="PingLabel1" class="ping-label"/>
+                
                 <ui:Button text="READY" name="ReadyBtn1" class="ready-slot-button"/>
             </ui:VisualElement>
+            
+            <!-- SLOT 2 -->
             <ui:VisualElement name="Slot2" class="player-slot slot-center">
-                <ui:Label text="PLAYER 2" name="PlayerLabel2" class="player-label"/>
+                <ui:VisualElement class="player-title-row">
+                    <ui:Label text="HOST" name="HostCrown2" class="host-label" style="display: none;"/>
+                    <ui:Label text="Player 2" name="PlayerLabel2" class="player-label"/>
+                </ui:VisualElement>
+                
                 <ui:VisualElement name="CharDisplay2" class="char-display">
                     <ui:Button text="&lt;" name="LeftArrow2" class="arrow-button"/>
                     <ui:VisualElement name="CharPortrait2" class="char-portrait">
@@ -33,11 +60,19 @@
                     </ui:VisualElement>
                     <ui:Button text="&gt;" name="RightArrow2" class="arrow-button"/>
                 </ui:VisualElement>
-                <ui:Label text="High bounce. Trampoline to launch allies." name="CharDesc2" class="char-desc-label"/>
+                
+                <ui:Label text="PING: --ms" name="PingLabel2" class="ping-label"/>
+                
                 <ui:Button text="READY" name="ReadyBtn2" class="ready-slot-button"/>
             </ui:VisualElement>
+            
+            <!-- SLOT 3 -->
             <ui:VisualElement name="Slot3" class="player-slot">
-                <ui:Label text="PLAYER 3" name="PlayerLabel3" class="player-label"/>
+                <ui:VisualElement class="player-title-row">
+                    <ui:Label text="HOST" name="HostCrown3" class="host-label" style="display: none;"/>
+                    <ui:Label text="Player 3" name="PlayerLabel3" class="player-label"/>
+                </ui:VisualElement>
+                
                 <ui:VisualElement name="CharDisplay3" class="char-display">
                     <ui:Button text="&lt;" name="LeftArrow3" class="arrow-button"/>
                     <ui:VisualElement name="CharPortrait3" class="char-portrait">
@@ -47,14 +82,25 @@
                     </ui:VisualElement>
                     <ui:Button text="&gt;" name="RightArrow3" class="arrow-button"/>
                 </ui:VisualElement>
-                <ui:Label text="Stick to walls. Tether to pull or rescue allies." name="CharDesc3" class="char-desc-label"/>
+                
+                <ui:Label text="PING: --ms" name="PingLabel3" class="ping-label"/>
+                
                 <ui:Button text="READY" name="ReadyBtn3" class="ready-slot-button"/>
             </ui:VisualElement>
+            
         </ui:VisualElement>
+
+        <!-- BOTTOM PANEL -->
         <ui:VisualElement name="BottomPanel" class="bottom-panel">
-            <ui:Button text="BACK" name="BackButton" class="back-button text-button"/>
-            <ui:Label text="All 3 different roles are required to Start." name="StatusLabel" class="status-label"/>
-            <ui:Button text="START" name="StartButton" class="start-button text-button"/>
+            <ui:Button text="LEAVE ROOM" name="BackButton" class="leave-button"/>
+            
+            <ui:VisualElement class="bottom-center">
+                <ui:Button text="START GAME" name="StartButton" class="start-button"/>
+                <ui:Label text="Waiting for all players to ready... (0/3 ready)" name="StatusLabel" class="status-label"/>
+            </ui:VisualElement>
         </ui:VisualElement>
+
+
+
     </ui:VisualElement>
 </ui:UXML>

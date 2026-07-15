@@ -1,0 +1,297 @@
+/* ================================================================
+   LOBBY / CHARACTER SELECT — RETRO PIXEL-ART STYLESHEET
+   Earthy palette: dark browns / warm beige / black canvas / green accent
+   All borders are thick and blocky (border-radius: 0 everywhere)
+   ================================================================ */
+
+.root-canvas {
+    flex-grow: 1;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    background-color: rgb(26, 18, 9);
+    padding-top: 20px;
+    padding-bottom: 20px;
+    background-image: url("project://database/Assets/Sprites/UI/menu_bg.png?fileID=2800000&guid=bb1531562487d8e4d80c5854b9bec2ff&type=3#menu_bg");
+    -unity-background-scale-mode: stretch-to-fill;
+}
+
+/* ================================================================
+   HEADER: ROOM INFO
+   ================================================================ */
+.header-section {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    width: 96%;
+    margin-bottom: 18px;
+}
+
+.header-left {
+    flex-direction: column;
+    background-color: rgb(74, 53, 36);
+    border-width: 4px;
+    border-color: rgb(43, 28, 16);
+    padding: 8px 16px;
+}
+
+.room-code-title {
+    font-size: 14px;
+    color: rgb(232, 201, 155);
+    -unity-font-style: bold;
+}
+
+.room-code-row {
+    flex-direction: row;
+    align-items: center;
+    margin-top: 4px;
+}
+
+.room-code-text {
+    font-size: 28px;
+    color: rgb(255, 255, 255);
+    -unity-font-style: bold;
+    letter-spacing: 2px;
+    margin-right: 12px;
+}
+
+.copy-button {
+    background-color: rgb(199, 155, 92);
+    border-width: 3px;
+    border-color: rgb(43, 28, 16);
+    color: rgb(43, 28, 16);
+    font-size: 14px;
+    -unity-font-style: bold;
+    padding: 4px 8px;
+}
+.copy-button:hover { background-color: rgb(220, 180, 110); }
+.copy-button:active { background-color: rgb(150, 108, 55); }
+
+.header-right {
+    flex-direction: row;
+}
+
+.info-badge {
+    background-color: rgb(199, 155, 92);
+    border-width: 3px;
+    border-color: rgb(43, 28, 16);
+    color: rgb(43, 28, 16);
+    font-size: 16px;
+    -unity-font-style: bold;
+    padding: 8px 16px;
+    margin-left: 8px;
+}
+
+/* ================================================================
+   3-SLOT ROW
+   ================================================================ */
+.slot-row {
+    flex-direction: row;
+    justify-content: center;
+    align-items: stretch;
+    width: 96%;
+    height: 480px;
+    margin-bottom: 16px;
+}
+
+/* ================================================================
+   INDIVIDUAL PLAYER SLOT CARD
+   ================================================================ */
+.player-slot {
+    flex-direction: column;
+    align-items: center;
+    flex-grow: 1;
+    flex-basis: 0;
+    margin-left: 8px;
+    margin-right: 8px;
+    background-color: rgb(74, 53, 36);
+    border-width: 5px;
+    border-color: rgb(43, 28, 16);
+    padding: 14px 10px 14px 10px;
+}
+
+.slot-center {
+    background-color: rgb(89, 65, 42);
+    border-color: rgb(199, 155, 92);
+}
+
+.slot-ready {
+    border-color: rgb(79, 122, 42);
+    background-color: rgb(55, 75, 30);
+}
+
+/* ================================================================
+   PLAYER LABEL & HOST CROWN
+   ================================================================ */
+.player-title-row {
+    flex-direction: row;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.host-label {
+    font-size: 14px;
+    color: rgb(255, 215, 0); /* Gold */
+    -unity-font-style: bold;
+    background-color: rgb(43, 28, 16);
+    padding: 4px;
+    margin-right: 6px;
+}
+
+.player-label {
+    font-size: 20px;
+    color: rgb(255, 255, 255);
+    -unity-font-style: bold;
+    letter-spacing: 2px;
+}
+
+/* ================================================================
+   CHARACTER DISPLAY (arrows + portrait)
+   ================================================================ */
+.char-display {
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    margin-bottom: 6px;
+}
+
+/* ---- Arrow buttons ---- */
+.arrow-button {
+    width: 50px;
+    height: 70px;
+    background-color: rgb(199, 155, 92);
+    border-width: 4px;
+    border-color: rgb(43, 28, 16);
+    border-radius: 0;
+    font-size: 28px;
+    color: rgb(43, 28, 16);
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+    padding: 0;
+    margin: 0 6px;
+    flex-shrink: 0;
+}
+.arrow-button:hover { background-color: rgb(220, 180, 110); }
+.arrow-button:active { background-color: rgb(150, 108, 55); }
+
+/* ---- Portrait container ---- */
+.char-portrait {
+    flex-direction: column;
+    align-items: center;
+    flex-grow: 1;
+}
+
+.char-image {
+    width: 110px;
+    height: 110px;
+    border-width: 4px;
+    border-color: rgb(43, 28, 16);
+    background-color: rgb(232, 201, 155);
+    -unity-background-scale-mode: scale-to-fit;
+    margin-bottom: 6px;
+}
+
+.char-name-label {
+    font-size: 20px;
+    color: rgb(243, 227, 195);
+    -unity-font-style: bold;
+    letter-spacing: 2px;
+    margin-bottom: 2px;
+}
+
+.char-tag-label {
+    font-size: 13px;
+    color: rgb(199, 155, 92);
+}
+
+/* ================================================================
+   PING LABEL
+   ================================================================ */
+.ping-label {
+    font-size: 14px;
+    color: rgb(169, 214, 107);
+    -unity-font-style: bold;
+    margin-bottom: 12px;
+}
+
+/* ================================================================
+   PER-SLOT READY BUTTON
+   ================================================================ */
+.ready-slot-button {
+    background-color: rgb(169, 214, 107);
+    border-width: 5px;
+    border-color: rgb(43, 28, 16);
+    width: 100%;
+    height: 56px;
+    font-size: 20px;
+    color: rgb(43, 28, 16);
+    -unity-font-style: bold;
+    letter-spacing: 2px;
+    margin-top: auto;
+}
+.ready-slot-button:hover { background-color: rgb(190, 230, 130); }
+.ready-slot-button:active { background-color: rgb(140, 190, 80); }
+
+.ready-slot-button--active {
+    background-color: rgb(107, 165, 55);
+    border-color: rgb(79, 122, 42);
+    color: rgb(230, 255, 200);
+}
+.ready-slot-button--active:hover { background-color: rgb(130, 190, 70); }
+
+/* ================================================================
+   BOTTOM PANEL
+   ================================================================ */
+.bottom-panel {
+    flex-direction: row;
+    align-items: center;
+    width: 96%;
+    min-height: 80px;
+}
+
+.leave-button {
+    background-color: rgb(180, 70, 70);
+    border-width: 4px;
+    border-color: rgb(43, 28, 16);
+    color: white;
+    font-size: 16px;
+    -unity-font-style: bold;
+    padding: 12px 24px;
+    position: absolute;
+    left: 0;
+}
+.leave-button:hover { background-color: rgb(200, 90, 90); }
+.leave-button:active { background-color: rgb(150, 50, 50); }
+
+.bottom-center {
+    flex-grow: 1;
+    align-items: center;
+    justify-content: center;
+}
+
+.start-button {
+    background-color: rgb(80, 80, 80);
+    border-width: 5px;
+    border-color: rgb(43, 28, 16);
+    width: 200px;
+    height: 50px;
+    font-size: 22px;
+    -unity-font-style: bold;
+    color: rgb(200, 200, 200);
+}
+.start-button--enabled {
+    background-color: rgb(169, 214, 107);
+    border-color: rgb(79, 122, 42);
+    color: rgb(43, 28, 16);
+}
+.start-button--enabled:hover { background-color: rgb(190, 234, 128); }
+.start-button--enabled:active { background-color: rgb(140, 190, 80); }
+
+.status-label {
+    font-size: 15px;
+    color: rgb(243, 227, 195);
+    margin-top: 6px;
+}
+
+
