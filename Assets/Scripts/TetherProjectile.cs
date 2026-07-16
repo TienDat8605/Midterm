@@ -39,7 +39,17 @@ public class TetherProjectile : MonoBehaviour
         maxLength = maxRange;
 
         Collider2D shooterCol = shooter.GetComponent<Collider2D>();
-        shooterRadius = shooterCol != null ? shooterCol.bounds.extents.magnitude * 0.8f : 0.5f;
+        shooterRadius = 0.5f;
+        if (shooterCol is BoxCollider2D boxCol)
+        {
+            Vector2 halfSize = Vector2.Scale(boxCol.size * 0.5f, boxCol.transform.lossyScale);
+            Vector2 absDir = new Vector2(Mathf.Abs(direction.x), Mathf.Abs(direction.y));
+            shooterRadius = Vector2.Dot(halfSize, absDir) + 0.1f;
+        }
+        else if (shooterCol != null)
+        {
+            shooterRadius = shooterCol.bounds.extents.magnitude + 0.1f;
+        }
 
         float angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
         transform.rotation = Quaternion.Euler(0f, 0f, angle);
@@ -137,6 +147,7 @@ public class TetherProjectile : MonoBehaviour
         }
         else
         {
+            Debug.Log($"[TetherProjectile] Hit non-player object: {hit.collider.name} on layer {LayerMask.LayerToName(hit.collider.gameObject.layer)}. Destroying.");
             Destroy(gameObject);
         }
     }
