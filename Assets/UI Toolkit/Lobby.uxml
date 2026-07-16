@@ -1,9 +1,6 @@
 <ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
     <Style src="project://database/Assets/UI%20Toolkit/Lobby.uss?fileID=7433441132597879392&amp;guid=2c31384ed16fb504d95205766c3bce37&amp;type=3#Lobby"/>
-    
     <ui:VisualElement name="Root" class="root-canvas">
-        
-        <!-- HEADER: ROOM INFO -->
         <ui:VisualElement name="Header" class="header-section">
             <ui:VisualElement class="header-left">
                 <ui:Label text="ROOM CODE" class="room-code-title"/>
@@ -12,95 +9,67 @@
                     <ui:Button text="COPY" name="CopyBtn" class="copy-button"/>
                 </ui:VisualElement>
             </ui:VisualElement>
-            
             <ui:VisualElement class="header-right">
                 <ui:Label text="MAP: DINO PARK" name="MapLabel" class="info-badge"/>
                 <ui:Label text="MODE: NORMAL" name="ModeLabel" class="info-badge"/>
             </ui:VisualElement>
         </ui:VisualElement>
-
-        <!-- PLAYER SLOTS -->
         <ui:VisualElement name="SlotRow" class="slot-row">
-            
-            <!-- SLOT 1 -->
             <ui:VisualElement name="Slot1" class="player-slot">
                 <ui:VisualElement class="player-title-row">
                     <ui:Label text="HOST" name="HostCrown1" class="host-label"/>
                     <ui:Label text="Player 1" name="PlayerLabel1" class="player-label"/>
                 </ui:VisualElement>
-                
                 <ui:VisualElement name="CharDisplay1" class="char-display">
                     <ui:Button text="&lt;" name="LeftArrow1" class="arrow-button"/>
                     <ui:VisualElement name="CharPortrait1" class="char-portrait">
-                        <ui:VisualElement name="CharImage1" class="char-image" style="background-image: url(&quot;project://database/Assets/Sprites/Slimes/4.png?fileID=-4178046375966092550&amp;guid=8a234d2aa3fc7405f8b5287b8919da8e&amp;type=3#4_0&quot;);"/>
+                        <ui:VisualElement name="CharImage1" class="char-image" style="background-image: url(&quot;project://database/Assets/Sprites/Slimes/9.png?fileID=4113829005332862926&amp;guid=193cdb3ea0f1e4d9091d7e76a7dfc123&amp;type=3#9_0&quot;);"/>
                         <ui:Label text="ANCHOR" name="CharName1" class="char-name-label"/>
-                        <ui:Label text="Slime Da" name="CharTag1" class="char-tag-label"/>
                     </ui:VisualElement>
                     <ui:Button text="&gt;" name="RightArrow1" class="arrow-button"/>
                 </ui:VisualElement>
-                
                 <ui:Label text="PING: --ms" name="PingLabel1" class="ping-label"/>
-                
                 <ui:Button text="READY" name="ReadyBtn1" class="ready-slot-button"/>
             </ui:VisualElement>
-            
-            <!-- SLOT 2 -->
             <ui:VisualElement name="Slot2" class="player-slot slot-center">
                 <ui:VisualElement class="player-title-row">
                     <ui:Label text="HOST" name="HostCrown2" class="host-label" style="display: none;"/>
                     <ui:Label text="Player 2" name="PlayerLabel2" class="player-label"/>
                 </ui:VisualElement>
-                
                 <ui:VisualElement name="CharDisplay2" class="char-display">
                     <ui:Button text="&lt;" name="LeftArrow2" class="arrow-button"/>
                     <ui:VisualElement name="CharPortrait2" class="char-portrait">
-                        <ui:VisualElement name="CharImage2" class="char-image" style="background-image: url(&quot;project://database/Assets/Sprites/Slimes/BlueSlime.png?fileID=5088316998373936774&amp;guid=3e9e4d71384b7499c90e3fa0084b202a&amp;type=3#0_0&quot;);"/>
+                        <ui:VisualElement name="CharImage2" class="char-image" style="background-image: url(&quot;project://database/Assets/Sprites/Slimes/11.png?fileID=-2966200626249415253&amp;guid=91b27f3e6ea7d49bdbc0929091318b93&amp;type=3#11_0&quot;);"/>
                         <ui:Label text="BOUNCE" name="CharName2" class="char-name-label"/>
-                        <ui:Label text="Slime Lo Xo" name="CharTag2" class="char-tag-label"/>
                     </ui:VisualElement>
                     <ui:Button text="&gt;" name="RightArrow2" class="arrow-button"/>
                 </ui:VisualElement>
-                
                 <ui:Label text="PING: --ms" name="PingLabel2" class="ping-label"/>
-                
                 <ui:Button text="READY" name="ReadyBtn2" class="ready-slot-button"/>
             </ui:VisualElement>
-            
-            <!-- SLOT 3 -->
             <ui:VisualElement name="Slot3" class="player-slot">
                 <ui:VisualElement class="player-title-row">
                     <ui:Label text="HOST" name="HostCrown3" class="host-label" style="display: none;"/>
                     <ui:Label text="Player 3" name="PlayerLabel3" class="player-label"/>
                 </ui:VisualElement>
-                
                 <ui:VisualElement name="CharDisplay3" class="char-display">
                     <ui:Button text="&lt;" name="LeftArrow3" class="arrow-button"/>
                     <ui:VisualElement name="CharPortrait3" class="char-portrait">
-                        <ui:VisualElement name="CharImage3" class="char-image" style="background-image: url(&quot;project://database/Assets/Sprites/Slimes/12.png?fileID=-1540426309290004842&amp;guid=3f2286a69733947c9adb5efd083b2027&amp;type=3#12_0&quot;);"/>
+                        <ui:VisualElement name="CharImage3" class="char-image" style="background-image: url(&quot;project://database/Assets/Sprites/Slimes/7.png?fileID=7028616704906629411&amp;guid=bfc27ec53642c4de7bab469eca17e256&amp;type=3#7_0&quot;);"/>
                         <ui:Label text="STICKY" name="CharName3" class="char-name-label"/>
-                        <ui:Label text="Slime Dinh" name="CharTag3" class="char-tag-label"/>
                     </ui:VisualElement>
                     <ui:Button text="&gt;" name="RightArrow3" class="arrow-button"/>
                 </ui:VisualElement>
-                
                 <ui:Label text="PING: --ms" name="PingLabel3" class="ping-label"/>
-                
                 <ui:Button text="READY" name="ReadyBtn3" class="ready-slot-button"/>
             </ui:VisualElement>
-            
         </ui:VisualElement>
-
-        <!-- BOTTOM PANEL -->
         <ui:VisualElement name="BottomPanel" class="bottom-panel">
             <ui:Button text="LEAVE ROOM" name="BackButton" class="leave-button"/>
-            
             <ui:VisualElement class="bottom-center">
                 <ui:Button text="START GAME" name="StartButton" class="start-button"/>
                 <ui:Label text="Waiting for all players to ready... (0/3 ready)" name="StatusLabel" class="status-label"/>
             </ui:VisualElement>
         </ui:VisualElement>
-
-
-
     </ui:VisualElement>
 </ui:UXML>

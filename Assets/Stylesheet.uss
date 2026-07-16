@@ -11,6 +11,17 @@
     border-right-width: 0;
     border-top-width: 0;
     border-bottom-width: 0;
+    transition: scale 0.1s ease-in-out, -unity-background-image-tint-color 0.1s ease-in-out;
+}
+
+.button:hover {
+    scale: 1.05;
+    -unity-background-image-tint-color: rgb(220, 220, 220);
+}
+
+.button:active {
+    scale: 0.95;
+    -unity-background-image-tint-color: rgb(150, 150, 150);
 }
 
 .unity-text-field__input {
@@ -19,4 +30,5 @@
     border-right-width: 0;
     border-top-width: 0;
     border-bottom-width: 0;
+    --unity-cursor-color: rgb(43, 28, 16);
 }

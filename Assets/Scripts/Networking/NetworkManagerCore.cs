@@ -59,8 +59,7 @@ public abstract class NetworkManagerCore : MonoBehaviourPunCallbacks
 
     private int createAttemptCount;
     private string pendingRoomCode;
-    private SlimeRole pendingRole = SlimeRole.None;
-    private Coroutine pendingRoleTimeout;
+
     private float nextPingUpdateAt;
     private bool isMapSelectionPending;
     private MultiplayerMapCatalog ResolvedMapCatalog
@@ -174,7 +173,6 @@ public abstract class NetworkManagerCore : MonoBehaviourPunCallbacks
             return;
 
         IsOperationInProgress = true;
-        pendingRole = SlimeRole.None;
         PhotonNetwork.LeaveRoom(false);
     }
 
@@ -186,28 +184,15 @@ public abstract class NetworkManagerCore : MonoBehaviourPunCallbacks
             return;
         }
 
-        if (role == SlimeRole.None || pendingRole != SlimeRole.None || LocalRole == role)
+        if (role == LocalRole)
             return;
 
-        SlimeRole currentRole = LocalRole;
-        string userId = PhotonNetwork.LocalPlayer.UserId;
-        string newKey = NetworkPropertyKeys.ReservationKey(role);
-        PhotonHashtable desired = new PhotonHashtable { { newKey, userId } };
-        PhotonHashtable expected = new PhotonHashtable { { newKey, string.Empty } };
-
-        if (currentRole != SlimeRole.None)
-        {
-            string oldKey = NetworkPropertyKeys.ReservationKey(currentRole);
-            desired[oldKey] = string.Empty;
-            expected[oldKey] = userId;
-        }
-
-        pendingRole = role;
         ClearError();
-        PhotonNetwork.CurrentRoom.SetCustomProperties(desired, expected);
-        if (pendingRoleTimeout != null)
-            StopCoroutine(pendingRoleTimeout);
-        pendingRoleTimeout = StartCoroutine(WaitForRoleClaim(role));
+        PhotonNetwork.LocalPlayer.SetCustomProperties(new PhotonHashtable
+        {
+            { NetworkPropertyKeys.PlayerRole, RoleToString(role) },
+            { NetworkPropertyKeys.PlayerReady, false }
+        });
     }
 
     public void SetReady(bool ready)
@@ -270,7 +255,7 @@ public abstract class NetworkManagerCore : MonoBehaviourPunCallbacks
         }
 
         RaiseSnapshotChanged();
-        if (!CanStartGame || !ReservationsMatchPlayers(CurrentLobby.Players))
+        if (!CanStartGame)
         {
             ReportError(NetworkErrorCode.StartRequirementsNotMet,
                 "Start requires three active players, all roles, and everyone Ready.");
@@ -556,25 +541,6 @@ public abstract class NetworkManagerCore : MonoBehaviourPunCallbacks
             PhotonNetwork.LocalPlayer.SetCustomProperties(defaults);
     }
 
-    private static bool ReservationsMatchPlayers(IReadOnlyList<LobbyPlayerState> players)
-    {
-        if (!PhotonNetwork.InRoom || players == null)
-            return false;
-
-        PhotonHashtable room = PhotonNetwork.CurrentRoom.CustomProperties;
-        for (int i = 0; i < players.Count; i++)
-        {
-            LobbyPlayerState player = players[i];
-            string key = NetworkPropertyKeys.ReservationKey(player.Role);
-            if (string.IsNullOrEmpty(key) ||
-                ReadString(room, key, string.Empty) != player.UserId)
-            {
-                return false;
-            }
-        }
-        return true;
-    }
-
     private static void AddDefault(PhotonHashtable destination, PhotonHashtable current, string key, object value)
     {
         if (!current.ContainsKey(key)) destination[key] = value;
@@ -600,66 +566,12 @@ public abstract class NetworkManagerCore : MonoBehaviourPunCallbacks
         });
     }
 
-    private IEnumerator WaitForRoleClaim(SlimeRole requestedRole)
-    {
-        float timeout = Time.realtimeSinceStartup + 2f;
-        while (pendingRole == requestedRole && Time.realtimeSinceStartup < timeout)
-        {
-            ConfirmPendingRoleIfPossible();
-            yield return null;
-        }
-        if (pendingRole == requestedRole)
-        {
-            pendingRole = SlimeRole.None;
-            ReportError(NetworkErrorCode.RoleUnavailable, $"{requestedRole} is already reserved.");
-        }
-        pendingRoleTimeout = null;
-    }
-
     private void ConfirmPendingRoleIfPossible()
     {
-        if (!PhotonNetwork.InRoom || pendingRole == SlimeRole.None)
-            return;
-
-        string key = NetworkPropertyKeys.ReservationKey(pendingRole);
-        string owner = ReadString(PhotonNetwork.CurrentRoom.CustomProperties, key, string.Empty);
-        if (owner == PhotonNetwork.LocalPlayer.UserId)
-        {
-            SlimeRole confirmed = pendingRole;
-            pendingRole = SlimeRole.None;
-            PhotonNetwork.LocalPlayer.SetCustomProperties(new PhotonHashtable
-            {
-                { NetworkPropertyKeys.PlayerRole, RoleToString(confirmed) },
-                { NetworkPropertyKeys.PlayerReady, false }
-            });
-        }
-        else if (!string.IsNullOrEmpty(owner))
-        {
-            SlimeRole rejected = pendingRole;
-            pendingRole = SlimeRole.None;
-            ReportError(NetworkErrorCode.RoleUnavailable, $"{rejected} is already reserved.");
-        }
     }
 
     private void ReleaseReservationsFor(string userId)
     {
-        if (string.IsNullOrEmpty(userId) || !PhotonNetwork.InRoom)
-            return;
-
-        PhotonHashtable changes = new PhotonHashtable();
-        string[] keys =
-        {
-            NetworkPropertyKeys.AnchorReservation,
-            NetworkPropertyKeys.BounceReservation,
-            NetworkPropertyKeys.StickyReservation
-        };
-        foreach (string key in keys)
-        {
-            if (ReadString(PhotonNetwork.CurrentRoom.CustomProperties, key, string.Empty) == userId)
-                changes[key] = string.Empty;
-        }
-        if (changes.Count > 0)
-            PhotonNetwork.CurrentRoom.SetCustomProperties(changes);
     }
 
     private void TryEnterPlayingPhase()

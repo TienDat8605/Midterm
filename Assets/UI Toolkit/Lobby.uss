@@ -63,9 +63,10 @@
     font-size: 14px;
     -unity-font-style: bold;
     padding: 4px 8px;
+    transition: scale 0.1s ease-in-out, background-color 0.1s ease-in-out;
 }
-.copy-button:hover { background-color: rgb(220, 180, 110); }
-.copy-button:active { background-color: rgb(150, 108, 55); }
+.copy-button:hover { background-color: rgb(220, 180, 110); scale: 1.05; }
+.copy-button:active { background-color: rgb(150, 108, 55); scale: 0.95; }
 
 .header-right {
     flex-direction: row;
@@ -171,9 +172,10 @@
     padding: 0;
     margin: 0 6px;
     flex-shrink: 0;
+    transition: scale 0.1s ease-in-out, background-color 0.1s ease-in-out;
 }
-.arrow-button:hover { background-color: rgb(220, 180, 110); }
-.arrow-button:active { background-color: rgb(150, 108, 55); }
+.arrow-button:hover { background-color: rgb(220, 180, 110); scale: 1.1; }
+.arrow-button:active { background-color: rgb(150, 108, 55); scale: 0.9; }
 
 /* ---- Portrait container ---- */
 .char-portrait {
@@ -229,16 +231,17 @@
     -unity-font-style: bold;
     letter-spacing: 2px;
     margin-top: auto;
+    transition: scale 0.1s ease-in-out, background-color 0.1s ease-in-out;
 }
-.ready-slot-button:hover { background-color: rgb(190, 230, 130); }
-.ready-slot-button:active { background-color: rgb(140, 190, 80); }
+.ready-slot-button:hover { background-color: rgb(190, 230, 130); scale: 1.05; }
+.ready-slot-button:active { background-color: rgb(140, 190, 80); scale: 0.95; }
 
 .ready-slot-button--active {
     background-color: rgb(107, 165, 55);
     border-color: rgb(79, 122, 42);
     color: rgb(230, 255, 200);
 }
-.ready-slot-button--active:hover { background-color: rgb(130, 190, 70); }
+.ready-slot-button--active:hover { background-color: rgb(130, 190, 70); scale: 1.05; }
 
 /* ================================================================
    BOTTOM PANEL
@@ -260,9 +263,10 @@
     padding: 12px 24px;
     position: absolute;
     left: 0;
+    transition: scale 0.1s ease-in-out, background-color 0.1s ease-in-out;
 }
-.leave-button:hover { background-color: rgb(200, 90, 90); }
-.leave-button:active { background-color: rgb(150, 50, 50); }
+.leave-button:hover { background-color: rgb(200, 90, 90); scale: 1.05; }
+.leave-button:active { background-color: rgb(150, 50, 50); scale: 0.95; }
 
 .bottom-center {
     flex-grow: 1;
@@ -279,14 +283,15 @@
     font-size: 22px;
     -unity-font-style: bold;
     color: rgb(200, 200, 200);
+    transition: scale 0.1s ease-in-out, background-color 0.1s ease-in-out;
 }
 .start-button--enabled {
     background-color: rgb(169, 214, 107);
     border-color: rgb(79, 122, 42);
     color: rgb(43, 28, 16);
 }
-.start-button--enabled:hover { background-color: rgb(190, 234, 128); }
-.start-button--enabled:active { background-color: rgb(140, 190, 80); }
+.start-button--enabled:hover { background-color: rgb(190, 234, 128); scale: 1.05; }
+.start-button--enabled:active { background-color: rgb(140, 190, 80); scale: 0.95; }
 
 .status-label {
     font-size: 15px;

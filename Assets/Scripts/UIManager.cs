@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
+using Photon.Pun;
+using UnityEngine.UIElements;
 
 /// <summary>
 /// Single MonoBehaviour that owns the one UIDocument in the scene.
@@ -94,7 +96,17 @@ public class UIManager : MonoBehaviour
         SetupMainMenu();
         SetupLobby();
 
-        ShowScreen(Screen.MainMenu);
+        if (NetworkManager.Instance != null)
+        {
+            NetworkManager.Instance.ConnectionStateChanged += OnConnectionStateChanged;
+            NetworkManager.Instance.LobbyStateChanged += OnLobbyStateChanged;
+            OnConnectionStateChanged(NetworkManager.Instance.ConnectionState);
+            OnLobbyStateChanged(NetworkManager.Instance.CurrentLobby);
+        }
+        else
+        {
+            ShowScreen(Screen.MainMenu);
+        }
     }
 
     private void OnDisable()
@@ -105,6 +117,44 @@ public class UIManager : MonoBehaviour
         if (_backButton  != null) _backButton.clicked  -= OnLeaveRoom;
         if (_copyBtn != null) _copyBtn.clicked -= OnCopyCodeClicked;
 
+        if (NetworkManager.Instance != null)
+        {
+            NetworkManager.Instance.ConnectionStateChanged -= OnConnectionStateChanged;
+            NetworkManager.Instance.LobbyStateChanged -= OnLobbyStateChanged;
+        }
+    }
+
+    private void OnConnectionStateChanged(NetworkConnectionState state)
+    {
+        if (state == NetworkConnectionState.InRoom)
+            ShowScreen(Screen.Lobby);
+        else
+            ShowScreen(Screen.MainMenu);
+    }
+
+    private void OnLobbyStateChanged(LobbySnapshot lobby)
+    {
+        if (lobby == null) return;
+        
+        if (_roomCodeLabel != null) _roomCodeLabel.text = lobby.RoomCode;
+
+        var mapLabel = _lobbyScreen.Q<Label>("MapLabel");
+        if (mapLabel != null && !string.IsNullOrEmpty(lobby.SelectedMapDisplayName)) 
+            mapLabel.text = $"MAP: {lobby.SelectedMapDisplayName.ToUpper()}";
+
+        for (int i = 0; i < NUM_SLOTS; i++)
+        {
+            if (i < lobby.Players.Count)
+            {
+                var player = lobby.Players[i];
+                UpdateSlotWithPlayer(i, player);
+            }
+            else
+            {
+                ClearSlot(i);
+            }
+        }
+        RefreshBottomPanel(lobby);
     }
 
     // ================================================================
@@ -132,6 +182,21 @@ public class UIManager : MonoBehaviour
         _joinButton = _mainMenuScreen.Q<Button>("JoinBut");
         _codeInput  = _mainMenuScreen.Q<TextField>();
 
+        if (_codeInput != null)
+        {
+            _codeInput.value = "Enter code...";
+            _codeInput.RegisterCallback<FocusInEvent>(e =>
+            {
+                if (_codeInput.value == "Enter code...") 
+                    _codeInput.value = "";
+            });
+            _codeInput.RegisterCallback<FocusOutEvent>(e =>
+            {
+                if (string.IsNullOrEmpty(_codeInput.value)) 
+                    _codeInput.value = "Enter code...";
+            });
+        }
+
         if (_hostButton != null) _hostButton.clicked += OnHostClicked;
         if (_joinButton != null) _joinButton.clicked += OnJoinClicked;
     }
@@ -139,20 +204,22 @@ public class UIManager : MonoBehaviour
     private void OnHostClicked()
     {
         Debug.Log("[UIManager] Host Game clicked.");
-        if (_roomCodeLabel != null) _roomCodeLabel.text = placeholderCode; // host creates room
-        ShowScreen(Screen.Lobby);
+        if (NetworkManager.Instance != null)
+            NetworkManager.Instance.CreateRoom();
     }
 
     private void OnJoinClicked()
     {
         string code = _codeInput != null ? _codeInput.value : string.Empty;
+        if (code == "Enter code...") code = string.Empty;
+
         if (string.IsNullOrEmpty(code))
         {
             Debug.LogWarning("[UIManager] Room code is empty.");
             return;
         }
-        if (_roomCodeLabel != null) _roomCodeLabel.text = code.ToUpper(); // join room
-        ShowScreen(Screen.Lobby);
+        if (NetworkManager.Instance != null)
+            NetworkManager.Instance.JoinRoom(code);
     }
 
     // ================================================================
@@ -183,12 +250,6 @@ public class UIManager : MonoBehaviour
             if (leftArrow  != null) leftArrow.clicked  += () => CycleCharacter(captured, -1);
             if (rightArrow != null) rightArrow.clicked += () => CycleCharacter(captured, +1);
             if (_readyBtns[i] != null) _readyBtns[i].clicked += () => ToggleReady(captured);
-
-            // Stagger default selections so all three are different
-            _selectedIndex[i] = i % Mathf.Max(1, characters.Count);
-            _isReady[i]       = false;
-
-            RefreshSlotDisplay(i);
         }
 
         _statusLabel = _lobbyScreen.Q<Label>("StatusLabel");
@@ -197,10 +258,6 @@ public class UIManager : MonoBehaviour
 
         if (_startButton != null) _startButton.clicked += OnStartClicked;
         if (_backButton  != null) _backButton.clicked  += OnLeaveRoom;
-
-
-
-        RefreshBottomPanel();
     }
 
     private void OnCopyCodeClicked()
@@ -214,81 +271,156 @@ public class UIManager : MonoBehaviour
 
     private void CycleCharacter(int slot, int dir)
     {
-        if (_isReady[slot]) return;
-        if (characters == null || characters.Count == 0) return;
-        _selectedIndex[slot] = (_selectedIndex[slot] + dir + characters.Count) % characters.Count;
-        RefreshSlotDisplay(slot);
-        RefreshBottomPanel();
+        if (NetworkManager.Instance == null || NetworkManager.Instance.CurrentLobby == null) return;
+        var lobby = NetworkManager.Instance.CurrentLobby;
+        if (slot >= lobby.Players.Count) return;
+        var player = lobby.Players[slot];
+        if (player.ActorNumber != PhotonNetwork.LocalPlayer.ActorNumber) return; // Only control local
+        if (player.IsReady) return;
+
+        int roleIndex = (int)player.Role - 1;
+        if (roleIndex < 0) roleIndex = 0; // Default to first if none
+        roleIndex = (roleIndex + dir + 3) % 3;
+        NetworkManager.Instance.SelectRole((SlimeRole)(roleIndex + 1));
     }
 
     private void ToggleReady(int slot)
     {
-        _isReady[slot] = !_isReady[slot];
-        RefreshSlotDisplay(slot);
-        RefreshBottomPanel();
-    }
+        if (NetworkManager.Instance == null || NetworkManager.Instance.CurrentLobby == null) return;
+        var lobby = NetworkManager.Instance.CurrentLobby;
+        if (slot >= lobby.Players.Count) return;
+        var player = lobby.Players[slot];
+        if (player.ActorNumber != PhotonNetwork.LocalPlayer.ActorNumber) return; // Only control local
+        if (player.Role == SlimeRole.None) return;
 
-    private void RefreshSlotDisplay(int slot)
-    {
-        if (characters == null || characters.Count == 0) return;
-
-        var data  = characters[_selectedIndex[slot]];
-        bool ready = _isReady[slot];
-
-        // Portrait
-        if (_charImages[slot] != null && data.portrait != null)
-            _charImages[slot].style.backgroundImage = new StyleBackground(data.portrait);
-
-        // Labels
-        if (_charNames[slot] != null) _charNames[slot].text = data.charName;
-        if (_charTags[slot]  != null) _charTags[slot].text  = data.charTag;
-
-        // Slot styling
-        if (_slotRoots[slot] != null)
+        bool isSettingReady = !player.IsReady;
+        if (isSettingReady)
         {
-            if (ready) _slotRoots[slot].AddToClassList(CSS_SLOT_READY);
-            else       _slotRoots[slot].RemoveFromClassList(CSS_SLOT_READY);
+            foreach (var otherPlayer in lobby.Players)
+            {
+                if (otherPlayer.ActorNumber != player.ActorNumber && otherPlayer.Role == player.Role)
+                {
+                    Debug.LogWarning("[UIManager] Cannot set ready: Role is already selected by another player.");
+                    return;
+                }
+            }
         }
 
-        // Ready button
+        NetworkManager.Instance.SetReady(isSettingReady);
+    }
+
+    private void UpdateSlotWithPlayer(int slot, LobbyPlayerState player)
+    {
+        _slotRoots[slot].style.display = DisplayStyle.Flex; // ensure visible
+        bool isLocal = player.ActorNumber == PhotonNetwork.LocalPlayer.ActorNumber;
+
+        // Player name and host crown
+        var hostCrown = _lobbyScreen.Q<Label>($"HostCrown{slot + 1}");
+        if (hostCrown != null) hostCrown.style.display = player.IsMasterClient ? DisplayStyle.Flex : DisplayStyle.None;
+        var playerLabel = _lobbyScreen.Q<Label>($"PlayerLabel{slot + 1}");
+        if (playerLabel != null) playerLabel.text = string.IsNullOrEmpty(player.Nickname) ? $"Player {slot + 1}" : player.Nickname;
+
+        // Ping
+        var pingLabel = _lobbyScreen.Q<Label>($"PingLabel{slot + 1}");
+        if (pingLabel != null) pingLabel.text = $"PING: {player.Ping}ms";
+
+        // Character display
+        int roleIndex = (int)player.Role - 1;
+        if (roleIndex >= 0 && roleIndex < characters.Count)
+        {
+            var data = characters[roleIndex];
+            if (_charImages[slot] != null && data.portrait != null)
+                _charImages[slot].style.backgroundImage = new StyleBackground(data.portrait);
+            if (_charNames[slot] != null) _charNames[slot].text = data.charName;
+            if (_charTags[slot] != null) _charTags[slot].text = data.charTag;
+        }
+        else
+        {
+            if (_charImages[slot] != null) _charImages[slot].style.backgroundImage = null;
+            if (_charNames[slot] != null) _charNames[slot].text = "SELECTING...";
+            if (_charTags[slot] != null) _charTags[slot].text = "";
+        }
+
+        // Ready state styling
+        if (player.IsReady) _slotRoots[slot].AddToClassList(CSS_SLOT_READY);
+        else _slotRoots[slot].RemoveFromClassList(CSS_SLOT_READY);
+
+        // Arrows visibility (only local player)
+        var leftArrow = _lobbyScreen.Q<Button>($"LeftArrow{slot + 1}");
+        var rightArrow = _lobbyScreen.Q<Button>($"RightArrow{slot + 1}");
+        if (leftArrow != null) leftArrow.style.display = isLocal && !player.IsReady ? DisplayStyle.Flex : DisplayStyle.None;
+        if (rightArrow != null) rightArrow.style.display = isLocal && !player.IsReady ? DisplayStyle.Flex : DisplayStyle.None;
+
+        // Ready Button visibility
         if (_readyBtns[slot] != null)
         {
-            _readyBtns[slot].text = ready ? "UNREADY" : "READY";
-            if (ready) _readyBtns[slot].AddToClassList(CSS_BTN_READY);
-            else       _readyBtns[slot].RemoveFromClassList(CSS_BTN_READY);
+            if (isLocal)
+            {
+                _readyBtns[slot].SetEnabled(true);
+                _readyBtns[slot].text = player.IsReady ? "UNREADY" : "READY";
+            }
+            else
+            {
+                _readyBtns[slot].SetEnabled(false);
+                _readyBtns[slot].text = player.IsReady ? "READY" : "WAITING";
+            }
+            if (player.IsReady) _readyBtns[slot].AddToClassList(CSS_BTN_READY);
+            else _readyBtns[slot].RemoveFromClassList(CSS_BTN_READY);
         }
     }
 
-    private void RefreshBottomPanel()
+    private void ClearSlot(int slot)
     {
-        int readyCount = 0;
-        foreach (var r in _isReady) if (r) readyCount++;
+        _slotRoots[slot].style.display = DisplayStyle.Flex;
+        
+        var hostCrown = _lobbyScreen.Q<Label>($"HostCrown{slot + 1}");
+        if (hostCrown != null) hostCrown.style.display = DisplayStyle.None;
+        
+        var playerLabel = _lobbyScreen.Q<Label>($"PlayerLabel{slot + 1}");
+        if (playerLabel != null) playerLabel.text = "Waiting...";
+        
+        var pingLabel = _lobbyScreen.Q<Label>($"PingLabel{slot + 1}");
+        if (pingLabel != null) pingLabel.text = "";
+        
+        if (_charImages[slot] != null) _charImages[slot].style.backgroundImage = null;
+        if (_charNames[slot] != null) _charNames[slot].text = "";
+        if (_charTags[slot] != null) _charTags[slot].text = "";
 
-        bool allReady = (readyCount == NUM_SLOTS);
-        bool allDifferent = false;
+        _slotRoots[slot].RemoveFromClassList(CSS_SLOT_READY);
 
-        if (allReady)
+        var leftArrow = _lobbyScreen.Q<Button>($"LeftArrow{slot + 1}");
+        var rightArrow = _lobbyScreen.Q<Button>($"RightArrow{slot + 1}");
+        if (leftArrow != null) leftArrow.style.display = DisplayStyle.None;
+        if (rightArrow != null) rightArrow.style.display = DisplayStyle.None;
+
+        if (_readyBtns[slot] != null)
         {
-            var seen = new System.Collections.Generic.HashSet<int>();
-            for (int i = 0; i < NUM_SLOTS; i++) seen.Add(_selectedIndex[i]);
-            allDifferent = (seen.Count == NUM_SLOTS);
+            _readyBtns[slot].SetEnabled(false);
+            _readyBtns[slot].text = "";
+            _readyBtns[slot].RemoveFromClassList(CSS_BTN_READY);
         }
+    }
 
-        bool canStart = allReady && allDifferent;
-
+    private void RefreshBottomPanel(LobbySnapshot lobby)
+    {
         if (_statusLabel != null)
         {
-            if (canStart)
-                _statusLabel.text = "Waiting for Host to Start... (3/3 ready)"; // Example text
-            else if (allReady && !allDifferent)
-                _statusLabel.text = "All 3 players must choose DIFFERENT slimes!";
+            if (lobby.CanStartGame)
+                _statusLabel.text = "Waiting for Host to Start... (3/3 ready)";
             else
+            {
+                int readyCount = 0;
+                foreach (var p in lobby.Players) if (p.IsReady) readyCount++;
                 _statusLabel.text = $"Waiting for all players to ready... ({readyCount}/3 ready)";
+            }
         }
 
         if (_startButton != null)
         {
-            if (canStart)
+            bool isMaster = lobby.IsMasterClient;
+            _startButton.style.display = isMaster ? DisplayStyle.Flex : DisplayStyle.None;
+
+            if (lobby.CanStartGame)
             {
                 _startButton.AddToClassList(CSS_START_ENABLED);
                 _startButton.SetEnabled(true);
@@ -303,19 +435,18 @@ public class UIManager : MonoBehaviour
 
     private void OnStartClicked()
     {
-        foreach (var r in _isReady) if (!r) return;
-        Debug.Log("[UIManager] All players ready — starting game!");
-        // TODO: SceneManager.LoadScene("GameScene");
+        if (NetworkManager.Instance != null && NetworkManager.Instance.CanStartGame)
+        {
+            Debug.Log("[UIManager] Starting game via NetworkManager!");
+            NetworkManager.Instance.StartGame();
+        }
     }
 
     private void OnLeaveRoom()
     {
-        for (int i = 0; i < NUM_SLOTS; i++)
+        if (NetworkManager.Instance != null)
         {
-            _isReady[i] = false;
-            RefreshSlotDisplay(i);
+            NetworkManager.Instance.LeaveRoom();
         }
-        RefreshBottomPanel();
-        ShowScreen(Screen.MainMenu);
     }
 }
