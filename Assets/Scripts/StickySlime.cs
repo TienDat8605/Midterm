@@ -182,8 +182,8 @@ public class StickySlime : PlayerControllerWithPhysics
         if (projectile != null)
         {
             projectile.extendSpeed = tetherProjectileSpeed;
-            projectile.hitMask = tetherTargetLayer;
-            projectile.Launch(this, direction);
+            projectile.hitMask = tetherTargetLayer | groundLayer;
+            projectile.Launch(this, direction, tetherMaxRange);
         }
 
         tetherCooldownTimer = tetherCooldown;

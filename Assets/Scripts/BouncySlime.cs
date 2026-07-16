@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -30,11 +31,16 @@ public class BouncySlime : PlayerControllerWithPhysics
     [Tooltip("How flat the slime becomes in trampoline mode.")]
     public float trampolineHeightScale = 0.4f;
 
+    [Header("Bounce Cooldown")]
+    [Tooltip("Minimum time between bounces for the same target (seconds).")]
+    public float bounceCooldown = 0.2f;
+
     private bool isTrampoline;
     private Vector3 originalScale;
     private float originalDrawWidth;
     private Vector2 originalBoxSize;
     private BoxCollider2D boxCollider;
+    private Dictionary<Rigidbody2D, float> lastBounceTimes = new Dictionary<Rigidbody2D, float>();
 
     protected override void Initialize()
     {
@@ -75,6 +81,8 @@ public class BouncySlime : PlayerControllerWithPhysics
         {
             rb.linearVelocity = new Vector2(0f, rb.linearVelocity.y);
         }
+
+        CleanupBounceCooldowns();
     }
 
     protected override void OnCollisionEnter2D(Collision2D collision)
@@ -85,36 +93,61 @@ public class BouncySlime : PlayerControllerWithPhysics
 
     private void HandleBounceCollision(Collision2D collision)
     {
+        if (!isTrampoline)
+            return;
+
         if (!collision.gameObject.CompareTag("Player"))
             return;
 
         Rigidbody2D otherRb = collision.gameObject.GetComponent<Rigidbody2D>();
-        if (otherRb == null)
+        if (otherRb == null || otherRb == rb)
             return;
 
-        // Only bounce when the other slime is falling onto us.
-        if (otherRb.linearVelocity.y > -0.5f)
+        // Respect per-target cooldown.
+        float now = Time.time;
+        if (lastBounceTimes.TryGetValue(otherRb, out float lastTime) && now - lastTime < bounceCooldown)
             return;
 
+        // Only bounce if contact is on the top/bottom surface (vertical collision).
+        bool verticalContact = false;
+        float bestNormalY = 0f;
         for (int i = 0; i < collision.contactCount; i++)
         {
             Vector2 normal = collision.GetContact(i).normal;
-            if (normal.y < 0.5f)
-                continue;
+            if (Mathf.Abs(normal.y) > Mathf.Abs(bestNormalY))
+                bestNormalY = normal.y;
+            if (Mathf.Abs(normal.y) > 0.3f)
+                verticalContact = true;
+        }
 
-            if (isTrampoline)
-            {
-                float incomingSpeed = Mathf.Abs(otherRb.linearVelocity.y);
-                float boostedSpeed = incomingSpeed * trampolineBoostMultiplier;
-                float finalSpeed = Mathf.Max(boostedSpeed, trampolineBounceForce);
-                finalSpeed = Mathf.Min(finalSpeed, trampolineMaxLaunchForce);
-                otherRb.linearVelocity = new Vector2(otherRb.linearVelocity.x, finalSpeed);
-            }
-            else
-            {
-                otherRb.linearVelocity = new Vector2(otherRb.linearVelocity.x, passiveBounceForce);
-            }
-            break;
+        Debug.Log($"[BouncySlime] Player collision. bestNormalY={bestNormalY:F2}, verticalContact={verticalContact}, otherVelY={otherRb.linearVelocity.y:F2}");
+
+        if (!verticalContact)
+            return;
+
+        lastBounceTimes[otherRb] = now;
+
+        float incomingSpeed = Mathf.Abs(otherRb.linearVelocity.y);
+        float boostedSpeed = incomingSpeed * trampolineBoostMultiplier;
+        float finalSpeed = Mathf.Max(boostedSpeed, trampolineBounceForce);
+        finalSpeed = Mathf.Min(finalSpeed, trampolineMaxLaunchForce);
+
+        Debug.Log($"[BouncySlime] BOUNCING {collision.gameObject.name} upward with speed {finalSpeed}!");
+        otherRb.linearVelocity = new Vector2(otherRb.linearVelocity.x, finalSpeed);
+    }
+
+    private void CleanupBounceCooldowns()
+    {
+        float now = Time.time;
+        List<Rigidbody2D> expired = new List<Rigidbody2D>();
+        foreach (var pair in lastBounceTimes)
+        {
+            if (now - pair.Value > bounceCooldown * 2f)
+                expired.Add(pair.Key);
+        }
+        foreach (var entry in expired)
+        {
+            lastBounceTimes.Remove(entry);
         }
     }
 
