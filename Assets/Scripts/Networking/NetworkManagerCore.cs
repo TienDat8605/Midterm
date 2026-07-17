@@ -17,6 +17,7 @@ using PhotonHashtable = ExitGames.Client.Photon.Hashtable;
 public abstract class NetworkManagerCore : MonoBehaviourPunCallbacks
 {
     private const string UserIdPreferenceKey = "DinoPark.PhotonUserId";
+    private const string UserIdCommandLineArgument = "-photonUserId";
     private const int MaximumCreateAttempts = 3;
 
     public static NetworkManager Instance { get; private set; }
@@ -423,7 +424,9 @@ public abstract class NetworkManagerCore : MonoBehaviourPunCallbacks
         if (!string.IsNullOrWhiteSpace(developmentRegion))
             PhotonNetwork.PhotonServerSettings.AppSettings.FixedRegion = developmentRegion.Trim().ToLowerInvariant();
 
-        string userId = GetOrCreateStableUserId();
+        string userId = ResolveUserId(
+            Environment.GetCommandLineArgs(),
+            GetOrCreateStableUserId());
         PhotonNetwork.AuthValues = new AuthenticationValues(userId);
         if (string.IsNullOrWhiteSpace(PhotonNetwork.NickName))
             PhotonNetwork.NickName = BuildDefaultNickname(userId);
@@ -780,6 +783,28 @@ public abstract class NetworkManagerCore : MonoBehaviourPunCallbacks
 #else
         return baseId;
 #endif
+    }
+
+    public static string ResolveUserId(string[] commandLineArgs, string stableUserId)
+    {
+        if (commandLineArgs == null)
+            return stableUserId;
+
+        for (int i = 0; i < commandLineArgs.Length - 1; i++)
+        {
+            if (!string.Equals(
+                    commandLineArgs[i],
+                    UserIdCommandLineArgument,
+                    StringComparison.OrdinalIgnoreCase))
+                continue;
+
+            string overrideUserId = commandLineArgs[i + 1]?.Trim();
+            if (!string.IsNullOrEmpty(overrideUserId) &&
+                !overrideUserId.StartsWith("-", StringComparison.Ordinal))
+                return overrideUserId;
+        }
+
+        return stableUserId;
     }
 
     private static string ShortHash(string value)
