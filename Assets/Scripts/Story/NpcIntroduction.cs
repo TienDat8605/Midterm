@@ -19,6 +19,9 @@ public class NpcIntroduction : MonoBehaviour
     [Header("Trigger")]
     [SerializeField] private bool waitUntilPlayerIsNearby;
     [SerializeField, Min(0.1f)] private float triggerDistance = 3f;
+    [SerializeField] private bool repeatWhenPlayerReturns = true;
+    [SerializeField, Min(0.1f)] private float rearmDistance = 4f;
+    [SerializeField, Min(0f)] private float retriggerCooldown = 2f;
 
     [Header("Timing")]
     [SerializeField, Min(0f)] private float initialDelay = 1f;
@@ -41,22 +44,28 @@ public class NpcIntroduction : MonoBehaviour
         speechBubble.SetActive(false);
         dialogueText.text = string.Empty;
 
-        yield return WaitForAudience();
-        yield return new WaitForSeconds(initialDelay);
-
-        speechBubble.SetActive(true);
-
-        for (int i = 0; i < lines.Length; i++)
+        PlayerControllerWithPhysics localPlayer = null;
+        while (localPlayer == null)
         {
-            yield return TypeLine(lines[i]);
-
-            float delay = i == lines.Length - 1
-                ? finalDisplayTime
-                : pauseBetweenLines;
-            yield return new WaitForSeconds(delay);
+            localPlayer = FindLocalPlayer();
+            yield return null;
         }
 
-        speechBubble.SetActive(false);
+        if (waitUntilPlayerIsNearby)
+            yield return WaitUntilPlayerIsWithinRange(localPlayer, triggerDistance);
+
+        while (true)
+        {
+            yield return new WaitForSeconds(initialDelay);
+            yield return PlaySequence();
+
+            if (!repeatWhenPlayerReturns)
+                yield break;
+
+            yield return WaitUntilPlayerLeavesRange(localPlayer);
+            yield return new WaitForSeconds(retriggerCooldown);
+            yield return WaitUntilPlayerIsWithinRange(localPlayer, triggerDistance);
+        }
     }
 
     private void ResolveReferences()
@@ -72,21 +81,42 @@ public class NpcIntroduction : MonoBehaviour
             dialogueText = speechBubble.GetComponentInChildren<TMP_Text>(true);
     }
 
-    private IEnumerator WaitForAudience()
+    private IEnumerator PlaySequence()
     {
-        PlayerControllerWithPhysics localPlayer = null;
-        while (localPlayer == null)
+        speechBubble.SetActive(true);
+
+        for (int i = 0; i < lines.Length; i++)
         {
-            localPlayer = FindLocalPlayer();
-            yield return null;
+            yield return TypeLine(lines[i]);
+
+            float delay = i == lines.Length - 1
+                ? finalDisplayTime
+                : pauseBetweenLines;
+            yield return new WaitForSeconds(delay);
         }
 
-        if (!waitUntilPlayerIsNearby)
-            yield break;
+        speechBubble.SetActive(false);
+    }
 
-        float triggerDistanceSquared = triggerDistance * triggerDistance;
+    private IEnumerator WaitUntilPlayerIsWithinRange(
+        PlayerControllerWithPhysics localPlayer,
+        float distance)
+    {
+        float distanceSquared = distance * distance;
         while ((localPlayer.transform.position - transform.position).sqrMagnitude
-               > triggerDistanceSquared)
+               > distanceSquared)
+        {
+            yield return null;
+        }
+    }
+
+    private IEnumerator WaitUntilPlayerLeavesRange(
+        PlayerControllerWithPhysics localPlayer)
+    {
+        float safeRearmDistance = Mathf.Max(rearmDistance, triggerDistance);
+        float rearmDistanceSquared = safeRearmDistance * safeRearmDistance;
+        while ((localPlayer.transform.position - transform.position).sqrMagnitude
+               <= rearmDistanceSquared)
         {
             yield return null;
         }

@@ -74,6 +74,12 @@ public class AnchorSlime : PlayerControllerWithPhysics
         }
     }
 
+    protected override void PrepareForFlightMode()
+    {
+        if (isStone)
+            EndStone();
+    }
+
     private void StartStone()
     {
         isStone = true;
