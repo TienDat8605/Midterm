@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -26,6 +27,8 @@ public class PlayerControllerWithPhysics : MonoBehaviour
     private bool isGrounded;
     private float defaultGravityScale;
     private float lastAirHorizontalSpeed;
+    private float speedMultiplier = 1f;
+    private Coroutine activeDebuff;
 
     void Start()
     {
@@ -79,7 +82,7 @@ public class PlayerControllerWithPhysics : MonoBehaviour
         UpdateGrounded();
 
         if (isGrounded && !isChargingJump)
-            rb.linearVelocity = new Vector2(moveInput * walkSpeed, rb.linearVelocity.y);
+            rb.linearVelocity = new Vector2(moveInput * walkSpeed * speedMultiplier, rb.linearVelocity.y);
         else if (isGrounded)
             rb.linearVelocity = new Vector2(0f, rb.linearVelocity.y);
         else if (!Mathf.Approximately(rb.linearVelocity.x, 0f))
@@ -133,6 +136,29 @@ public class PlayerControllerWithPhysics : MonoBehaviour
     {
         isGrounded = groundCheckPoint != null &&
             Physics2D.OverlapCircle(groundCheckPoint.position, groundCheckRadius, groundLayer);
+    }
+
+    public void ApplyKnockback(Vector2 force)
+    {
+        isChargingJump = false;
+        jumpCharge = 0f;
+        rb.linearVelocity = Vector2.zero;
+        rb.AddForce(force, ForceMode2D.Impulse);
+    }
+
+    public void ApplyDebuff(float slowMultiplier, float duration)
+    {
+        if (activeDebuff != null)
+            StopCoroutine(activeDebuff);
+        activeDebuff = StartCoroutine(DebuffRoutine(slowMultiplier, duration));
+    }
+
+    private IEnumerator DebuffRoutine(float multiplier, float duration)
+    {
+        speedMultiplier = multiplier;
+        yield return new WaitForSeconds(duration);
+        speedMultiplier = 1f;
+        activeDebuff = null;
     }
 
     private void OnDrawGizmosSelected()
