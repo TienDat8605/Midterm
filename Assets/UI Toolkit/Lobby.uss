@@ -1,302 +1,540 @@
 /* ================================================================
-   LOBBY / CHARACTER SELECT — RETRO PIXEL-ART STYLESHEET
-   Earthy palette: dark browns / warm beige / black canvas / green accent
-   All borders are thick and blocky (border-radius: 0 everywhere)
+   LOBBY / CHARACTER SELECT — PIXEL-ART OVERHAUL
+   Color Palette: 
+   - Dark Brown BG: rgb(43, 28, 16)
+   - Medium Brown (Panels): rgb(74, 53, 36)
+   - Gold/Yellow Text & Borders: rgb(212, 163, 83)
+   - Bright Green (Ready): rgb(135, 185, 59)
+   - Light Green (Ping/Values): rgb(169, 214, 107)
+   - Red (Leave): rgb(173, 56, 45)
+   - Text White/Off-white: rgb(240, 240, 240)
    ================================================================ */
 
 .root-canvas {
     flex-grow: 1;
     flex-direction: column;
-    align-items: center;
-    justify-content: flex-start;
+    justify-content: space-between;
     background-color: rgb(26, 18, 9);
-    padding-top: 20px;
-    padding-bottom: 20px;
+    padding: 20px;
     background-image: url("project://database/Assets/Sprites/UI/menu_bg.png?fileID=2800000&guid=bb1531562487d8e4d80c5854b9bec2ff&type=3#menu_bg");
     -unity-background-scale-mode: stretch-to-fill;
 }
 
 /* ================================================================
-   HEADER: ROOM INFO
+   TOP BAR
    ================================================================ */
-.header-section {
+.top-bar {
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    height: 70px;
+    width: 100%;
+    position: relative;
+}
+
+.top-box {
+    background-color: rgb(43, 28, 16);
+    border-width: 4px;
+    border-color: rgb(212, 163, 83); /* Gold border */
+    border-radius: 4px;
+    height: 100%;
+    justify-content: center;
+    padding: 0 15px;
+}
+
+.code-box {
+    width: 220px;
+    align-items: flex-start;
+}
+
+.title-box {
+    padding: 0 40px;
+    flex-direction: row;
+    align-items: center;
+}
+
+.right-box {
+    flex-direction: row;
+    align-items: center;
+    padding: 0 15px;
+}
+
+.top-right-group {
+    position: absolute;
+    right: 0;
+    flex-direction: row;
+    height: 100%;
+}
+
+.small-title-gold {
+    color: rgb(212, 163, 83);
+    font-size: 14px;
+    -unity-font-style: bold;
+    margin-bottom: 2px;
+}
+
+.code-row {
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
-    width: 96%;
-    margin-bottom: 18px;
+    width: 100%;
 }
 
-.header-left {
-    flex-direction: column;
-    background-color: rgb(74, 53, 36);
-    border-width: 4px;
-    border-color: rgb(43, 28, 16);
-    padding: 8px 16px;
-}
-
-.room-code-title {
-    font-size: 14px;
-    color: rgb(232, 201, 155);
-    -unity-font-style: bold;
-}
-
-.room-code-row {
-    flex-direction: row;
-    align-items: center;
-    margin-top: 4px;
-}
-
-.room-code-text {
-    font-size: 28px;
+.code-text {
     color: rgb(255, 255, 255);
+    font-size: 26px;
     -unity-font-style: bold;
     letter-spacing: 2px;
-    margin-right: 12px;
 }
 
-.copy-button {
-    background-color: rgb(199, 155, 92);
-    border-width: 3px;
-    border-color: rgb(43, 28, 16);
+.btn-gold-small {
+    background-color: rgb(212, 163, 83);
+    border-width: 2px;
+    border-color: rgb(26, 18, 9);
+    border-radius: 4px;
     color: rgb(43, 28, 16);
     font-size: 14px;
     -unity-font-style: bold;
     padding: 4px 8px;
-    transition: scale 0.1s ease-in-out, background-color 0.1s ease-in-out;
+    margin-left: 10px;
 }
-.copy-button:hover { background-color: rgb(220, 180, 110); scale: 1.05; }
-.copy-button:active { background-color: rgb(150, 108, 55); scale: 0.95; }
+.btn-gold-small:hover { background-color: rgb(235, 190, 110); }
+.btn-gold-small:active { background-color: rgb(180, 130, 60); }
 
-.header-right {
-    flex-direction: row;
-}
-
-.info-badge {
-    background-color: rgb(199, 155, 92);
-    border-width: 3px;
-    border-color: rgb(43, 28, 16);
-    color: rgb(43, 28, 16);
-    font-size: 16px;
+.lobby-title {
+    color: rgb(230, 210, 180);
+    font-size: 48px;
     -unity-font-style: bold;
-    padding: 8px 16px;
-    margin-left: 8px;
+    letter-spacing: 4px;
+    margin: 0 20px;
 }
 
-/* ================================================================
-   3-SLOT ROW
-   ================================================================ */
-.slot-row {
+/* Icons (Placeholders until sprites are assigned) */
+.cat-icon-yellow, .cat-icon-gray, .map-icon, .flag-icon, .btn-settings-icon, .diamond-icon, .map-icon-large, .flag-icon-large, .players-icon-large {
+    width: 32px;
+    height: 32px;
+    background-color: rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
+}
+.cat-icon-yellow { background-color: rgb(212, 163, 83); }
+.cat-icon-gray { background-color: rgb(150, 150, 150); }
+.diamond-icon { width: 12px; height: 12px; transform-origin: center; rotate: 45deg; background-color: rgb(100, 70, 45); margin: 0 10px; }
+
+.info-row-top {
     flex-direction: row;
-    justify-content: center;
-    align-items: stretch;
-    width: 96%;
-    height: 480px;
-    margin-bottom: 16px;
+    align-items: center;
+    margin: 0 10px;
 }
-
-/* ================================================================
-   INDIVIDUAL PLAYER SLOT CARD
-   ================================================================ */
-.player-slot {
+.info-text-col {
     flex-direction: column;
-    align-items: center;
-    flex-grow: 1;
-    flex-basis: 0;
     margin-left: 8px;
-    margin-right: 8px;
-    background-color: rgb(74, 53, 36);
-    border-width: 5px;
-    border-color: rgb(43, 28, 16);
-    padding: 14px 10px 14px 10px;
-}
-
-.slot-center {
-    background-color: rgb(89, 65, 42);
-    border-color: rgb(199, 155, 92);
-}
-
-.slot-ready {
-    border-color: rgb(79, 122, 42);
-    background-color: rgb(55, 75, 30);
-}
-
-/* ================================================================
-   PLAYER LABEL & HOST CROWN
-   ================================================================ */
-.player-title-row {
-    flex-direction: row;
-    align-items: center;
-    margin-bottom: 10px;
-}
-
-.host-label {
-    font-size: 14px;
-    color: rgb(255, 215, 0); /* Gold */
-    -unity-font-style: bold;
-    background-color: rgb(43, 28, 16);
-    padding: 4px;
-    margin-right: 6px;
-}
-
-.player-label {
-    font-size: 20px;
-    color: rgb(255, 255, 255);
-    -unity-font-style: bold;
-    letter-spacing: 2px;
-}
-
-/* ================================================================
-   CHARACTER DISPLAY (arrows + portrait)
-   ================================================================ */
-.char-display {
-    flex-direction: row;
-    align-items: center;
     justify-content: center;
-    width: 100%;
-    margin-bottom: 6px;
 }
-
-/* ---- Arrow buttons ---- */
-.arrow-button {
-    width: 50px;
-    height: 70px;
-    background-color: rgb(199, 155, 92);
-    border-width: 4px;
-    border-color: rgb(43, 28, 16);
-    border-radius: 0;
-    font-size: 28px;
-    color: rgb(43, 28, 16);
-    -unity-font-style: bold;
-    -unity-text-align: middle-center;
-    padding: 0;
-    margin: 0 6px;
-    flex-shrink: 0;
-    transition: scale 0.1s ease-in-out, background-color 0.1s ease-in-out;
-}
-.arrow-button:hover { background-color: rgb(220, 180, 110); scale: 1.1; }
-.arrow-button:active { background-color: rgb(150, 108, 55); scale: 0.9; }
-
-/* ---- Portrait container ---- */
-.char-portrait {
-    flex-direction: column;
-    align-items: center;
-    flex-grow: 1;
-}
-
-.char-image {
-    width: 110px;
-    height: 110px;
-    border-width: 4px;
-    border-color: rgb(43, 28, 16);
-    background-color: rgb(232, 201, 155);
-    -unity-background-scale-mode: scale-to-fit;
-    margin-bottom: 6px;
-}
-
-.char-name-label {
-    font-size: 20px;
-    color: rgb(243, 227, 195);
-    -unity-font-style: bold;
-    letter-spacing: 2px;
-    margin-bottom: 2px;
-}
-
-.char-tag-label {
-    font-size: 13px;
-    color: rgb(199, 155, 92);
-}
-
-/* ================================================================
-   PING LABEL
-   ================================================================ */
-.ping-label {
-    font-size: 14px;
-    color: rgb(169, 214, 107);
-    -unity-font-style: bold;
-    margin-bottom: 12px;
-}
-
-/* ================================================================
-   PER-SLOT READY BUTTON
-   ================================================================ */
-.ready-slot-button {
-    background-color: rgb(169, 214, 107);
-    border-width: 5px;
-    border-color: rgb(43, 28, 16);
-    width: 100%;
-    height: 56px;
-    font-size: 20px;
-    color: rgb(43, 28, 16);
-    -unity-font-style: bold;
-    letter-spacing: 2px;
-    margin-top: auto;
-    transition: scale 0.1s ease-in-out, background-color 0.1s ease-in-out;
-}
-.ready-slot-button:hover { background-color: rgb(190, 230, 130); scale: 1.05; }
-.ready-slot-button:active { background-color: rgb(140, 190, 80); scale: 0.95; }
-
-.ready-slot-button--active {
-    background-color: rgb(107, 165, 55);
-    border-color: rgb(79, 122, 42);
-    color: rgb(230, 255, 200);
-}
-.ready-slot-button--active:hover { background-color: rgb(130, 190, 70); scale: 1.05; }
-
-/* ================================================================
-   BOTTOM PANEL
-   ================================================================ */
-.bottom-panel {
-    flex-direction: row;
-    align-items: center;
-    width: 96%;
-    min-height: 80px;
-}
-
-.leave-button {
-    background-color: rgb(180, 70, 70);
-    border-width: 4px;
-    border-color: rgb(43, 28, 16);
+.value-text-white {
     color: white;
     font-size: 16px;
     -unity-font-style: bold;
-    padding: 12px 24px;
+}
+.divider-vertical {
+    width: 2px;
+    height: 40px;
+    background-color: rgb(100, 70, 45);
+    margin: 0 5px;
+}
+
+.btn-settings-icon {
+    width: 70px;
+    height: 70px;
+    background-color: rgb(43, 28, 16);
+    border-width: 4px;
+    border-color: rgb(212, 163, 83);
+    border-radius: 4px;
+    margin-left: 15px;
+}
+
+/* ================================================================
+   MAIN CONTENT
+   ================================================================ */
+.main-content {
+    flex-direction: row;
+    justify-content: center;
+    flex-grow: 1;
+    width: 100%;
+    margin-top: 15px;
+    margin-bottom: 15px;
+}
+
+/* LEFT COLUMN (Room Info & Chat) */
+.left-column {
+    width: 300px;
+    flex-direction: column;
     position: absolute;
     left: 0;
-    transition: scale 0.1s ease-in-out, background-color 0.1s ease-in-out;
+    top: 0;
+    bottom: 0;
 }
-.leave-button:hover { background-color: rgb(200, 90, 90); scale: 1.05; }
-.leave-button:active { background-color: rgb(150, 50, 50); scale: 0.95; }
 
-.bottom-center {
+.panel-box {
+    background-color: rgb(43, 28, 16);
+    border-width: 4px;
+    border-color: rgb(212, 163, 83);
+    border-radius: 4px;
+    padding: 15px;
+    flex-direction: column;
+}
+
+.room-info-box {
+    margin-bottom: 15px;
+}
+
+.chat-box {
     flex-grow: 1;
+}
+
+.panel-title-row {
+    flex-direction: row;
     align-items: center;
     justify-content: center;
+    margin-bottom: 20px;
+    border-bottom-width: 2px;
+    border-bottom-color: rgb(74, 53, 36);
+    padding-bottom: 10px;
 }
 
-.start-button {
-    background-color: rgb(80, 80, 80);
-    border-width: 5px;
+.panel-title {
+    color: rgb(212, 163, 83);
+    font-size: 18px;
+    -unity-font-style: bold;
+    letter-spacing: 1px;
+}
+
+.info-row {
+    flex-direction: row;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.value-text-green {
+    color: rgb(135, 185, 59);
+    font-size: 18px;
+    -unity-font-style: bold;
+}
+
+.chat-scroll {
+    flex-grow: 1;
+    margin-bottom: 10px;
+}
+
+.chat-msg-system {
+    color: rgb(135, 185, 59);
+    font-size: 14px;
+    margin-bottom: 4px;
+    white-space: normal;
+}
+
+.chat-input-row {
+    flex-direction: row;
+    height: 40px;
+}
+
+.chat-input {
+    flex-grow: 1;
+    background-color: rgb(26, 18, 9);
+    border-width: 2px;
+    border-color: rgb(100, 70, 45);
+    color: white;
+    border-radius: 4px;
+    padding-left: 8px;
+    -unity-font-style: normal;
+}
+
+.btn-chat-send {
+    width: 40px;
+    background-color: rgb(212, 163, 83);
+    border-width: 2px;
+    border-color: rgb(26, 18, 9);
+    border-radius: 4px;
+    margin-left: 8px;
+}
+
+.right-column-container {
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.right-column-slots {
+    flex-direction: row;
+    flex-grow: 1;
+    justify-content: center;
+    align-items: center;
+}
+
+.panel-box-outline {
+    background-color: rgb(74, 53, 36);
+    border-width: 4px;
     border-color: rgb(43, 28, 16);
-    width: 200px;
-    height: 50px;
+    border-radius: 6px;
+}
+
+.player-slot {
+    width: 300px;
+    height: 460px;
+    margin: 0 10px;
+    flex-direction: column;
+    align-items: center;
+    padding: 15px;
+    background-color: rgb(74, 53, 36);
+    border-width: 4px;
+    border-color: rgb(43, 28, 16);
+    border-radius: 6px;
+}
+
+.host-slot {
+    border-color: rgb(212, 163, 83); /* Gold border for host */
+}
+
+.player-title-row {
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    margin-bottom: 15px;
+    position: relative;
+}
+
+.host-label-inline {
+    color: rgb(212, 163, 83);
+    font-size: 16px;
+    -unity-font-style: bold;
+    margin-right: 8px;
+}
+
+.player-label {
+    color: white;
+    font-size: 20px;
+    -unity-font-style: bold;
+}
+
+.crown-icon-topright {
+    position: absolute;
+    right: -5px;
+    top: -15px;
+    width: 24px;
+    height: 24px;
+    background-color: rgb(212, 163, 83);
+    border-radius: 12px;
+}
+
+.char-portrait-bg {
+    width: 220px;
+    height: 220px;
+    background-color: rgb(220, 200, 170);
+    border-width: 4px;
+    border-color: rgb(43, 28, 16);
+    border-radius: 4px;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 15px;
+}
+
+.char-image {
+    width: 180px;
+    height: 180px;
+    -unity-background-scale-mode: scale-to-fit;
+}
+
+.char-display-row {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    margin-bottom: 10px;
+}
+
+.arrow-button-brown {
+    width: 36px;
+    height: 36px;
+    background-color: rgb(180, 130, 80);
+    border-width: 3px;
+    border-color: rgb(43, 28, 16);
+    border-radius: 4px;
+    color: rgb(43, 28, 16);
+    font-size: 20px;
+    -unity-font-style: bold;
+    padding: 0;
+}
+.arrow-button-brown:hover { background-color: rgb(200, 150, 100); }
+.arrow-button-brown:active { background-color: rgb(140, 90, 50); }
+
+.char-name-label-big {
+    color: white;
     font-size: 22px;
     -unity-font-style: bold;
-    color: rgb(200, 200, 200);
-    transition: scale 0.1s ease-in-out, background-color 0.1s ease-in-out;
+    letter-spacing: 2px;
 }
-.start-button--enabled {
-    background-color: rgb(169, 214, 107);
-    border-color: rgb(79, 122, 42);
+
+.ping-row {
+    flex-direction: row;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.ping-label-green {
+    color: rgb(135, 185, 59);
+    font-size: 14px;
+    -unity-font-style: bold;
+    margin-right: 8px;
+}
+
+.signal-bars {
+    width: 20px;
+    height: 16px;
+    background-color: rgb(135, 185, 59);
+    /* Placeholder for signal bars icon */
+}
+
+.btn-green-large {
+    width: 200px;
+    height: 45px;
+    background-color: rgb(135, 185, 59);
+    border-width: 4px;
+    border-color: rgb(43, 28, 16);
+    border-radius: 8px;
     color: rgb(43, 28, 16);
+    font-size: 22px;
+    -unity-font-style: bold;
+    letter-spacing: 2px;
+    margin-top: auto;
+    margin-bottom: 10px;
 }
-.start-button--enabled:hover { background-color: rgb(190, 234, 128); scale: 1.05; }
-.start-button--enabled:active { background-color: rgb(140, 190, 80); scale: 0.95; }
+.btn-green-large:hover { background-color: rgb(160, 210, 80); }
+.btn-green-large:active { background-color: rgb(110, 150, 40); }
 
-.status-label {
-    font-size: 15px;
-    color: rgb(243, 227, 195);
-    margin-top: 6px;
+/* Bottom Room Code Box */
+.bottom-code-box {
+    background-color: rgb(43, 28, 16);
+    border-width: 4px;
+    border-color: rgb(212, 163, 83);
+    border-radius: 6px;
+    padding: 10px 20px;
+    margin-top: 20px;
+    width: 350px;
+    align-items: flex-start;
 }
 
+.small-title-gold-large {
+    color: rgb(212, 163, 83);
+    font-size: 18px;
+    -unity-font-style: bold;
+    margin-bottom: 4px;
+}
 
+.code-text-large {
+    color: rgb(255, 255, 255);
+    font-size: 36px;
+    -unity-font-style: bold;
+    letter-spacing: 4px;
+}
+
+.btn-gold-large {
+    background-color: rgb(212, 163, 83);
+    border-width: 3px;
+    border-color: rgb(26, 18, 9);
+    border-radius: 6px;
+    color: rgb(43, 28, 16);
+    font-size: 18px;
+    -unity-font-style: bold;
+    padding: 6px 12px;
+    margin-left: 15px;
+}
+.btn-gold-large:hover { background-color: rgb(235, 190, 110); }
+.btn-gold-large:active { background-color: rgb(180, 130, 60); }
+
+/* ================================================================
+   BOTTOM BAR
+   ================================================================ */
+.bottom-bar-panel {
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    background-color: rgb(43, 28, 16);
+    border-width: 4px;
+    border-color: rgb(100, 70, 45);
+    border-radius: 6px;
+    height: 80px;
+    align-self: center;
+    padding: 0 30px;
+}
+
+.btn-red-large {
+    background-color: rgb(173, 56, 45);
+    border-width: 4px;
+    border-color: rgb(26, 18, 9);
+    border-radius: 6px;
+    color: white;
+    font-size: 18px;
+    -unity-font-style: bold;
+    padding: 10px 20px;
+    height: 50px;
+    margin-right: 20px;
+}
+.btn-red-large:hover { background-color: rgb(200, 70, 60); }
+.btn-red-large:active { background-color: rgb(140, 40, 30); }
+
+.start-container {
+    flex-direction: column;
+    align-items: center;
+    width: 400px;
+    margin: 0 20px;
+}
+
+.btn-start-game {
+    background-color: rgb(135, 185, 59);
+    border-width: 4px;
+    border-color: rgb(26, 18, 9);
+    border-radius: 6px;
+    color: rgb(43, 28, 16);
+    font-size: 28px;
+    -unity-font-style: bold;
+    letter-spacing: 3px;
+    width: 100%;
+    height: 55px;
+}
+.btn-start-game:hover { background-color: rgb(160, 210, 80); }
+.btn-start-game:active { background-color: rgb(110, 150, 40); }
+
+.bottom-status-text {
+    color: rgb(212, 163, 83);
+    font-size: 12px;
+    -unity-font-style: bold;
+    margin-top: -5px; /* Pull it slightly up to sit tightly under the button */
+    padding-top: 10px;
+}
+
+.ready-status-box {
+    flex-direction: column;
+    align-items: flex-end;
+    justify-content: center;
+    width: 150px;
+    margin-left: 20px;
+}
+
+.ready-count-text {
+    color: rgb(212, 163, 83);
+    font-size: 16px;
+    -unity-font-style: bold;
+    margin-bottom: 4px;
+}
+
+.ready-icons-row {
+    flex-direction: row;
+}
+
+.ready-icon-dim {
+    width: 24px;
+    height: 24px;
+    background-color: rgba(135, 185, 59, 0.3);
+    border-radius: 12px;
+    margin-left: 5px;
+}
