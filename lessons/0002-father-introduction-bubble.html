@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Father Introduction Bubble</title>
+  <link rel="stylesheet" href="../assets/lesson.css">
+</head>
+<body>
+<main>
+  <p>Unity story system · Lesson 2</p>
+  <h1>Father delivers the opening objective</h1>
+  <p>The implemented prototype waits for the local slime, opens one world-space bubble, types three lines, and closes automatically.</p>
+
+  <h2>Inspect it</h2>
+  <ol>
+    <li>Open <code>Assets/Scenes/NewMap/Map1.unity</code>.</li>
+    <li>Expand <code>NPCs/FatherNPC/SpeechBubble</code>.</li>
+    <li>Select Father and inspect <code>FatherIntroduction</code>. The dialogue and four timing values are editable in the Inspector.</li>
+    <li>Open <code>Assets/Scripts/Story/FatherIntroduction.cs</code>. Find the local-player wait, sequence loop, and <code>maxVisibleCharacters</code> typewriter.</li>
+  </ol>
+
+  <h2>Expected test</h2>
+  <p>Enter the map through the game’s normal single-player or multiplayer flow. After the locally owned slime spawns, wait one second. The three messages should replace each other in the same bubble, then the bubble should disappear.</p>
+
+  <h2>Why it is local</h2>
+  <p>The component accepts a player without a network view for single-player, a view ID of zero for a local scene/test object, or a Photon view where <code>IsMine</code> is true. No RPC is used for the bubble.</p>
+
+  <h2>Retrieval check</h2>
+  <p>Which TMP property hides unrevealed characters without changing the complete stored string?</p>
+
+  <p>Primary reference: <a href="https://docs.unity3d.com/6000.3/Documentation/ScriptReference/MonoBehaviour.StartCoroutine.html">Unity coroutines</a>. Ask your agent if the bubble size, placement, or timing needs adjustment after your first visual test.</p>
+</main>
+</body>
+</html>

@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Customize Father's Speech Bubble</title>
+  <link rel="stylesheet" href="../assets/lesson.css">
+</head>
+<body>
+<main>
+  <p>Unity story system · Lesson 3</p>
+  <h1>Make the dialogue sound and look like your game</h1>
+  <p>Dialogue content belongs to <code>FatherIntroduction</code>. Typography belongs to <code>DialogueText</code>. Bubble artwork and size belong to <code>BubbleBackground</code> and <code>SpeechBubble</code>.</p>
+
+  <h2>Change the spoken lines</h2>
+  <ol>
+    <li>Open <code>Assets/Scenes/NewMap/Map1.unity</code>.</li>
+    <li>Select <code>NPCs/FatherNPC</code>.</li>
+    <li>In <code>Father Introduction → Lines</code>, change the array size and edit each element.</li>
+  </ol>
+  <p>Do not type permanent dialogue into the DialogueText text field. The script replaces that field at runtime.</p>
+
+  <h2>Change typewriter pacing</h2>
+  <ul>
+    <li><code>Initial Delay</code>: wait after the local slime spawns.</li>
+    <li><code>Seconds Per Character</code>: lower is faster.</li>
+    <li><code>Pause Between Lines</code>: reading time before replacement.</li>
+    <li><code>Final Display Time</code>: how long the final message remains.</li>
+  </ul>
+
+  <h2>Change the typography</h2>
+  <p>Select <code>SpeechBubble/DialogueText</code>. Adjust Font Asset, Font Size, Font Style, Vertex Color, alignment, wrapping, and its Rect Transform. Keep at least 20 UI units between text and the decorative border.</p>
+
+  <h2>Change the bubble</h2>
+  <p>Select <code>SpeechBubble/BubbleBackground</code> to replace its Source Image or adjust its <code>350 × 140</code> Rect Transform. Select the parent <code>SpeechBubble</code> to move or scale the complete bubble above Father.</p>
+
+  <h2>Safe visual preview</h2>
+  <ol>
+    <li>Temporarily enable <code>SpeechBubble</code> in the Hierarchy.</li>
+    <li>Enter sample text in <code>DialogueText</code> and tune the layout.</li>
+    <li>Before saving, clear the sample text and disable <code>SpeechBubble</code> again.</li>
+    <li>Run through the normal game flow to test all three real lines.</li>
+  </ol>
+
+  <h2>Retrieval check</h2>
+  <p>If you want to rewrite Father’s quest, do you edit DialogueText or the Lines array—and why?</p>
+
+  <p>Primary reference: <a href="https://docs.unity3d.com/Packages/com.unity.textmeshpro@latest/index.html">TextMesh Pro documentation</a>. Ask your agent if you want help selecting a font or adapting a new bubble sprite.</p>
+</main>
+</body>
+</html>

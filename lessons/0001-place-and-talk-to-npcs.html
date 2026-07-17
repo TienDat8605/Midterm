@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Place and Talk to NPCs</title>
+  <link rel="stylesheet" href="../assets/lesson.css">
+</head>
+<body>
+<main>
+  <p>Unity story system · Lesson 1</p>
+  <h1>Place one NPC and make dialogue appear</h1>
+  <p>The tangible win is one NPC in <code>Map1</code> that opens a dialogue panel only when the local slime is close enough. Repeat the same pattern for the other two NPCs.</p>
+
+  <h2>1. Fix the sprite import before placement</h2>
+  <ol>
+    <li>Select <code>Assets/Sprites/Story/father.png</code>.</li>
+    <li>Set <strong>Sprite Mode</strong> to <strong>Single</strong> because it contains one character.</li>
+    <li>Set <strong>Pixels Per Unit</strong> consistently; <code>32</code> is a sensible starting point for these 32–34 px-wide characters.</li>
+    <li>Open Sprite Editor and use a <strong>Bottom Center</strong> pivot, then Apply.</li>
+    <li>Repeat for daughter and guider. Set Filter Mode to Point if the pixel art looks blurry.</li>
+  </ol>
+  <p class="callout">The current files are imported as Multiple with a bottom-left custom pivot. That is why dragging and aligning their feet may feel wrong.</p>
+
+  <h2>2. Place the NPC</h2>
+  <ol>
+    <li>Open <code>Assets/Scenes/NewMap/Map1.unity</code>.</li>
+    <li>Create an empty root named <code>NPCs</code>.</li>
+    <li>Drag <code>father.png</code> into the scene, rename it <code>FatherNPC</code>, and parent it under <code>NPCs</code>.</li>
+    <li>Move it to a safe platform. Set Sprite Renderer Sorting Layer/Order so it draws in front of the map.</li>
+    <li>Add a <code>BoxCollider2D</code>, enable <code>Is Trigger</code>, and resize it around the visible body.</li>
+  </ol>
+
+  <h2>3. Build the light-novel panel</h2>
+  <ol>
+    <li>Create <code>Canvas</code> with Screen Space - Overlay and Canvas Scaler set to Scale With Screen Size (1920×1080).</li>
+    <li>Add a bottom <code>DialoguePanel</code> containing two TextMeshPro UI texts: <code>SpeakerText</code> and <code>BodyText</code>.</li>
+    <li>Add a small <code>ContinueText</code> saying “Click to continue”. Disable <code>DialoguePanel</code> initially.</li>
+    <li>Create <code>DialogueUI.cs</code> on the Canvas. It owns the panel and advances through lines.</li>
+    <li>Create <code>NPCDialogue.cs</code> on each NPC. It owns that NPC’s speaker name and lines.</li>
+  </ol>
+
+  <h2>4. Interaction rule</h2>
+  <p>On a left click, convert <code>Mouse.current.position</code> with <code>Camera.main.ScreenToWorldPoint</code>. Check whether the NPC collider contains that world point, then find a <code>PlayerControllerWithPhysics</code> that has <code>inputEnabled == true</code>. Open dialogue only when the distance is below about 2 world units.</p>
+  <pre><code>if (Mouse.current.leftButton.wasPressedThisFrame)
+{
+    Vector2 world = Camera.main.ScreenToWorldPoint(
+        Mouse.current.position.ReadValue());
+
+    if (npcCollider.OverlapPoint(world) &amp;&amp; LocalSlimeIsNear())
+        DialogueUI.Instance.Show(speakerName, lines);
+}</code></pre>
+  <p>This project-specific check matters: remote Photon slimes have input disabled, so they must not trigger another client’s dialogue UI. Dialogue itself should stay local unless synchronized conversations are a deliberate later feature.</p>
+
+  <h2>5. Inspector data for the three NPCs</h2>
+  <ul>
+    <li>FatherNPC: Speaker “Father”; lines such as “The mountain remembers every fall.”</li>
+    <li>DaughterNPC: Speaker “Daughter”; assign her own line array.</li>
+    <li>GuiderNPC: Speaker “Guide”; place near the beginning and explain movement/jump controls.</li>
+  </ul>
+
+  <h2>Test loop</h2>
+  <ol>
+    <li>Click from far away: nothing opens.</li>
+    <li>Move the local slime beside the NPC and click its body: panel opens.</li>
+    <li>Click Continue: exactly one line advances; the last click closes the panel.</li>
+    <li>While the panel is open, disable the local slime’s <code>inputEnabled</code>; restore its previous value on close.</li>
+    <li>Run a second Photon client: each player should control only their own dialogue panel.</li>
+  </ol>
+
+  <h2>Retrieval check</h2>
+  <p>Before implementing, answer from memory: which component makes an NPC selectable in 2D, and which existing player property distinguishes the locally controlled slime?</p>
+
+  <p>Primary references: <a href="https://docs.unity3d.com/6000.3/Documentation/ScriptReference/Camera.ScreenToWorldPoint.html">ScreenToWorldPoint</a> and <a href="https://docs.unity3d.com/6000.3/Documentation/ScriptReference/Physics2D.OverlapPointAll.html">2D point overlap</a>. Ask your agent about any Inspector step or error that is unclear.</p>
+</main>
+</body>
+</html>
