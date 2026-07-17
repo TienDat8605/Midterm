@@ -54,7 +54,6 @@ public class StickySlime : PlayerControllerWithPhysics
     private float tetherCooldownTimer;
     private Rigidbody2D tetheredTarget;
     private DistanceJoint2D tetherJoint;
-    private LineRenderer tetherLine;
 
     protected override void Initialize()
     {
@@ -63,15 +62,6 @@ public class StickySlime : PlayerControllerWithPhysics
         if (tetherTargetLayer.value == 0)
             tetherTargetLayer = LayerMask.GetMask("Default");
 
-        tetherLine = GetComponent<LineRenderer>();
-        if (tetherLine == null)
-        {
-            tetherLine = gameObject.AddComponent<LineRenderer>();
-            tetherLine.positionCount = 2;
-            tetherLine.startWidth = 0.05f;
-            tetherLine.endWidth = 0.05f;
-            tetherLine.enabled = false;
-        }
     }
 
     protected override bool CanChargeJump()
@@ -104,8 +94,6 @@ public class StickySlime : PlayerControllerWithPhysics
         {
             CheckTetherBreak();
         }
-
-        UpdateTetherVisual();
     }
 
     protected override void OnCollisionEnter2D(Collision2D collision)
@@ -253,9 +241,6 @@ public class StickySlime : PlayerControllerWithPhysics
         tetherTimer = tetherDuration;
         tetheredTarget = target;
 
-        if (tetherLine != null)
-            tetherLine.enabled = true;
-
         if (anim) anim.SetBool("isTethered", true);
     }
 
@@ -271,17 +256,7 @@ public class StickySlime : PlayerControllerWithPhysics
             tetherJoint = null;
         }
 
-        tetherLine.enabled = false;
         if (anim) anim.SetBool("isTethered", false);
-    }
-
-    private void UpdateTetherVisual()
-    {
-        if (tetherLine == null || tetheredTarget == null)
-            return;
-
-        tetherLine.SetPosition(0, transform.position);
-        tetherLine.SetPosition(1, tetheredTarget.position);
     }
 
     private void CheckTetherBreak()
