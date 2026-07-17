@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UIElements;
 using Photon.Pun;
 using UnityEngine.UIElements;
 
@@ -54,6 +53,7 @@ public class UIManager : MonoBehaviour
 
     // ---- Main Menu ----
     private Button    _hostButton;
+    private Button    _singlePlayerButton;
     private Button    _joinButton;
     private TextField _codeInput;
 
@@ -70,7 +70,11 @@ public class UIManager : MonoBehaviour
     // New Lobby elements
     private Label           _roomCodeLabel;
     private Button          _copyBtn;
-    
+    private Button          _previousMapButton;
+    private Button          _nextMapButton;
+    private Label           _mapLabel;
+    private MultiplayerMapCatalog _mapCatalog;
+    private int             _selectedMapIndex;
 
     private Label           _statusLabel;
     private Button          _startButton;
@@ -81,6 +85,7 @@ public class UIManager : MonoBehaviour
     // ================================================================
     private void Awake()
     {
+        SinglePlayerSession.Stop();
         _uiDoc = GetComponent<UIDocument>();
     }
 
@@ -112,6 +117,7 @@ public class UIManager : MonoBehaviour
     private void OnDisable()
     {
         if (_hostButton != null) _hostButton.clicked -= OnHostClicked;
+        if (_singlePlayerButton != null) _singlePlayerButton.clicked -= OnSinglePlayerClicked;
         if (_joinButton != null) _joinButton.clicked -= OnJoinClicked;
         if (_startButton != null) _startButton.clicked -= OnStartClicked;
         if (_backButton  != null) _backButton.clicked  -= OnLeaveRoom;
@@ -126,6 +132,9 @@ public class UIManager : MonoBehaviour
 
     private void OnConnectionStateChanged(NetworkConnectionState state)
     {
+        if (SinglePlayerSession.IsActive)
+            return;
+
         if (state == NetworkConnectionState.InRoom)
             ShowScreen(Screen.Lobby);
         else
@@ -134,13 +143,16 @@ public class UIManager : MonoBehaviour
 
     private void OnLobbyStateChanged(LobbySnapshot lobby)
     {
+        if (SinglePlayerSession.IsActive)
+            return;
+
         if (lobby == null) return;
+        RestoreMultiplayerLobbyPresentation();
         
         if (_roomCodeLabel != null) _roomCodeLabel.text = lobby.RoomCode;
 
-        var mapLabel = _lobbyScreen.Q<Label>("MapLabel");
-        if (mapLabel != null && !string.IsNullOrEmpty(lobby.SelectedMapDisplayName)) 
-            mapLabel.text = $"MAP: {lobby.SelectedMapDisplayName.ToUpper()}";
+        if (_mapLabel != null && !string.IsNullOrEmpty(lobby.SelectedMapDisplayName))
+            _mapLabel.text = $"MAP: {lobby.SelectedMapDisplayName.ToUpper()}";
 
         for (int i = 0; i < NUM_SLOTS; i++)
         {
@@ -179,6 +191,7 @@ public class UIManager : MonoBehaviour
         if (_mainMenuScreen == null) return;
 
         _hostButton = _mainMenuScreen.Q<Button>("HostBut");
+        _singlePlayerButton = _mainMenuScreen.Q<Button>("SinglePlayerBut");
         _joinButton = _mainMenuScreen.Q<Button>("JoinBut");
         _codeInput  = _mainMenuScreen.Q<TextField>();
 
@@ -198,7 +211,15 @@ public class UIManager : MonoBehaviour
         }
 
         if (_hostButton != null) _hostButton.clicked += OnHostClicked;
+        if (_singlePlayerButton != null) _singlePlayerButton.clicked += OnSinglePlayerClicked;
         if (_joinButton != null) _joinButton.clicked += OnJoinClicked;
+    }
+
+    private void OnSinglePlayerClicked()
+    {
+        Debug.Log("[UIManager] Opening single-player setup.");
+        SinglePlayerSession.BeginSetup();
+        ShowSinglePlayerLobby();
     }
 
     private void OnHostClicked()
@@ -231,7 +252,12 @@ public class UIManager : MonoBehaviour
 
         _roomCodeLabel = _lobbyScreen.Q<Label>("RoomCodeLabel");
         _copyBtn = _lobbyScreen.Q<Button>("CopyBtn");
+        _mapLabel = _lobbyScreen.Q<Label>("MapLabel");
+        _previousMapButton = _lobbyScreen.Q<Button>("PreviousMapButton");
+        _nextMapButton = _lobbyScreen.Q<Button>("NextMapButton");
         if (_copyBtn != null) _copyBtn.clicked += OnCopyCodeClicked;
+        if (_previousMapButton != null) _previousMapButton.clicked += () => CycleMap(-1);
+        if (_nextMapButton != null) _nextMapButton.clicked += () => CycleMap(1);
 
         for (int i = 0; i < NUM_SLOTS; i++)
         {
@@ -271,6 +297,17 @@ public class UIManager : MonoBehaviour
 
     private void CycleCharacter(int slot, int dir)
     {
+        if (SinglePlayerSession.IsActive)
+        {
+            if (slot != 0 || characters.Count == 0)
+                return;
+
+            _selectedIndex[0] = (_selectedIndex[0] + dir + characters.Count) % characters.Count;
+            SinglePlayerSession.SelectRole((SlimeRole)(_selectedIndex[0] + 1));
+            RefreshSinglePlayerCharacter();
+            return;
+        }
+
         if (NetworkManager.Instance == null || NetworkManager.Instance.CurrentLobby == null) return;
         var lobby = NetworkManager.Instance.CurrentLobby;
         if (slot >= lobby.Players.Count) return;
@@ -435,6 +472,13 @@ public class UIManager : MonoBehaviour
 
     private void OnStartClicked()
     {
+        if (SinglePlayerSession.IsActive)
+        {
+            Debug.Log("[UIManager] Starting single-player game.");
+            SinglePlayerSession.StartGame();
+            return;
+        }
+
         if (NetworkManager.Instance != null && NetworkManager.Instance.CanStartGame)
         {
             Debug.Log("[UIManager] Starting game via NetworkManager!");
@@ -444,9 +488,129 @@ public class UIManager : MonoBehaviour
 
     private void OnLeaveRoom()
     {
+        if (SinglePlayerSession.IsActive)
+        {
+            SinglePlayerSession.Stop();
+            ShowScreen(Screen.MainMenu);
+            return;
+        }
+
         if (NetworkManager.Instance != null)
         {
             NetworkManager.Instance.LeaveRoom();
         }
+    }
+
+    private void ShowSinglePlayerLobby()
+    {
+        _mapCatalog = Resources.Load<MultiplayerMapCatalog>("MultiplayerMapCatalog");
+        _selectedMapIndex = 0;
+        if (_mapCatalog != null)
+        {
+            for (int i = 0; i < _mapCatalog.Maps.Count; i++)
+            {
+                if (_mapCatalog.Maps[i].SceneName == SinglePlayerSession.SelectedSceneName)
+                {
+                    _selectedMapIndex = i;
+                    break;
+                }
+            }
+        }
+
+        _selectedIndex[0] = (int)SinglePlayerSession.SelectedRole - 1;
+        ShowScreen(Screen.Lobby);
+
+        if (_roomCodeLabel != null) _roomCodeLabel.text = "LOCAL";
+        if (_copyBtn != null) _copyBtn.style.display = DisplayStyle.None;
+        Label roomTitle = _lobbyScreen.Q<Label>("RoomCodeTitle");
+        if (roomTitle != null) roomTitle.text = "SINGLE PLAYER";
+        Label modeLabel = _lobbyScreen.Q<Label>("ModeLabel");
+        if (modeLabel != null) modeLabel.text = "MODE: SOLO";
+
+        for (int i = 0; i < NUM_SLOTS; i++)
+        {
+            _slotRoots[i].style.display = i == 0 ? DisplayStyle.Flex : DisplayStyle.None;
+            if (_readyBtns[i] != null)
+                _readyBtns[i].style.display = DisplayStyle.None;
+
+            Button leftArrow = _lobbyScreen.Q<Button>($"LeftArrow{i + 1}");
+            Button rightArrow = _lobbyScreen.Q<Button>($"RightArrow{i + 1}");
+            if (leftArrow != null)
+                leftArrow.style.display = i == 0 ? DisplayStyle.Flex : DisplayStyle.None;
+            if (rightArrow != null)
+                rightArrow.style.display = i == 0 ? DisplayStyle.Flex : DisplayStyle.None;
+        }
+
+        Label playerLabel = _lobbyScreen.Q<Label>("PlayerLabel1");
+        if (playerLabel != null) playerLabel.text = "PLAYER 1";
+        Label hostCrown = _lobbyScreen.Q<Label>("HostCrown1");
+        if (hostCrown != null) hostCrown.style.display = DisplayStyle.None;
+        Label pingLabel = _lobbyScreen.Q<Label>("PingLabel1");
+        if (pingLabel != null) pingLabel.text = "LOCAL";
+
+        if (_statusLabel != null) _statusLabel.text = "Choose a character and map";
+        if (_startButton != null)
+        {
+            _startButton.style.display = DisplayStyle.Flex;
+            _startButton.SetEnabled(true);
+            _startButton.AddToClassList(CSS_START_ENABLED);
+        }
+        if (_backButton != null) _backButton.text = "MAIN MENU";
+
+        RefreshSinglePlayerCharacter();
+        RefreshSinglePlayerMap();
+    }
+
+    private void RestoreMultiplayerLobbyPresentation()
+    {
+        if (_copyBtn != null) _copyBtn.style.display = DisplayStyle.Flex;
+        if (_previousMapButton != null) _previousMapButton.style.display = DisplayStyle.None;
+        if (_nextMapButton != null) _nextMapButton.style.display = DisplayStyle.None;
+
+        Label roomTitle = _lobbyScreen.Q<Label>("RoomCodeTitle");
+        if (roomTitle != null) roomTitle.text = "ROOM CODE";
+        Label modeLabel = _lobbyScreen.Q<Label>("ModeLabel");
+        if (modeLabel != null) modeLabel.text = "MODE: NORMAL";
+
+        for (int i = 0; i < NUM_SLOTS; i++)
+        {
+            _slotRoots[i].style.display = DisplayStyle.Flex;
+            if (_readyBtns[i] != null)
+                _readyBtns[i].style.display = DisplayStyle.Flex;
+        }
+
+        if (_backButton != null) _backButton.text = "LEAVE ROOM";
+    }
+
+    private void RefreshSinglePlayerCharacter()
+    {
+        if (characters.Count == 0)
+            return;
+
+        CharacterData data = characters[_selectedIndex[0]];
+        if (_charImages[0] != null && data.portrait != null)
+            _charImages[0].style.backgroundImage = new StyleBackground(data.portrait);
+        if (_charNames[0] != null) _charNames[0].text = data.charName;
+        if (_charTags[0] != null) _charTags[0].text = data.charTag;
+    }
+
+    private void CycleMap(int direction)
+    {
+        if (!SinglePlayerSession.IsActive || _mapCatalog == null || _mapCatalog.Maps.Count == 0)
+            return;
+
+        _selectedMapIndex =
+            (_selectedMapIndex + direction + _mapCatalog.Maps.Count) % _mapCatalog.Maps.Count;
+        SinglePlayerSession.SelectMap(_mapCatalog.Maps[_selectedMapIndex]);
+        RefreshSinglePlayerMap();
+    }
+
+    private void RefreshSinglePlayerMap()
+    {
+        bool hasMaps = _mapCatalog != null && _mapCatalog.Maps.Count > 0;
+        if (_previousMapButton != null) _previousMapButton.style.display = hasMaps ? DisplayStyle.Flex : DisplayStyle.None;
+        if (_nextMapButton != null) _nextMapButton.style.display = hasMaps ? DisplayStyle.Flex : DisplayStyle.None;
+        if (hasMaps && _mapLabel != null)
+            _mapLabel.text = $"MAP: {_mapCatalog.Maps[_selectedMapIndex].DisplayName.ToUpper()}";
     }
 }

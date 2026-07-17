@@ -1012,15 +1012,15 @@ MonoBehaviour:
   - charName: ANCHOR
     charTag: Slime Da
     description: Heavy and stable. Brace to anchor to surfaces.
-    portrait: {fileID: -4178046375966092550, guid: 8a234d2aa3fc7405f8b5287b8919da8e, type: 3}
+    portrait: {fileID: -5099292496197868168, guid: 62e9ec0cf8556432dbb08e86da49b537, type: 3}
   - charName: BOUNCE
     charTag: Slime Lo Xo
     description: High bounce. Trampoline to launch allies.
-    portrait: {fileID: 5088316998373936774, guid: 3e9e4d71384b7499c90e3fa0084b202a, type: 3}
+    portrait: {fileID: -2966200626249415253, guid: 91b27f3e6ea7d49bdbc0929091318b93, type: 3}
   - charName: STICKY
     charTag: Slime Dinh
     description: Stick to walls. Tether to pull or rescue allies.
-    portrait: {fileID: -1540426309290004842, guid: 3f2286a69733947c9adb5efd083b2027, type: 3}
+    portrait: {fileID: 7028616704906629411, guid: bfc27ec53642c4de7bab469eca17e256, type: 3}
 --- !u!114 &1977723261
 MonoBehaviour:
   m_ObjectHideFlags: 0

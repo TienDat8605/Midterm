@@ -3,14 +3,16 @@
     <ui:VisualElement name="Root" class="root-canvas">
         <ui:VisualElement name="Header" class="header-section">
             <ui:VisualElement class="header-left">
-                <ui:Label text="ROOM CODE" class="room-code-title"/>
+                <ui:Label text="ROOM CODE" name="RoomCodeTitle" class="room-code-title"/>
                 <ui:VisualElement class="room-code-row">
                     <ui:Label text="------" name="RoomCodeLabel" class="room-code-text"/>
                     <ui:Button text="COPY" name="CopyBtn" class="copy-button"/>
                 </ui:VisualElement>
             </ui:VisualElement>
             <ui:VisualElement class="header-right">
+                <ui:Button text="&lt;" name="PreviousMapButton" class="copy-button" style="display: none;"/>
                 <ui:Label text="MAP: DINO PARK" name="MapLabel" class="info-badge"/>
+                <ui:Button text="&gt;" name="NextMapButton" class="copy-button" style="display: none; margin-left: 8px;"/>
                 <ui:Label text="MODE: NORMAL" name="ModeLabel" class="info-badge"/>
             </ui:VisualElement>
         </ui:VisualElement>

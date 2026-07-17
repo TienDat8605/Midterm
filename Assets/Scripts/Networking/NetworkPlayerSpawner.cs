@@ -16,6 +16,12 @@ public sealed class NetworkPlayerSpawner : MonoBehaviour
 
     private IEnumerator Start()
     {
+        if (SinglePlayerSession.IsActive)
+        {
+            SpawnSinglePlayer();
+            yield break;
+        }
+
         if (DirectMapTestCharacterSelector.IsDirectTestMode)
             yield break;
 
@@ -33,6 +39,24 @@ public sealed class NetworkPlayerSpawner : MonoBehaviour
         }
 
         SpawnLocalPlayerIfNeeded();
+    }
+
+    private void SpawnSinglePlayer()
+    {
+        SlimeRole role = SinglePlayerSession.SelectedRole;
+        string prefabName = GetPrefabName(role);
+        GameObject prefab = Resources.Load<GameObject>(prefabName);
+        if (prefab == null)
+        {
+            Debug.LogError($"[Single Player] Cannot load prefab '{prefabName}' from a Resources folder.");
+            return;
+        }
+
+        Transform spawnPoint = GetSpawnPoint(role);
+        Vector3 position = spawnPoint != null ? spawnPoint.position : GetFallbackPosition(role);
+        GameObject localPlayer = Instantiate(prefab, position, Quaternion.identity);
+        localPlayer.name = $"{prefab.name} (Single Player)";
+        FollowLocalPlayer(localPlayer);
     }
 
     private void SpawnLocalPlayerIfNeeded()

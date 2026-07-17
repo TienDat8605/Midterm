@@ -19,7 +19,10 @@ public sealed class DirectMapTestCharacterSelector : MonoBehaviour
 
     private void Awake()
     {
-        isDirectTestMode = NetworkManager.Instance == null && !PhotonNetwork.InRoom;
+        isDirectTestMode =
+            !SinglePlayerSession.IsActive &&
+            NetworkManager.Instance == null &&
+            !PhotonNetwork.InRoom;
         IsDirectTestMode = isDirectTestMode;
         if (!isDirectTestMode)
             enabled = false;
