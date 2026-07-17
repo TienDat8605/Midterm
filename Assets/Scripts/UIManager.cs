@@ -673,8 +673,10 @@ public class UIManager : MonoBehaviour
     private void RestoreMultiplayerLobbyPresentation()
     {
         if (_copyBtn != null) _copyBtn.style.display = DisplayStyle.Flex;
-        if (_previousMapButton != null) _previousMapButton.style.display = DisplayStyle.None;
-        if (_nextMapButton != null) _nextMapButton.style.display = DisplayStyle.None;
+        
+        bool isMaster = NetworkManager.Instance != null && NetworkManager.Instance.IsMasterClient;
+        if (_previousMapButton != null) _previousMapButton.style.display = isMaster ? DisplayStyle.Flex : DisplayStyle.None;
+        if (_nextMapButton != null) _nextMapButton.style.display = isMaster ? DisplayStyle.Flex : DisplayStyle.None;
 
         Label roomTitle = _lobbyScreen.Q<Label>("RoomCodeTitle");
         if (roomTitle != null) roomTitle.text = "ROOM CODE";
@@ -705,13 +707,32 @@ public class UIManager : MonoBehaviour
 
     private void CycleMap(int direction)
     {
-        if (!SinglePlayerSession.IsActive || _mapCatalog == null || _mapCatalog.Maps.Count == 0)
+        if (SinglePlayerSession.IsActive)
+        {
+            if (_mapCatalog == null || _mapCatalog.Maps.Count == 0) return;
+            _selectedMapIndex = (_selectedMapIndex + direction + _mapCatalog.Maps.Count) % _mapCatalog.Maps.Count;
+            SinglePlayerSession.SelectMap(_mapCatalog.Maps[_selectedMapIndex]);
+            RefreshSinglePlayerMap();
             return;
+        }
 
-        _selectedMapIndex =
-            (_selectedMapIndex + direction + _mapCatalog.Maps.Count) % _mapCatalog.Maps.Count;
-        SinglePlayerSession.SelectMap(_mapCatalog.Maps[_selectedMapIndex]);
-        RefreshSinglePlayerMap();
+        if (NetworkManager.Instance != null && NetworkManager.Instance.CanSelectMap)
+        {
+            var maps = NetworkManager.Instance.AvailableMaps;
+            if (maps.Count == 0) return;
+            string currentMapId = NetworkManager.Instance.CurrentLobby.SelectedMapId;
+            int currentIndex = 0;
+            for (int i = 0; i < maps.Count; i++)
+            {
+                if (maps[i].Id == currentMapId)
+                {
+                    currentIndex = i;
+                    break;
+                }
+            }
+            int newIndex = (currentIndex + direction + maps.Count) % maps.Count;
+            NetworkManager.Instance.SelectMap(maps[newIndex].Id);
+        }
     }
 
     private void RefreshSinglePlayerMap()
