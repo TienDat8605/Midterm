@@ -56,6 +56,7 @@ public class UIManager : MonoBehaviour
     private Button    _singlePlayerButton;
     private Button    _joinButton;
     private TextField _codeInput;
+    private Button    _fullscreenButton;
 
     // ---- Lobby ----
     private const int NUM_SLOTS = 3;
@@ -97,9 +98,11 @@ public class UIManager : MonoBehaviour
         // ---- Locate screen roots ----
         _mainMenuScreen = root.Q<VisualElement>("MainMenuScreen");
         _lobbyScreen    = root.Q<VisualElement>("LobbyScreen"); // from RootUI.uxml
+        _fullscreenButton = root.Q<Button>("FullscreenButton");
 
         SetupMainMenu();
         SetupLobby();
+        SetupFullscreenButton();
 
         if (NetworkManager.Instance != null)
         {
@@ -122,6 +125,14 @@ public class UIManager : MonoBehaviour
         if (_startButton != null) _startButton.clicked -= OnStartClicked;
         if (_backButton  != null) _backButton.clicked  -= OnLeaveRoom;
         if (_copyBtn != null) _copyBtn.clicked -= OnCopyCodeClicked;
+        if (_fullscreenButton != null)
+        {
+            _fullscreenButton.UnregisterCallback<PointerDownEvent>(OnFullscreenPointerDown);
+            _fullscreenButton.UnregisterCallback<KeyDownEvent>(OnFullscreenKeyDown);
+        }
+
+        if (DisplaySettingsManager.Instance != null)
+            DisplaySettingsManager.Instance.FullscreenChanged -= OnFullscreenChanged;
 
         if (NetworkManager.Instance != null)
         {
@@ -213,6 +224,62 @@ public class UIManager : MonoBehaviour
         if (_hostButton != null) _hostButton.clicked += OnHostClicked;
         if (_singlePlayerButton != null) _singlePlayerButton.clicked += OnSinglePlayerClicked;
         if (_joinButton != null) _joinButton.clicked += OnJoinClicked;
+    }
+
+    private void SetupFullscreenButton()
+    {
+        if (_fullscreenButton == null)
+            return;
+
+        _fullscreenButton.UnregisterCallback<PointerDownEvent>(OnFullscreenPointerDown);
+        _fullscreenButton.UnregisterCallback<KeyDownEvent>(OnFullscreenKeyDown);
+        _fullscreenButton.RegisterCallback<PointerDownEvent>(OnFullscreenPointerDown);
+        _fullscreenButton.RegisterCallback<KeyDownEvent>(OnFullscreenKeyDown);
+        if (DisplaySettingsManager.Instance != null)
+        {
+            DisplaySettingsManager.Instance.FullscreenChanged -= OnFullscreenChanged;
+            DisplaySettingsManager.Instance.FullscreenChanged += OnFullscreenChanged;
+            RefreshFullscreenButton(DisplaySettingsManager.Instance.IsFullscreen);
+        }
+        else
+        {
+            RefreshFullscreenButton(UnityEngine.Screen.fullScreen);
+        }
+    }
+
+    private void OnFullscreenPointerDown(PointerDownEvent evt)
+    {
+        ToggleFullscreenFromUserInput();
+    }
+
+    private void OnFullscreenKeyDown(KeyDownEvent evt)
+    {
+        if (evt.keyCode == KeyCode.Return || evt.keyCode == KeyCode.KeypadEnter ||
+            evt.keyCode == KeyCode.Space)
+        {
+            ToggleFullscreenFromUserInput();
+        }
+    }
+
+    private void ToggleFullscreenFromUserInput()
+    {
+        DisplaySettingsManager.Instance?.ToggleFullscreen();
+    }
+
+    private void OnFullscreenChanged(bool isFullscreen)
+    {
+        RefreshFullscreenButton(isFullscreen);
+    }
+
+    private void RefreshFullscreenButton(bool isFullscreen)
+    {
+        if (_fullscreenButton == null)
+            return;
+
+        _fullscreenButton.text = isFullscreen ? "WINDOW" : "FULL";
+        _fullscreenButton.tooltip = isFullscreen
+            ? "WINDOW — Switch to windowed mode"
+            : "FULL — Enter fullscreen";
     }
 
     private void OnSinglePlayerClicked()

@@ -6,9 +6,12 @@
     <ui:Template name="MainMenu"   src="MainMenu.uxml"/>
     <ui:Template name="Lobby" src="Lobby.uxml"/>
 
-    <ui:VisualElement name="UIRoot" style="flex-grow: 1; flex-direction: column;">
-        <ui:Instance template="MainMenu"   name="MainMenuScreen"   style="flex-grow: 1; display: flex;"/>
-        <ui:Instance template="Lobby" name="LobbyScreen" style="flex-grow: 1; display: none;"/>
+    <ui:VisualElement name="UIRoot" style="flex-grow: 1; flex-direction: column; align-items: center; justify-content: center; background-color: rgb(0, 0, 0);">
+        <ui:VisualElement name="PresentationFrame" style="width: 1920px; height: 1080px; flex-shrink: 0; position: relative; overflow: hidden;">
+            <ui:Instance template="MainMenu" name="MainMenuScreen" style="position: absolute; left: 0; top: 0; right: 0; bottom: 0; display: flex;"/>
+            <ui:Instance template="Lobby" name="LobbyScreen" style="position: absolute; left: 0; top: 0; right: 0; bottom: 0; display: none;"/>
+            <ui:Button text="FULL" tooltip="Enter fullscreen" name="FullscreenButton" style="position: absolute; right: 24px; top: 20px; width: 116px; height: 48px; background-color: rgb(43, 28, 16); color: rgb(230, 210, 180); border-left-width: 4px; border-right-width: 4px; border-top-width: 4px; border-bottom-width: 4px; border-left-color: rgb(212, 163, 83); border-right-color: rgb(212, 163, 83); border-top-color: rgb(212, 163, 83); border-bottom-color: rgb(212, 163, 83); border-radius: 2px; font-size: 20px; -unity-font-style: bold; -unity-font-definition: resource(&quot;Fonts &amp; Materials/pixelFont-7-8x14-sproutLands&quot;);"/>
+        </ui:VisualElement>
     </ui:VisualElement>
 
 </ui:UXML>
