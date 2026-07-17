@@ -96,6 +96,14 @@ public class StickySlime : PlayerControllerWithPhysics
         }
     }
 
+    protected override void PrepareForFlightMode()
+    {
+        if (isClinging)
+            EndCling();
+        if (isTethered)
+            EndTether();
+    }
+
     protected override void OnCollisionEnter2D(Collision2D collision)
     {
         if (!wallClingEnabled)
