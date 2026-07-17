@@ -8,6 +8,9 @@ public class TetherProjectile : MonoBehaviour
     [Tooltip("Layers the tether can collide with.")]
     public LayerMask hitMask = ~0;
 
+    [Tooltip("Maximum length the tether can reach before disappearing.")]
+    public float maxLength = 8f;
+
     private Vector2 direction;
     private float currentLength;
     private StickySlime shooter;
@@ -28,14 +31,25 @@ public class TetherProjectile : MonoBehaviour
             col.enabled = false;
     }
 
-    public void Launch(StickySlime owner, Vector2 dir)
+    public void Launch(StickySlime owner, Vector2 dir, float maxRange)
     {
         shooter = owner;
         direction = dir.normalized;
         currentLength = 0f;
+        maxLength = maxRange;
 
         Collider2D shooterCol = shooter.GetComponent<Collider2D>();
-        shooterRadius = shooterCol != null ? shooterCol.bounds.extents.magnitude * 0.8f : 0.5f;
+        shooterRadius = 0.5f;
+        if (shooterCol is BoxCollider2D boxCol)
+        {
+            Vector2 halfSize = Vector2.Scale(boxCol.size * 0.5f, boxCol.transform.lossyScale);
+            Vector2 absDir = new Vector2(Mathf.Abs(direction.x), Mathf.Abs(direction.y));
+            shooterRadius = Vector2.Dot(halfSize, absDir) + 0.1f;
+        }
+        else if (shooterCol != null)
+        {
+            shooterRadius = shooterCol.bounds.extents.magnitude + 0.1f;
+        }
 
         float angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
         transform.rotation = Quaternion.Euler(0f, 0f, angle);
@@ -76,6 +90,9 @@ public class TetherProjectile : MonoBehaviour
         }
 
         currentLength += extendSpeed * Time.deltaTime;
+        bool reachedMaxLength = currentLength >= maxLength;
+        if (reachedMaxLength)
+            currentLength = maxLength;
 
         Vector2 origin = shooter.Rigidbody.position + direction * shooterRadius;
         float raycastStartDist = 0.1f;
@@ -89,6 +106,11 @@ public class TetherProjectile : MonoBehaviour
             {
                 if (hit.collider.transform == shooter.transform)
                 {
+                    if (reachedMaxLength)
+                    {
+                        UpdateVisual(origin, currentLength);
+                        Destroy(gameObject);
+                    }
                     return;
                 }
 
@@ -100,6 +122,9 @@ public class TetherProjectile : MonoBehaviour
         }
 
         UpdateVisual(origin, currentLength);
+
+        if (reachedMaxLength)
+            Destroy(gameObject);
     }
 
     void UpdateVisual(Vector2 origin, float length)
@@ -122,7 +147,8 @@ public class TetherProjectile : MonoBehaviour
         }
         else
         {
-            Destroy(gameObject, 0.5f);
+            Debug.Log($"[TetherProjectile] Hit non-player object: {hit.collider.name} on layer {LayerMask.LayerToName(hit.collider.gameObject.layer)}. Destroying.");
+            Destroy(gameObject);
         }
     }
 }
