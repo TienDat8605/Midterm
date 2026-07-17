@@ -49,12 +49,26 @@ public class UIManager : MonoBehaviour
 
     // Screen roots
     private VisualElement _mainMenuScreen;
+    private VisualElement _multiplayerMenuScreen;
+    private VisualElement _instructionsScreen;
     private VisualElement _lobbyScreen; // renamed from charSelectScreen
 
     // ---- Main Menu ----
-    private Button    _hostButton;
+    private Button    _multiplayerNavButton;
+    private Button    _instructionsNavButton;
     private Button    _singlePlayerButton;
+
+    // ---- Instructions Menu ----
+    private Button _prevInstructionPageBut;
+    private Button _nextInstructionPageBut;
+    private Button _instructionsBackBut;
+    private VisualElement[] _instructionPanels = new VisualElement[3];
+    private int _currentInstructionPage = 0;
+
+    // ---- Multiplayer Menu ----
+    private Button    _hostButton;
     private Button    _joinButton;
+    private Button    _multiplayerMenuBackButton;
     private TextField _codeInput;
 
     // ---- Lobby ----
@@ -96,9 +110,13 @@ public class UIManager : MonoBehaviour
 
         // ---- Locate screen roots ----
         _mainMenuScreen = root.Q<VisualElement>("MainMenuScreen");
+        _multiplayerMenuScreen = root.Q<VisualElement>("MultiplayerMenuScreen");
+        _instructionsScreen = root.Q<VisualElement>("InstructionsMenuScreen");
         _lobbyScreen    = root.Q<VisualElement>("LobbyScreen"); // from RootUI.uxml
 
         SetupMainMenu();
+        SetupMultiplayerMenu();
+        SetupInstructionsMenu();
         SetupLobby();
 
         if (NetworkManager.Instance != null)
@@ -119,6 +137,12 @@ public class UIManager : MonoBehaviour
         if (_hostButton != null) _hostButton.clicked -= OnHostClicked;
         if (_singlePlayerButton != null) _singlePlayerButton.clicked -= OnSinglePlayerClicked;
         if (_joinButton != null) _joinButton.clicked -= OnJoinClicked;
+        if (_multiplayerNavButton != null) _multiplayerNavButton.clicked -= OnMultiplayerNavClicked;
+        if (_instructionsNavButton != null) _instructionsNavButton.clicked -= OnInstructionsNavClicked;
+        if (_multiplayerMenuBackButton != null) _multiplayerMenuBackButton.clicked -= OnMultiplayerMenuBackClicked;
+        if (_prevInstructionPageBut != null) _prevInstructionPageBut.clicked -= OnPrevInstructionPage;
+        if (_nextInstructionPageBut != null) _nextInstructionPageBut.clicked -= OnNextInstructionPage;
+        if (_instructionsBackBut != null) _instructionsBackBut.clicked -= OnInstructionsBackClicked;
         if (_startButton != null) _startButton.clicked -= OnStartClicked;
         if (_backButton  != null) _backButton.clicked  -= OnLeaveRoom;
         if (_copyBtn != null) _copyBtn.clicked -= OnCopyCodeClicked;
@@ -172,12 +196,18 @@ public class UIManager : MonoBehaviour
     // ================================================================
     // Screen switching
     // ================================================================
-    public enum Screen { MainMenu, Lobby }
+    public enum Screen { MainMenu, MultiplayerMenu, Instructions, Lobby }
 
     private void ShowScreen(Screen screen)
     {
         if (_mainMenuScreen != null)
             _mainMenuScreen.style.display = (screen == Screen.MainMenu) ? DisplayStyle.Flex : DisplayStyle.None;
+
+        if (_multiplayerMenuScreen != null)
+            _multiplayerMenuScreen.style.display = (screen == Screen.MultiplayerMenu) ? DisplayStyle.Flex : DisplayStyle.None;
+
+        if (_instructionsScreen != null)
+            _instructionsScreen.style.display = (screen == Screen.Instructions) ? DisplayStyle.Flex : DisplayStyle.None;
 
         if (_lobbyScreen != null)
             _lobbyScreen.style.display = (screen == Screen.Lobby) ? DisplayStyle.Flex : DisplayStyle.None;
@@ -190,10 +220,79 @@ public class UIManager : MonoBehaviour
     {
         if (_mainMenuScreen == null) return;
 
-        _hostButton = _mainMenuScreen.Q<Button>("HostBut");
+        _multiplayerNavButton = _mainMenuScreen.Q<Button>("HostBut"); // user kept the name "HostBut" in MainMenu.uxml
+        _instructionsNavButton = _mainMenuScreen.Q<Button>("InstructionsBut");
         _singlePlayerButton = _mainMenuScreen.Q<Button>("SinglePlayerBut");
-        _joinButton = _mainMenuScreen.Q<Button>("JoinBut");
-        _codeInput  = _mainMenuScreen.Q<TextField>();
+
+        if (_multiplayerNavButton != null) _multiplayerNavButton.clicked += OnMultiplayerNavClicked;
+        if (_instructionsNavButton != null) _instructionsNavButton.clicked += OnInstructionsNavClicked;
+        if (_singlePlayerButton != null) _singlePlayerButton.clicked += OnSinglePlayerClicked;
+    }
+
+    private void SetupInstructionsMenu()
+    {
+        if (_instructionsScreen == null) return;
+
+        _prevInstructionPageBut = _instructionsScreen.Q<Button>("PrevPageBut");
+        _nextInstructionPageBut = _instructionsScreen.Q<Button>("NextPageBut");
+        _instructionsBackBut = _instructionsScreen.Q<Button>("GoodLuckBut");
+
+        _instructionPanels[0] = _instructionsScreen.Q<VisualElement>("InstructionPanel1");
+        _instructionPanels[1] = _instructionsScreen.Q<VisualElement>("InstructionPanel2");
+        _instructionPanels[2] = _instructionsScreen.Q<VisualElement>("InstructionPanel3");
+
+        if (_prevInstructionPageBut != null) _prevInstructionPageBut.clicked += OnPrevInstructionPage;
+        if (_nextInstructionPageBut != null) _nextInstructionPageBut.clicked += OnNextInstructionPage;
+        if (_instructionsBackBut != null) _instructionsBackBut.clicked += OnInstructionsBackClicked;
+
+        UpdateInstructionPagination();
+    }
+
+    private void OnPrevInstructionPage()
+    {
+        _currentInstructionPage--;
+        if (_currentInstructionPage < 0) _currentInstructionPage = _instructionPanels.Length - 1;
+        UpdateInstructionPagination();
+    }
+
+    private void OnNextInstructionPage()
+    {
+        _currentInstructionPage++;
+        if (_currentInstructionPage >= _instructionPanels.Length) _currentInstructionPage = 0;
+        UpdateInstructionPagination();
+    }
+
+    private void UpdateInstructionPagination()
+    {
+        for (int i = 0; i < _instructionPanels.Length; i++)
+        {
+            if (_instructionPanels[i] != null)
+            {
+                _instructionPanels[i].style.display = (i == _currentInstructionPage) ? DisplayStyle.Flex : DisplayStyle.None;
+            }
+        }
+    }
+
+    private void OnInstructionsNavClicked()
+    {
+        _currentInstructionPage = 0;
+        UpdateInstructionPagination();
+        ShowScreen(Screen.Instructions);
+    }
+
+    private void OnInstructionsBackClicked()
+    {
+        ShowScreen(Screen.MainMenu);
+    }
+
+    private void SetupMultiplayerMenu()
+    {
+        if (_multiplayerMenuScreen == null) return;
+
+        _hostButton = _multiplayerMenuScreen.Q<Button>("HostBut");
+        _joinButton = _multiplayerMenuScreen.Q<Button>("JoinBut");
+        _multiplayerMenuBackButton = _multiplayerMenuScreen.Q<Button>("BackBut");
+        _codeInput  = _multiplayerMenuScreen.Q<TextField>();
 
         if (_codeInput != null)
         {
@@ -211,8 +310,18 @@ public class UIManager : MonoBehaviour
         }
 
         if (_hostButton != null) _hostButton.clicked += OnHostClicked;
-        if (_singlePlayerButton != null) _singlePlayerButton.clicked += OnSinglePlayerClicked;
         if (_joinButton != null) _joinButton.clicked += OnJoinClicked;
+        if (_multiplayerMenuBackButton != null) _multiplayerMenuBackButton.clicked += OnMultiplayerMenuBackClicked;
+    }
+
+    private void OnMultiplayerMenuBackClicked()
+    {
+        ShowScreen(Screen.MainMenu);
+    }
+
+    private void OnMultiplayerNavClicked()
+    {
+        ShowScreen(Screen.MultiplayerMenu);
     }
 
     private void OnSinglePlayerClicked()

@@ -4,11 +4,14 @@
          editor-extension-mode="False">
 
     <ui:Template name="MainMenu"   src="MainMenu.uxml"/>
+    <ui:Template name="MultiplayerMenu" src="MultiplayerMenu.uxml"/>
+    <ui:Template name="InstructionsMenu" src="InstructionsMenu.uxml"/>
     <ui:Template name="Lobby" src="Lobby.uxml"/>
 
     <ui:VisualElement name="UIRoot" style="flex-grow: 1; flex-direction: column;">
         <ui:Instance template="MainMenu"   name="MainMenuScreen"   style="flex-grow: 1; display: flex;"/>
+        <ui:Instance template="MultiplayerMenu" name="MultiplayerMenuScreen" style="flex-grow: 1; display: none;"/>
+        <ui:Instance template="InstructionsMenu" name="InstructionsMenuScreen" style="flex-grow: 1; display: none;"/>
         <ui:Instance template="Lobby" name="LobbyScreen" style="flex-grow: 1; display: none;"/>
     </ui:VisualElement>
-
 </ui:UXML>

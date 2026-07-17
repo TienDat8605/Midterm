@@ -1,0 +1,115 @@
+<ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <Style src="project://database/Assets/UI%20Toolkit/InstructionsMenu.uss?fileID=7433441132597879392&amp;guid=52e573a1750948d40b8f9c55b4a476db&amp;type=3#InstructionsMenu"/>
+    <Style src="project://database/Assets/UI%20Toolkit/Lobby.uss?fileID=7433441132597879392&amp;guid=2c31384ed16fb504d95205766c3bce37&amp;type=3#Lobby"/>
+    <ui:VisualElement name="InstructionsContainer" class="instructions-container" style="-unity-font-definition: resource(&quot;Fonts &amp; Materials/pixelFont-7-8x14-sproutLands&quot;);">
+        <ui:VisualElement class="top-box title-box" style="position: absolute; top: 56px; left: 699px; height: 70px;">
+            <ui:Label text="INSTRUCTIONS" class="lobby-title"/>
+        </ui:VisualElement>
+        <ui:VisualElement name="VisualElement" class="carousel-container">
+            <ui:Button name="PrevPageBut" text="&lt;" class="arrow-button"/>
+            <ui:VisualElement name="PanelContainer" class="panel-container">
+                <ui:VisualElement name="InstructionPanel1" style="flex-grow: 1; display: none; visibility: visible;">
+                    <ui:Label text="1. GAME OBJECTIVE" class="panel-header"/>
+                    <ui:VisualElement class="instruction-row">
+                        <ui:VisualElement class="instruction-icon-placeholder" style="background-image: url(&quot;project://database/Assets/Sprites/UI/TutorialAssets/game_objective_placeholder.png?fileID=2800000&amp;guid=db49049592a36b848973212169ddd906&amp;type=3#game_objective_placeholder&quot;); -unity-background-image-tint-color: rgb(255, 255, 255); background-color: rgba(248, 236, 255, 0); height: 154px; width: 150px;"/>
+                        <ui:VisualElement style="flex-grow: 1; flex-shrink: 1;">
+                            <ui:Label text="COOPERATIVE CLIMBING" class="instruction-text instruction-bold" style="font-size: 32px;"/>
+                            <ui:Label text="You and two friends must work together as a team of three unique slimes to reach the top of the summit." class="instruction-text" style="letter-spacing: 5px; -unity-paragraph-spacing: 9px; font-size: 25px;"/>
+                        </ui:VisualElement>
+                    </ui:VisualElement>
+                    <ui:VisualElement class="instruction-row">
+                        <ui:VisualElement class="instruction-icon-placeholder" style="background-image: url(&quot;project://database/Assets/Sprites/UI/TutorialAssets/teamwork_icon.png?fileID=2800000&amp;guid=677f5fde9d4f4964fb9518d5f3d86d50&amp;type=3#teamwork_icon&quot;); background-color: rgba(255, 255, 255, 0.063); -unity-background-image-tint-color: rgb(255, 255, 255); height: 150px; width: 146px;"/>
+                        <ui:VisualElement style="flex-grow: 1; flex-shrink: 1;">
+                            <ui:Label text="TEAMWORK IS KEY" class="instruction-text instruction-bold" style="font-size: 32px;"/>
+                            <ui:Label text="&lt;line-height=150%&gt; You must combine your unique abilities to overcome obstacles and climb higher.&lt;/line-height&gt;" enable-rich-text="true" class="instruction-text" style="font-size: 25px;"/>
+                        </ui:VisualElement>
+                    </ui:VisualElement>
+                    <ui:Label text="1 / 3" class="page-indicator"/>
+                </ui:VisualElement>
+                <ui:VisualElement name="InstructionPanel2" style="flex-grow: 1; display: none;">
+                    <ui:Label text="2. BASIC CONTROLS" class="panel-header"/>
+                    <ui:VisualElement class="instruction-row">
+                        <ui:VisualElement class="icon-column">
+                            <ui:VisualElement class="instruction-icon-placeholder" style="margin-right: 10px;">
+                                <ui:Label text="" style="-unity-text-align: middle-center; flex-grow: 1; font-size: 20px; background-image: url(&quot;project://database/Assets/Sprites/UI/Controls/kb_light_alphanumeric.png?fileID=-7384178330773809545&amp;guid=cbaa96d798687fd46b135afb88f01841&amp;type=3#kb_light_alphanumeric_0&quot;);"/>
+                            </ui:VisualElement>
+                            <ui:VisualElement class="instruction-icon-placeholder" style="margin-right: 0;">
+                                <ui:Label text="" style="-unity-text-align: middle-center; flex-grow: 1; font-size: 20px; background-image: url(&quot;project://database/Assets/Sprites/UI/Controls/kb_light_alphanumeric.png?fileID=-4512548227400645422&amp;guid=cbaa96d798687fd46b135afb88f01841&amp;type=3#kb_light_alphanumeric_24&quot;);"/>
+                            </ui:VisualElement>
+                        </ui:VisualElement>
+                        <ui:VisualElement style="flex-grow: 1; flex-shrink: 1;">
+                            <ui:Label text="MOVE" class="instruction-text instruction-bold"/>
+                            <ui:Label text="Move Left / Right (or choose jump direction)." class="instruction-text"/>
+                        </ui:VisualElement>
+                    </ui:VisualElement>
+                    <ui:VisualElement class="instruction-row">
+                        <ui:VisualElement class="icon-column">
+                            <ui:VisualElement class="instruction-icon-placeholder" style="margin-right: 0;">
+                                <ui:Label text="" style="-unity-text-align: middle-center; flex-grow: 1; font-size: 20px; background-image: url(&quot;project://database/Assets/Sprites/UI/Controls/kb_light_symbols.png?fileID=9030334045349218566&amp;guid=fee296bad03fc4b40bd235fd68d814c9&amp;type=3#kb_light_symbols_64&quot;);"/>
+                            </ui:VisualElement>
+                        </ui:VisualElement>
+                        <ui:VisualElement style="flex-grow: 1; flex-shrink: 1;">
+                            <ui:Label text="CHARGE JUMP" class="instruction-text instruction-bold"/>
+                            <ui:Label text="Hold Spacebar to charge your jump power, and release it to launch yourself." class="instruction-text"/>
+                        </ui:VisualElement>
+                    </ui:VisualElement>
+                    <ui:VisualElement class="instruction-row">
+                        <ui:VisualElement class="icon-column">
+                            <ui:VisualElement class="instruction-icon-placeholder" style="margin-right: 0;">
+                                <ui:Label text="" style="-unity-text-align: middle-center; flex-grow: 1; font-size: 30px; background-image: url(&quot;project://database/Assets/Sprites/UI/Controls/kb_light_alphanumeric.png?fileID=-2365346444468263995&amp;guid=cbaa96d798687fd46b135afb88f01841&amp;type=3#kb_light_alphanumeric_8&quot;);"/>
+                            </ui:VisualElement>
+                        </ui:VisualElement>
+                        <ui:VisualElement style="flex-grow: 1; flex-shrink: 1;">
+                            <ui:Label text="USE ABILITY" class="instruction-text instruction-bold"/>
+                            <ui:Label text="Press E to activate or deactivate your slime&apos;s unique special ability." class="instruction-text"/>
+                        </ui:VisualElement>
+                    </ui:VisualElement>
+                    <ui:VisualElement class="instruction-row">
+                        <ui:VisualElement class="icon-column">
+                            <ui:VisualElement class="instruction-icon-placeholder" style="margin-right: 0;">
+                                <ui:Label text="" style="-unity-text-align: middle-center; flex-grow: 1; font-size: 16px; background-image: url(&quot;project://database/Assets/Sprites/UI/Controls/mouse.png?fileID=-3154446981457803592&amp;guid=22c7c03baeea4ed47a775b25dc9c9039&amp;type=3#mouse_4&quot;); width: 61px;"/>
+                            </ui:VisualElement>
+                        </ui:VisualElement>
+                        <ui:VisualElement style="flex-grow: 1; flex-shrink: 1;">
+                            <ui:Label text="AIM (STICKY SLIME)" class="instruction-text instruction-bold"/>
+                            <ui:Label text="Use the Mouse to aim your tether." class="instruction-text"/>
+                        </ui:VisualElement>
+                    </ui:VisualElement>
+                    <ui:Label text="2 / 3" class="page-indicator"/>
+                </ui:VisualElement>
+                <ui:VisualElement name="InstructionPanel3" style="flex-grow: 1; display: flex;">
+                    <ui:Label text="3. CHARACTER ABILITIES" class="panel-header"/>
+                    <ui:VisualElement class="instruction-row">
+                        <ui:VisualElement class="instruction-icon-placeholder" style="background-image: url(&quot;project://database/Assets/Sprites/Slimes/9.png?fileID=4113829005332862926&amp;guid=193cdb3ea0f1e4d9091d7e76a7dfc123&amp;type=3#9_0&quot;);"/>
+                        <ui:VisualElement style="flex-grow: 1; flex-shrink: 1;">
+                            <ui:Label text="ANCHOR SLIME" class="instruction-text instruction-bold"/>
+                            <ui:Label text="urns into an immovable stone statue. Use this to anchor yourself in place, act as a stable platform for others, or resist being pulled away! Press E again to revert." class="instruction-text" style="font-size: 18px;"/>
+                        </ui:VisualElement>
+                    </ui:VisualElement>
+                    <ui:VisualElement class="instruction-row">
+                        <ui:VisualElement class="instruction-icon-placeholder" style="background-image: url(&quot;project://database/Assets/Sprites/Slimes/11.png?fileID=-2966200626249415253&amp;guid=91b27f3e6ea7d49bdbc0929091318b93&amp;type=3#11_0&quot;);"/>
+                        <ui:VisualElement style="flex-grow: 1; flex-shrink: 1;">
+                            <ui:Label text="BOUNCY SLIME" class="instruction-text instruction-bold"/>
+                            <ui:Label text=" Flattens out into a trampoline! When allies land on you, they will be launched significantly higher than a normal jump. Press E again to revert." class="instruction-text" style="font-size: 18px;"/>
+                        </ui:VisualElement>
+                    </ui:VisualElement>
+                    <ui:VisualElement class="instruction-row">
+                        <ui:VisualElement class="instruction-icon-placeholder" style="background-image: url(&quot;project://database/Assets/Sprites/Slimes/7.png?fileID=7028616704906629411&amp;guid=bfc27ec53642c4de7bab469eca17e256&amp;type=3#7_0&quot;);"/>
+                        <ui:VisualElement style="flex-grow: 1; flex-shrink: 1;">
+                            <ui:Label text="STICKY SLIME " class="instruction-text instruction-bold"/>
+                            <ui:Label text="Shoots a sticky tether towards your mouse cursor. If it hits an ally, it creates an elastic bond that pulls you and your ally together." class="instruction-text" style="font-size: 18px; -unity-text-align: middle-left;"/>
+                        </ui:VisualElement>
+                    </ui:VisualElement>
+                    <ui:Label text="3 / 3" class="page-indicator"/>
+                </ui:VisualElement>
+            </ui:VisualElement>
+            <ui:Button name="NextPageBut" text="&gt;" class="arrow-button"/>
+        </ui:VisualElement>
+        <ui:VisualElement class="footer-container">
+            <ui:VisualElement style="flex-direction: row; align-items: center; flex-grow: 1;">
+                <ui:VisualElement class="instruction-icon-placeholder" style="width: 60px; height: 60px; margin-right: 20px;"/>
+            </ui:VisualElement>
+            <ui:Button text="GOOD LUCK!" name="GoodLuckBut" class="button" style="height: 80px; font-size: 40px; border-radius: 10px; background-color: rgb(160, 82, 45); color: white; padding: 15px;"/>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>
