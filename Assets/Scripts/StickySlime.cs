@@ -10,11 +10,14 @@ public class StickySlime : PlayerControllerWithPhysics
     [Tooltip("Gravity scale while clinging to a wall.")]
     public float clingGravityScale = 0.1f;
 
+    [Tooltip("Downward slide speed while clinging to a wall.")]
+    public float wallSlideSpeed = 1f;
+
+    [Tooltip("If true, Sticky will stick to walls on contact.")]
+    public bool wallClingEnabled = true;
+
     [Tooltip("Layer mask for valid wall surfaces.")]
     public LayerMask wallLayer;
-
-    [Tooltip("Horizontal velocity threshold to detect wall contact while airborne.")]
-    public float wallContactSpeedThreshold = 0.5f;
 
     [Header("Tether Ability")]
     [Tooltip("Prefab of the tether projectile to shoot.")]
@@ -51,7 +54,6 @@ public class StickySlime : PlayerControllerWithPhysics
     private float tetherCooldownTimer;
     private Rigidbody2D tetheredTarget;
     private DistanceJoint2D tetherJoint;
-    private LineRenderer tetherLine;
 
     protected override void Initialize()
     {
@@ -60,15 +62,6 @@ public class StickySlime : PlayerControllerWithPhysics
         if (tetherTargetLayer.value == 0)
             tetherTargetLayer = LayerMask.GetMask("Default");
 
-        tetherLine = GetComponent<LineRenderer>();
-        if (tetherLine == null)
-        {
-            tetherLine = gameObject.AddComponent<LineRenderer>();
-            tetherLine.positionCount = 2;
-            tetherLine.startWidth = 0.05f;
-            tetherLine.endWidth = 0.05f;
-            tetherLine.enabled = false;
-        }
     }
 
     protected override bool CanChargeJump()
@@ -78,7 +71,6 @@ public class StickySlime : PlayerControllerWithPhysics
 
     protected override void UpdateAbility()
     {
-        UpdateCling();
         UpdateTether();
     }
 
@@ -86,8 +78,16 @@ public class StickySlime : PlayerControllerWithPhysics
     {
         if (isClinging)
         {
-            rb.linearVelocity = Vector2.zero;
-            rb.angularVelocity = 0f;
+            clingTimer -= Time.fixedDeltaTime;
+            if (clingTimer <= 0f || isGrounded)
+            {
+                EndCling();
+            }
+            else
+            {
+                rb.linearVelocity = new Vector2(0f, -wallSlideSpeed);
+                rb.angularVelocity = 0f;
+            }
         }
 
         if (isTethered && tetheredTarget != null)
@@ -96,35 +96,65 @@ public class StickySlime : PlayerControllerWithPhysics
         }
     }
 
-    private void UpdateCling()
+    protected override void OnCollisionEnter2D(Collision2D collision)
     {
-        if (isClinging)
+        if (!wallClingEnabled)
         {
-            clingTimer -= Time.deltaTime;
-            if (clingTimer <= 0f || isGrounded)
-                EndCling();
+            base.OnCollisionEnter2D(collision);
             return;
         }
 
-        if (isGrounded || Mathf.Abs(rb.linearVelocity.x) < wallContactSpeedThreshold)
-            return;
-
-        Vector2 rayOrigin = rb.position;
-        Vector2 rayDirection = new Vector2(Mathf.Sign(rb.linearVelocity.x), 0f);
-        float rayDistance = 0.5f;
-
-        RaycastHit2D hit = Physics2D.Raycast(rayOrigin, rayDirection, rayDistance, wallLayer);
-        if (hit.collider != null)
-            StartCling(hit.normal);
+        HandleWallCollision(collision);
+        if (!isClinging)
+            base.OnCollisionEnter2D(collision);
     }
 
-    private void StartCling(Vector2 normal)
+    protected override void OnCollisionStay2D(Collision2D collision)
     {
+        if (!wallClingEnabled)
+        {
+            base.OnCollisionStay2D(collision);
+            return;
+        }
+
+        HandleWallCollision(collision);
+        if (!isClinging)
+            base.OnCollisionStay2D(collision);
+    }
+
+    private void HandleWallCollision(Collision2D collision)
+    {
+        if (isGrounded || collision.gameObject.CompareTag("Player"))
+            return;
+
+        if (((1 << collision.gameObject.layer) & wallLayer.value) == 0)
+            return;
+
+        for (int i = 0; i < collision.contactCount; i++)
+        {
+            Vector2 normal = collision.GetContact(i).normal;
+            if (Mathf.Abs(normal.x) > 0.5f)
+            {
+                StartCling(-normal);
+                return;
+            }
+        }
+    }
+
+    private void StartCling(Vector2 surfaceNormal)
+    {
+        if (isClinging)
+        {
+            clingTimer = maxClingDuration;
+            return;
+        }
+
         isClinging = true;
         clingTimer = maxClingDuration;
-        clingNormal = normal;
+        clingNormal = surfaceNormal;
         savedGravityScale = rb.gravityScale;
         rb.gravityScale = clingGravityScale;
+        rb.linearVelocity = new Vector2(0f, -wallSlideSpeed);
         if (anim) anim.SetBool("isClinging", true);
     }
 
@@ -180,8 +210,8 @@ public class StickySlime : PlayerControllerWithPhysics
         if (projectile != null)
         {
             projectile.extendSpeed = tetherProjectileSpeed;
-            projectile.hitMask = tetherTargetLayer;
-            projectile.Launch(this, direction);
+            projectile.hitMask = tetherTargetLayer | groundLayer;
+            projectile.Launch(this, direction, tetherMaxRange);
         }
 
         tetherCooldownTimer = tetherCooldown;
@@ -226,17 +256,7 @@ public class StickySlime : PlayerControllerWithPhysics
             tetherJoint = null;
         }
 
-        tetherLine.enabled = false;
         if (anim) anim.SetBool("isTethered", false);
-    }
-
-    private void UpdateTetherVisual()
-    {
-        if (tetherLine == null || tetheredTarget == null)
-            return;
-
-        tetherLine.SetPosition(0, transform.position);
-        tetherLine.SetPosition(1, tetheredTarget.position);
     }
 
     private void CheckTetherBreak()

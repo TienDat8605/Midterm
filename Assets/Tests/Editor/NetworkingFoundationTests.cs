@@ -12,6 +12,29 @@ using UnityEngine.Tilemaps;
 public sealed class NetworkingFoundationTests
 {
     [Test]
+    public void ResolveUserId_UsesCommandLineOverride()
+    {
+        string userId = NetworkManagerCore.ResolveUserId(
+            new[] { "Midterm", "-photonUserId", " player-2 " },
+            "stable-user");
+
+        Assert.That(userId, Is.EqualTo("player-2"));
+    }
+
+    [Test]
+    public void ResolveUserId_UsesStableIdWhenOverrideIsMissingOrInvalid()
+    {
+        Assert.That(
+            NetworkManagerCore.ResolveUserId(new[] { "Midterm" }, "stable-user"),
+            Is.EqualTo("stable-user"));
+        Assert.That(
+            NetworkManagerCore.ResolveUserId(
+                new[] { "Midterm", "-photonUserId", "-batchmode" },
+                "stable-user"),
+            Is.EqualTo("stable-user"));
+    }
+
+    [Test]
     public void GenerateRoomCode_UsesSixUnambiguousCharacters()
     {
         for (int i = 0; i < 100; i++)
