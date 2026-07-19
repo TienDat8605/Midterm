@@ -213,8 +213,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f18ba7f360ca48bd82c6e56f1360daf7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AnchorSlime
-  walkSpeed: 7
-  gravityScale: 1
+  walkSpeed: 5
+  gravityScale: 1.5
   maxChargeTime: 1
   minJumpUpSpeed: 8
   maxJumpUpSpeed: 15

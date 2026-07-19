@@ -213,8 +213,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 33fb744674334911978097344c04b15d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BouncySlime
-  walkSpeed: 7
-  gravityScale: 1
+  walkSpeed: 5
+  gravityScale: 1.5
   maxChargeTime: 1
   minJumpUpSpeed: 8
   maxJumpUpSpeed: 15

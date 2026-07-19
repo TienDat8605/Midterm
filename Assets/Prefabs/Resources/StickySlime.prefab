@@ -182,8 +182,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 045705d0d93f48ce9506008efd04e5a4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::StickySlime
-  walkSpeed: 7
-  gravityScale: 1
+  walkSpeed: 5
+  gravityScale: 1.5
   maxChargeTime: 1
   minJumpUpSpeed: 8
   maxJumpUpSpeed: 15
@@ -218,7 +218,7 @@ MonoBehaviour:
   tetherCooldown: 5
   tetherTargetLayer:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 4294967295
 --- !u!95 &3000000000000000006
 Animator:
   serializedVersion: 7
