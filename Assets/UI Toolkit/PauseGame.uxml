@@ -1,0 +1,11 @@
+<ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <Style src="project://database/Assets/Stylesheet.uss?fileID=7433441132597879392&amp;guid=0bfe2cb5c3c612d4cb0c50b728ac6707&amp;type=3#Stylesheet"/>
+    <ui:VisualElement name="PauseOverlay" style="flex-grow: 1; align-items: center; justify-content: center; background-color: rgba(0, 0, 0, 0.7);">
+        <ui:VisualElement name="PausePanel" style="align-items: center; justify-content: flex-start; padding-top: 60px; background-image: none; width: 700px; height: 800px; -unity-background-scale-mode: scale-to-fit;">
+            <ui:Label text="PAUSE" name="PauseTitle" style="-unity-font-definition: resource(&quot;Fonts &amp; Materials/pixelFont-7-8x14-sproutLands&quot;); font-size: 80px; color: rgb(255, 255, 255); -unity-font-style: bold; margin-bottom: 60px; -unity-text-align: middle-center; text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);"/>
+            <ui:Button text="RESUME" name="ResumeButton" class="button" style="height: 140px; width: 450px; font-size: 45px; margin-bottom: 25px; -unity-text-align: middle-center; white-space: nowrap; text-overflow: clip;"/>
+            <ui:Button text="MAIN MENU" name="MainMenuButton" class="button" style="height: 140px; width: 450px; font-size: 45px; margin-bottom: 25px; -unity-text-align: middle-center; white-space: nowrap; text-overflow: clip;"/>
+            <ui:Button text="QUIT" name="QuitButton" class="button" style="height: 140px; width: 450px; font-size: 45px; margin-bottom: 25px; -unity-text-align: middle-center; white-space: nowrap; text-overflow: clip;"/>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>
