@@ -159,12 +159,15 @@ public class PlayerControllerWithPhysics : MonoBehaviourPun, IPunObservable
             return;
 
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
-        if (allowFlightHack && Keyboard.current.fKey.wasPressedThisFrame)
+        if (inputEnabled && allowFlightHack && Keyboard.current.fKey.wasPressedThisFrame)
             SetFlightMode(!isFlightMode);
 
         if (isFlightMode)
         {
-            ReadFlightInput();
+            if (inputEnabled)
+                ReadFlightInput();
+            else
+                flightInput = Vector2.zero;
             return;
         }
 #endif
@@ -460,6 +463,25 @@ public class PlayerControllerWithPhysics : MonoBehaviourPun, IPunObservable
 #endif
 
     public bool IsFlightMode => isFlightMode;
+
+    public void SetInputEnabled(bool enabled)
+    {
+        inputEnabled = enabled;
+        if (enabled)
+            return;
+
+        moveInput = 0f;
+        jumpCharge = 0f;
+        jumpDirection = 0f;
+        isChargingJump = false;
+        flightInput = Vector2.zero;
+
+        if (anim != null)
+            anim.SetBool("isCharging", false);
+
+        if (rb != null && isGrounded && !isFlightMode)
+            rb.linearVelocity = new Vector2(0f, rb.linearVelocity.y);
+    }
 
     private void SmoothRemoteMovement()
     {

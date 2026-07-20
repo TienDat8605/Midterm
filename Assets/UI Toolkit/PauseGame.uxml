@@ -1,11 +1,13 @@
 <ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <ui:Template name="InstructionsMenu" src="project://database/Assets/UI%20Toolkit/InstructionsMenu.uxml?fileID=9197481963319205126&amp;guid=fcb59cef96cd10044ae74a7736ec11fc&amp;type=3#InstructionsMenu"/>
     <Style src="project://database/Assets/Stylesheet.uss?fileID=7433441132597879392&amp;guid=0bfe2cb5c3c612d4cb0c50b728ac6707&amp;type=3#Stylesheet"/>
     <ui:VisualElement name="PauseOverlay" style="flex-grow: 1; align-items: center; justify-content: center; background-color: rgba(0, 0, 0, 0.7);">
-        <ui:VisualElement name="PausePanel" style="align-items: center; justify-content: flex-start; padding-top: 60px; background-image: none; width: 700px; height: 800px; -unity-background-scale-mode: scale-to-fit;">
+        <ui:VisualElement name="PausePanel" style="align-items: center; justify-content: flex-start; padding-top: 60px; background-image: url(&quot;project://database/Assets/Sprites/UI/pausepanel.png?fileID=2800000&amp;guid=f59bd01be1ba18a4c92dadffe6033757&amp;type=3#pausepanel&quot;); width: 700px; height: 800px; -unity-background-scale-mode: scale-and-crop; background-color: rgba(0, 0, 0, 0);">
             <ui:Label text="PAUSE" name="PauseTitle" style="-unity-font-definition: resource(&quot;Fonts &amp; Materials/pixelFont-7-8x14-sproutLands&quot;); font-size: 80px; color: rgb(255, 255, 255); -unity-font-style: bold; margin-bottom: 60px; -unity-text-align: middle-center; text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);"/>
-            <ui:Button text="RESUME" name="ResumeButton" class="button" style="height: 140px; width: 450px; font-size: 45px; margin-bottom: 25px; -unity-text-align: middle-center; white-space: nowrap; text-overflow: clip;"/>
-            <ui:Button text="MAIN MENU" name="MainMenuButton" class="button" style="height: 140px; width: 450px; font-size: 45px; margin-bottom: 25px; -unity-text-align: middle-center; white-space: nowrap; text-overflow: clip;"/>
-            <ui:Button text="QUIT" name="QuitButton" class="button" style="height: 140px; width: 450px; font-size: 45px; margin-bottom: 25px; -unity-text-align: middle-center; white-space: nowrap; text-overflow: clip;"/>
+            <ui:Button text="RESUME" name="ResumeButton" class="button" style="height: 118px; width: 398px; font-size: 45px; margin-bottom: 25px; -unity-text-align: middle-center; white-space: nowrap; text-overflow: clip; position: absolute; top: 262px; left: 161px;"/>
+            <ui:Button text="TUTORIALS" name="TutorialsButton" class="button" style="height: 118px; width: 399px; font-size: 45px; margin-bottom: 25px; -unity-text-align: middle-center; white-space: nowrap; text-overflow: clip; position: absolute; top: 405px; left: 163px;"/>
+            <ui:Button text="QUIT" name="QuitButton" class="button" style="height: 109px; width: 397px; font-size: 45px; margin-bottom: 25px; -unity-text-align: middle-center; white-space: nowrap; text-overflow: clip; position: absolute; top: 543px; left: 161px;"/>
         </ui:VisualElement>
     </ui:VisualElement>
+    <ui:Instance template="InstructionsMenu" name="TutorialScreen" style="flex-grow: 1; display: none;"/>
 </ui:UXML>
