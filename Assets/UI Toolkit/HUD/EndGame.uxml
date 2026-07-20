@@ -1,0 +1,27 @@
+<ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <Style src="project://database/Assets/Stylesheet.uss?fileID=7433441132597879392&amp;guid=0bfe2cb5c3c612d4cb0c50b728ac6707&amp;type=3#Stylesheet"/>
+    <Style src="project://database/Assets/UI%20Toolkit/HUD/EndGame.uss?fileID=7433441132597879392&amp;guid=a7c80f39de2d4e85b115e24c76cd48b1&amp;type=3#EndGame"/>
+    <ui:VisualElement name="EndGameScreen" class="endgame-screen">
+        <ui:VisualElement class="endgame-vignette" style="top: 2px; bottom: -1px; right: 0; left: 0;"/>
+        <ui:VisualElement class="celebration-glow celebration-glow-left"/>
+        <ui:VisualElement class="celebration-glow celebration-glow-right"/>
+        <ui:VisualElement name="EndGamePanel" class="endgame-panel">
+            <ui:Label text="ADVENTURE" class="endgame-title endgame-title-small" style="color: rgb(222, 184, 135); font-size: 31px;"/>
+            <ui:Label name="AdventureCompleteLabel" text="COMPLETE" class="endgame-title endgame-title-large" style="color: rgb(245, 222, 179);"/>
+            <ui:VisualElement class="title-divider">
+                <ui:VisualElement class="divider-line"/>
+                <ui:Label text="★" class="divider-star"/>
+                <ui:VisualElement class="divider-line"/>
+            </ui:VisualElement>
+            <ui:Label text="The summit has been reached!" class="endgame-message"/>
+            <ui:VisualElement name="Map1Actions" class="endgame-actions map1-actions">
+                <ui:Button name="NextLevelButton" text="Next Level" class="button endgame-button endgame-button-primary"/>
+                <ui:Button name="Map1ExitButton" text="Save &amp; Exit" class="button endgame-button endgame-button-secondary"/>
+            </ui:VisualElement>
+            <ui:VisualElement name="Map2Actions" class="endgame-actions map2-actions">
+                <ui:Button name="Map2ExitButton" text="Save &amp; Exit" class="button endgame-button endgame-button-secondary"/>
+            </ui:VisualElement>
+            <ui:Label text="Thank you for playing" class="endgame-footer"/>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>
