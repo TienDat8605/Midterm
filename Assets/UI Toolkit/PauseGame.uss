@@ -1,0 +1,61 @@
+.tutorial-controls-overlay {
+    display: flex;
+    position: absolute;
+    left: 32px;
+    bottom: 32px;
+    width: 330px;
+    height: 235px;
+    padding: 20px 30px;
+    flex-direction: column;
+    background-image: url("project://database/Assets/Sprites/UI/panel.png");
+    -unity-background-scale-mode: stretch-to-fill;
+}
+
+.tutorial-controls-title {
+    margin-bottom: 6px;
+    font-size: 28px;
+    letter-spacing: 2px;
+    color: rgb(255, 226, 151);
+    -unity-font-definition: resource("Fonts & Materials/pixelFont-7-8x14-sproutLands");
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+}
+
+.tutorial-controls-divider {
+    align-self: center;
+    width: 84%;
+    height: 2px;
+    margin-bottom: 11px;
+    background-color: rgba(78, 49, 35, 0.6);
+}
+
+.tutorial-controls-row {
+    flex-direction: row;
+    height: 31px;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 6px;
+}
+
+.tutorial-controls-key-group {
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-end;
+}
+
+.tutorial-controls-label {
+    font-size: 19px;
+    color: rgb(91, 55, 39);
+    -unity-font-definition: resource("Fonts & Materials/pixelFont-7-8x14-sproutLands");
+    -unity-font-style: bold;
+}
+
+.tutorial-controls-key {
+    height: 28px;
+    flex-shrink: 0;
+    -unity-background-scale-mode: scale-to-fit;
+}
+
+.tutorial-controls-key-spaced {
+    margin-left: 8px;
+}

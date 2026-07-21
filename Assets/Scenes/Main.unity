@@ -320,7 +320,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AudioManager
   bgmClip: {fileID: 8300000, guid: 9b4889f7c1ee04856aba1ba2c3c7c1da, type: 3}
-  bgmVolume: 0.1
+  bgmVolume: 0.408
   gameplaySceneNames:
   - Map1
   - Map2

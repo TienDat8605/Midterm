@@ -6,9 +6,9 @@
         <ui:VisualElement class="celebration-glow celebration-glow-left"/>
         <ui:VisualElement class="celebration-glow celebration-glow-right"/>
         <ui:VisualElement name="EndGamePanel" class="endgame-panel">
-            <ui:Label text="ADVENTURE" class="endgame-title endgame-title-small" style="color: rgb(222, 184, 135); font-size: 31px;"/>
-            <ui:Label name="AdventureCompleteLabel" text="COMPLETE" class="endgame-title endgame-title-large" style="color: rgb(245, 222, 179);"/>
-            <ui:VisualElement class="title-divider">
+            <ui:Label name="AdventureTitleLabel" text="ADVENTURE" class="endgame-title endgame-title-small" style="color: rgb(222, 184, 135); font-size: 32px;"/>
+            <ui:Label name="AdventureCompleteLabel" text="COMPLETE" class="endgame-title endgame-title-large" style="color: rgb(245, 222, 179); font-size: 43px;"/>
+            <ui:VisualElement class="title-divider" style="top: 28px;">
                 <ui:VisualElement class="divider-line"/>
                 <ui:VisualElement class="divider-line"/>
             </ui:VisualElement>
