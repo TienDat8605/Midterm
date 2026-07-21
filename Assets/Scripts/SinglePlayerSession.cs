@@ -7,6 +7,8 @@ using UnityEngine.SceneManagement;
 /// </summary>
 public static class SinglePlayerSession
 {
+    public const string TutorialSceneName = "TutorialMap";
+
     public static bool IsActive { get; private set; }
     public static SlimeRole SelectedRole { get; private set; } = SlimeRole.Anchor;
     public static string SelectedSceneName { get; private set; } = "Map1";
@@ -38,6 +40,14 @@ public static class SinglePlayerSession
     {
         if (IsActive)
             SceneManager.LoadScene(SelectedSceneName);
+    }
+
+    public static void StartTutorial()
+    {
+        IsActive = true;
+        SelectedRole = SlimeRole.Anchor;
+        SelectedSceneName = TutorialSceneName;
+        SceneManager.LoadScene(TutorialSceneName);
     }
 
     public static void Stop()

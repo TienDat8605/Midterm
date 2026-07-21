@@ -285,9 +285,8 @@ public class UIManager : MonoBehaviour
 
     private void OnInstructionsNavClicked()
     {
-        _currentInstructionPage = 0;
-        UpdateInstructionPagination();
-        ShowScreen(Screen.Instructions);
+        Debug.Log("[UIManager] Starting tutorial gameplay.");
+        SinglePlayerSession.StartTutorial();
     }
 
     private void OnInstructionsBackClicked()
