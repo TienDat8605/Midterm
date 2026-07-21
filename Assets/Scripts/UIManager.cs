@@ -70,6 +70,9 @@ public class UIManager : MonoBehaviour
     private Button    _joinButton;
     private Button    _multiplayerMenuBackButton;
     private TextField _codeInput;
+    private DropdownField _displayModeDropdown;
+    private readonly Dictionary<string, GameDisplayMode> _displayModesByLabel =
+        new Dictionary<string, GameDisplayMode>();
 
     // ---- Lobby ----
     private const int NUM_SLOTS = 3;
@@ -113,11 +116,13 @@ public class UIManager : MonoBehaviour
         _multiplayerMenuScreen = root.Q<VisualElement>("MultiplayerMenuScreen");
         _instructionsScreen = root.Q<VisualElement>("InstructionsMenuScreen");
         _lobbyScreen    = root.Q<VisualElement>("LobbyScreen"); // from RootUI.uxml
+        _displayModeDropdown = root.Q<DropdownField>("DisplayModeDropdown");
 
         SetupMainMenu();
         SetupMultiplayerMenu();
         SetupInstructionsMenu();
         SetupLobby();
+        SetupDisplayModeDropdown();
 
         if (NetworkManager.Instance != null)
         {
@@ -146,6 +151,11 @@ public class UIManager : MonoBehaviour
         if (_startButton != null) _startButton.clicked -= OnStartClicked;
         if (_backButton  != null) _backButton.clicked  -= OnLeaveRoom;
         if (_copyBtn != null) _copyBtn.clicked -= OnCopyCodeClicked;
+        if (_displayModeDropdown != null)
+            _displayModeDropdown.UnregisterValueChangedCallback(OnDisplayModeSelected);
+
+        if (DisplaySettingsManager.Instance != null)
+            DisplaySettingsManager.Instance.DisplayModeChanged -= OnDisplayModeChanged;
 
         if (NetworkManager.Instance != null)
         {
@@ -322,6 +332,64 @@ public class UIManager : MonoBehaviour
     private void OnMultiplayerNavClicked()
     {
         ShowScreen(Screen.MultiplayerMenu);
+    }
+
+    private void SetupDisplayModeDropdown()
+    {
+        if (_displayModeDropdown == null)
+            return;
+
+        _displayModeDropdown.UnregisterValueChangedCallback(OnDisplayModeSelected);
+        _displayModeDropdown.RegisterValueChangedCallback(OnDisplayModeSelected);
+
+        DisplaySettingsManager manager = DisplaySettingsManager.Instance;
+        if (manager == null)
+            return;
+
+        manager.DisplayModeChanged -= OnDisplayModeChanged;
+        manager.DisplayModeChanged += OnDisplayModeChanged;
+        RefreshDisplayModeDropdown();
+    }
+
+    private void OnDisplayModeSelected(ChangeEvent<string> evt)
+    {
+        if (_displayModesByLabel.TryGetValue(evt.newValue, out GameDisplayMode mode))
+            DisplaySettingsManager.Instance?.ApplyDisplayMode(mode);
+    }
+
+    private void OnDisplayModeChanged(GameDisplayMode mode)
+    {
+        RefreshDisplayModeDropdown();
+    }
+
+    private void RefreshDisplayModeDropdown()
+    {
+        if (_displayModeDropdown == null || DisplaySettingsManager.Instance == null)
+            return;
+
+        DisplaySettingsManager manager = DisplaySettingsManager.Instance;
+        GameDisplayMode currentMode = manager.CurrentMode;
+        var modes = new List<GameDisplayMode>(manager.AvailableModes);
+        if (currentMode == GameDisplayMode.CustomWindow)
+            modes.Insert(Mathf.Max(0, modes.Count - 1), currentMode);
+
+        _displayModesByLabel.Clear();
+        var labels = new List<string>(modes.Count);
+        foreach (GameDisplayMode mode in modes)
+        {
+            string label = DisplaySettingsManager.GetDisplayModeLabel(
+                mode, UnityEngine.Screen.width, UnityEngine.Screen.height);
+            labels.Add(label);
+            _displayModesByLabel[label] = mode;
+        }
+
+        string currentLabel = DisplaySettingsManager.GetDisplayModeLabel(
+            currentMode, UnityEngine.Screen.width, UnityEngine.Screen.height);
+        _displayModeDropdown.choices = labels;
+        _displayModeDropdown.SetValueWithoutNotify(currentLabel);
+        _displayModeDropdown.tooltip = manager.UsesWebDisplayModes
+            ? "Choose embedded or browser fullscreen mode"
+            : "Choose window resolution or fullscreen mode";
     }
 
     private void OnSinglePlayerClicked()
