@@ -17,25 +17,50 @@ public class TetherProjectile : MonoBehaviour
     private SpriteRenderer sr;
     private float shooterRadius;
     private float spriteWidth;
+    private bool isAuthoritative;
     private bool hasHit;
     private Rigidbody2D hitTarget;
 
     void Awake()
     {
         sr = GetComponent<SpriteRenderer>();
-        if (sr != null)
+        if (sr != null && sr.sprite != null)
             spriteWidth = sr.sprite.bounds.size.x;
-
     }
 
-    public void Launch(StickySlime owner, Vector2 dir, float maxRange)
+    public void LaunchAuthoritative(StickySlime owner, Vector2 dir, float maxRange)
+    {
+        Launch(owner, dir, maxRange, true);
+    }
+
+    public void LaunchReplica(StickySlime owner, Vector2 dir, float maxRange)
+    {
+        Launch(owner, dir, maxRange, false);
+    }
+
+    public void AttachToTarget(Rigidbody2D target)
+    {
+        if (target == null)
+            return;
+
+        hasHit = true;
+        hitTarget = target;
+    }
+
+    public void Terminate()
+    {
+        Destroy(gameObject);
+    }
+
+    private void Launch(StickySlime owner, Vector2 dir, float maxRange, bool authoritative)
     {
         shooter = owner;
-        direction = dir.normalized;
+        direction = dir.sqrMagnitude > Mathf.Epsilon ? dir.normalized : Vector2.right;
         currentLength = 0f;
         maxLength = maxRange;
+        isAuthoritative = authoritative;
 
-        Collider2D shooterCol = shooter.GetComponent<Collider2D>();
+        Collider2D shooterCol = shooter != null ? shooter.GetComponent<Collider2D>() : null;
         shooterRadius = 0.5f;
         if (shooterCol is BoxCollider2D boxCol)
         {
@@ -48,17 +73,18 @@ public class TetherProjectile : MonoBehaviour
             shooterRadius = shooterCol.bounds.extents.magnitude + 0.1f;
         }
 
-        float angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
+        float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
         transform.rotation = Quaternion.Euler(0f, 0f, angle);
 
-        transform.position = shooter.Rigidbody.position + direction * shooterRadius;
-
-        Debug.Log($"[TetherProjectile] Launched. Direction: {direction}, ShooterRadius: {shooterRadius}");
+        Rigidbody2D shooterBody = shooter != null ? shooter.Rigidbody : null;
+        if (shooterBody != null)
+            transform.position = shooterBody.position + direction * shooterRadius;
     }
 
     void Update()
     {
-        if (shooter == null)
+        Rigidbody2D shooterBody = shooter != null ? shooter.Rigidbody : null;
+        if (shooterBody == null)
         {
             Destroy(gameObject);
             return;
@@ -72,14 +98,15 @@ public class TetherProjectile : MonoBehaviour
                 return;
             }
 
-            Vector2 shooterPos = shooter.Rigidbody.position;
-            Vector2 targetPos = hitTarget.position;
-            Vector2 diff = targetPos - shooterPos;
-            float length = diff.magnitude;
+            Vector2 shooterPos = shooterBody.position;
+            Vector2 difference = hitTarget.position - shooterPos;
+            float length = difference.magnitude;
 
-            float angle = Mathf.Atan2(diff.y, diff.x) * Mathf.Rad2Deg;
+            if (length > Mathf.Epsilon)
+                direction = difference / length;
+
+            float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
             transform.rotation = Quaternion.Euler(0f, 0f, angle);
-            direction = diff.normalized;
             UpdateVisual(shooterPos, length);
             return;
         }
@@ -89,42 +116,37 @@ public class TetherProjectile : MonoBehaviour
         if (reachedMaxLength)
             currentLength = maxLength;
 
-        Vector2 origin = shooter.Rigidbody.position + direction * shooterRadius;
-        float raycastStartDist = 0.1f;
-        Vector2 rayOrigin = origin + direction * raycastStartDist;
-        float raycastLength = currentLength;
-
-        if (raycastLength > 0f)
+        Vector2 origin = shooterBody.position + direction * shooterRadius;
+        if (isAuthoritative)
         {
-            RaycastHit2D hit = Physics2D.Raycast(rayOrigin, direction, raycastLength, hitMask);
-            if (hit.collider != null)
+            const float raycastStartDistance = 0.1f;
+            Vector2 rayOrigin = origin + direction * raycastStartDistance;
+            if (currentLength > 0f)
             {
-                if (hit.collider.transform == shooter.transform)
+                RaycastHit2D hit = Physics2D.Raycast(
+                    rayOrigin,
+                    direction,
+                    currentLength,
+                    hitMask);
+                if (hit.collider != null && !hit.collider.transform.IsChildOf(shooter.transform))
                 {
-                    if (reachedMaxLength)
-                    {
-                        UpdateVisual(origin, currentLength);
-                        Destroy(gameObject);
-                    }
+                    currentLength = hit.distance;
+                    UpdateVisual(origin, currentLength);
+                    HandleAuthoritativeHit(hit);
                     return;
                 }
-
-                currentLength = hit.distance;
-                UpdateVisual(origin, currentLength);
-                OnHit(hit);
-                return;
             }
         }
 
         UpdateVisual(origin, currentLength);
 
         if (reachedMaxLength)
-            Destroy(gameObject);
+            FinishFlight();
     }
 
-    void UpdateVisual(Vector2 origin, float length)
+    private void UpdateVisual(Vector2 origin, float length)
     {
-        if (sr == null)
+        if (sr == null || spriteWidth <= Mathf.Epsilon)
             return;
 
         float scale = length / spriteWidth;
@@ -132,19 +154,26 @@ public class TetherProjectile : MonoBehaviour
         transform.position = origin + direction * (length * 0.5f);
     }
 
-    void OnHit(RaycastHit2D hit)
+    private void HandleAuthoritativeHit(RaycastHit2D hit)
     {
-        if (hit.collider.CompareTag("Player") && hit.collider.transform != shooter.transform)
+        Rigidbody2D targetBody = hit.collider.attachedRigidbody;
+        bool hitPlayer = hit.collider.CompareTag("Player") ||
+                         (targetBody != null && targetBody.CompareTag("Player"));
+
+        if (hitPlayer && targetBody != null && shooter.OnProjectileHit(targetBody))
         {
-            hasHit = true;
-            hitTarget = hit.collider.GetComponent<Rigidbody2D>();
-            if (hitTarget != null)
-                shooter.OnProjectileHit(hitTarget);
+            AttachToTarget(targetBody);
+            return;
         }
-        else
-        {
-            Debug.Log($"[TetherProjectile] Hit non-player object: {hit.collider.name} on layer {LayerMask.LayerToName(hit.collider.gameObject.layer)}. Destroying.");
-            Destroy(gameObject);
-        }
+
+        FinishFlight();
+    }
+
+    private void FinishFlight()
+    {
+        if (isAuthoritative && shooter != null)
+            shooter.OnProjectileTerminated(this);
+
+        Destroy(gameObject);
     }
 }
