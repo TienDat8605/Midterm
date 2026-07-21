@@ -72,5 +72,9 @@ public sealed class DirectMapTestCharacterSelector : MonoBehaviour
             : Vector3.up;
         currentCharacter = Instantiate(prefab, spawnPosition, Quaternion.identity);
         currentCharacter.name = $"{prefab.name} (Direct Test)";
+
+        CameraFollow cameraFollow = FindFirstObjectByType<CameraFollow>();
+        if (cameraFollow != null)
+            cameraFollow.SetTarget(currentCharacter.transform);
     }
 }
