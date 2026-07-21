@@ -31,6 +31,15 @@ public class PlayerControllerWithPhysics : MonoBehaviourPun, IPunObservable
     [Header("Input Control")]
     public bool inputEnabled = true;
 
+    [Header("Developer Flight")]
+    [Tooltip("Allows the locally owned slime to toggle developer flight with F.")]
+    [SerializeField] private bool allowFlightHack = true;
+    [SerializeField] private bool startInFlightMode;
+    [SerializeField, Min(0.1f)] private float flightSpeed = 12f;
+    [SerializeField, Min(0.1f)] private float boostedFlightSpeed = 25f;
+    [Tooltip("Disables the slime collider while flying so it can pass through the map.")]
+    [SerializeField] private bool enableNoclipInFlight = true;
+
     protected Rigidbody2D rb;
     public Rigidbody2D Rigidbody => rb;
     protected Animator anim;
@@ -43,6 +52,13 @@ public class PlayerControllerWithPhysics : MonoBehaviourPun, IPunObservable
     protected float defaultGravityScale;
     protected float lastAirHorizontalSpeed;
     protected bool hasJumped;
+
+    private bool isFlightMode;
+    private Vector2 flightInput;
+    private Collider2D playerCollider;
+    private bool colliderWasEnabled;
+    private float gravityBeforeFlight;
+    private RigidbodyType2D bodyTypeBeforeFlight;
 
     [Header("Network Smoothing")]
     [SerializeField] private float networkPositionLerpSpeed = 12f;
@@ -68,6 +84,7 @@ public class PlayerControllerWithPhysics : MonoBehaviourPun, IPunObservable
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
+        playerCollider = GetComponent<Collider2D>();
         anim = GetComponent<Animator>();
         spriteRenderer = GetComponent<SpriteRenderer>();
         defaultGravityScale = gravityScale;
@@ -98,6 +115,10 @@ public class PlayerControllerWithPhysics : MonoBehaviourPun, IPunObservable
         {
             UpdateGrounded();
             TryAssignCamera();
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            if (allowFlightHack && startInFlightMode)
+                SetFlightMode(true);
+#endif
         }
         else
         {
@@ -136,6 +157,20 @@ public class PlayerControllerWithPhysics : MonoBehaviourPun, IPunObservable
 
         if (Keyboard.current == null)
             return;
+
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        if (inputEnabled && allowFlightHack && Keyboard.current.fKey.wasPressedThisFrame)
+            SetFlightMode(!isFlightMode);
+
+        if (isFlightMode)
+        {
+            if (inputEnabled)
+                ReadFlightInput();
+            else
+                flightInput = Vector2.zero;
+            return;
+        }
+#endif
 
         UpdateAbility();
 
@@ -187,6 +222,15 @@ public class PlayerControllerWithPhysics : MonoBehaviourPun, IPunObservable
             return;
         }
 
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        if (isFlightMode)
+        {
+            rb.linearVelocity = flightInput;
+            rb.angularVelocity = 0f;
+            return;
+        }
+#endif
+
         UpdateGrounded();
         if (anim) anim.SetBool("isGrounded", isGrounded);
 
@@ -216,6 +260,8 @@ public class PlayerControllerWithPhysics : MonoBehaviourPun, IPunObservable
     }
 
     protected virtual void FixedUpdateAbility() { }
+
+    protected virtual void PrepareForFlightMode() { }
 
     protected virtual float GetWalkSpeed()
     {
@@ -342,6 +388,100 @@ public class PlayerControllerWithPhysics : MonoBehaviourPun, IPunObservable
     }
 
     protected virtual void OnGroundedChanged(bool grounded) { }
+
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+    private void ReadFlightInput()
+    {
+        float horizontal = 0f;
+        float vertical = 0f;
+
+        if (Keyboard.current.dKey.isPressed || Keyboard.current.rightArrowKey.isPressed)
+            horizontal += 1f;
+        if (Keyboard.current.aKey.isPressed || Keyboard.current.leftArrowKey.isPressed)
+            horizontal -= 1f;
+        if (Keyboard.current.wKey.isPressed || Keyboard.current.upArrowKey.isPressed)
+            vertical += 1f;
+        if (Keyboard.current.sKey.isPressed || Keyboard.current.downArrowKey.isPressed)
+            vertical -= 1f;
+
+        float speed = Keyboard.current.leftShiftKey.isPressed ||
+                      Keyboard.current.rightShiftKey.isPressed
+            ? boostedFlightSpeed
+            : flightSpeed;
+
+        flightInput = new Vector2(horizontal, vertical).normalized * speed;
+    }
+
+    private void SetFlightMode(bool enabled)
+    {
+        if (isFlightMode == enabled || rb == null)
+            return;
+
+        if (enabled)
+        {
+            PrepareForFlightMode();
+            bodyTypeBeforeFlight = rb.bodyType;
+            gravityBeforeFlight = rb.gravityScale;
+            colliderWasEnabled = playerCollider != null && playerCollider.enabled;
+
+            isChargingJump = false;
+            jumpCharge = 0f;
+            jumpDirection = 0f;
+            moveInput = 0f;
+            isGrounded = false;
+            rb.bodyType = RigidbodyType2D.Kinematic;
+            rb.gravityScale = 0f;
+            rb.linearVelocity = Vector2.zero;
+            rb.angularVelocity = 0f;
+
+            if (playerCollider != null && enableNoclipInFlight)
+                playerCollider.enabled = false;
+
+            if (anim)
+            {
+                anim.SetBool("isCharging", false);
+                anim.SetBool("isGrounded", false);
+            }
+        }
+        else
+        {
+            flightInput = Vector2.zero;
+
+            if (playerCollider != null)
+                playerCollider.enabled = colliderWasEnabled;
+
+            rb.bodyType = bodyTypeBeforeFlight;
+            rb.gravityScale = gravityBeforeFlight;
+            rb.linearVelocity = Vector2.zero;
+            rb.angularVelocity = 0f;
+            UpdateGrounded();
+        }
+
+        isFlightMode = enabled;
+        Debug.Log($"Developer flight mode {(enabled ? "enabled" : "disabled")} for {name}.", this);
+    }
+#endif
+
+    public bool IsFlightMode => isFlightMode;
+
+    public void SetInputEnabled(bool enabled)
+    {
+        inputEnabled = enabled;
+        if (enabled)
+            return;
+
+        moveInput = 0f;
+        jumpCharge = 0f;
+        jumpDirection = 0f;
+        isChargingJump = false;
+        flightInput = Vector2.zero;
+
+        if (anim != null)
+            anim.SetBool("isCharging", false);
+
+        if (rb != null && isGrounded && !isFlightMode)
+            rb.linearVelocity = new Vector2(0f, rb.linearVelocity.y);
+    }
 
     private void SmoothRemoteMovement()
     {

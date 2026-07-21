@@ -12,7 +12,7 @@ using Debug = UnityEngine.Debug;
 
 public static class DinoParkBuildTools
 {
-    public const string UiScenePath = "Assets/Scenes/UI.unity";
+    public const string UiScenePath = "Assets/Scenes/Main.unity";
     public const string CatalogPath = "Assets/Resources/MultiplayerMapCatalog.asset";
     private const string PendingKey = "DinoParkBuildTools.Pending";
     private const string TestExe = "Builds/Windows/Test/DinoPark.exe";

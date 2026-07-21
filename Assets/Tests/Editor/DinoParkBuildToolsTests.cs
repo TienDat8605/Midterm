@@ -9,15 +9,15 @@ using UnityEditor.Build;
 public sealed class DinoParkBuildToolsTests
 {
     [Test]
-    public void SceneList_IsUiThenUniqueCatalogScenesOnly()
+    public void SceneList_IsMainThenUniqueCatalogScenesOnly()
     {
         string[] scenes = DinoParkBuildTools.ResolveBuildScenes();
         Assert.That(scenes[0], Is.EqualTo(DinoParkBuildTools.UiScenePath));
         Assert.That(scenes, Does.Contain("Assets/Scenes/NewMap/Map1.unity"));
-        Assert.That(scenes, Does.Contain("Assets/Scenes/MapScene.unity"));
+        Assert.That(scenes, Does.Contain("Assets/Scenes/NewMap/Map2.unity"));
         Assert.That(scenes.Distinct(StringComparer.OrdinalIgnoreCase).Count(), Is.EqualTo(scenes.Length));
         Assert.That(scenes, Has.None.EqualTo("Assets/Scenes/SampleScene.unity"));
-        Assert.That(scenes, Has.None.EqualTo("Assets/Scenes/NewMap/Map2.unity"));
+        Assert.That(scenes, Has.None.EqualTo("Assets/Scenes/MapScene.unity"));
     }
 
     [Test]

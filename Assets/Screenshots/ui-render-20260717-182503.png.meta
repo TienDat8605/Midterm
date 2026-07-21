@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 31f8537b06b2c3f4382fba9f587b0bbd
+guid: 1b3db5f125d09504ea2379ddb6648352
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 198610345067750395
-    second: 9sprite_8bit_circle_outline_0
+      213: -1532560961251583576
+    second: ui-render-20260717-182503_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -100,23 +100,23 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: 9sprite_8bit_circle_outline_0
+      name: ui-render-20260717-182503_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 512
-        height: 512
+        width: 1920
+        height: 1080
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 128, y: 128, z: 128, w: 128}
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: bf32b7a7e0b91c200800000000000000
-      internalID: 198610345067750395
+      spriteID: 8a9d7f3fcef3bbae0800000000000000
+      internalID: -1532560961251583576
       vertices: []
       indices: 
       edges: []
@@ -125,7 +125,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: c600ccedfcb0c5c48befd80e7515ec50
+    spriteID: 
     internalID: 0
     vertices: []
     indices: 
@@ -135,7 +135,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      9sprite_8bit_circle_outline_0: 198610345067750395
+      ui-render-20260717-182503_0: -1532560961251583576
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
