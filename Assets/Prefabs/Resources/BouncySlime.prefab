@@ -63,7 +63,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 3.1548, y: 3.2784, z: 1}
+  m_LocalScale: {x: 2, y: 2, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 2000000000000000005}
@@ -216,9 +216,9 @@ MonoBehaviour:
   walkSpeed: 5
   gravityScale: 1.5
   maxChargeTime: 1
-  minJumpUpSpeed: 8
+  minJumpUpSpeed: 0.5
   maxJumpUpSpeed: 15
-  minJumpHorizontalSpeed: 3
+  minJumpHorizontalSpeed: 1
   maxJumpHorizontalSpeed: 9
   groundCheckPoint: {fileID: 2000000000000000005}
   groundCheckRadius: 0.1
@@ -233,7 +233,7 @@ MonoBehaviour:
   enableNoclipInFlight: 1
   networkPositionLerpSpeed: 12
   networkRotationLerpSpeed: 12
-  bouncyMinJumpUpSpeed: 12
+  bouncyMinJumpUpSpeed: 4
   bouncyMaxJumpUpSpeed: 18
   passiveBounceForce: 0
   trampolineBounceForce: 35

@@ -32,7 +32,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 3.1548, y: 3.2784, z: 1}
+  m_LocalScale: {x: 2, y: 2, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 3000000000000000005}
@@ -185,9 +185,9 @@ MonoBehaviour:
   walkSpeed: 5
   gravityScale: 1.5
   maxChargeTime: 1
-  minJumpUpSpeed: 8
-  maxJumpUpSpeed: 15
-  minJumpHorizontalSpeed: 3
+  minJumpUpSpeed: 0.5
+  maxJumpUpSpeed: 13
+  minJumpHorizontalSpeed: 1
   maxJumpHorizontalSpeed: 9
   groundCheckPoint: {fileID: 3000000000000000005}
   groundCheckRadius: 0.1
@@ -212,10 +212,10 @@ MonoBehaviour:
   tetherProjectilePrefab: {fileID: 1000000000000000001, guid: d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9, type: 3}
   tetherProjectileSpeed: 20
   tetherMaxRange: 8
-  tetherPullForce: 15
   tetherBreakForce: 50
-  tetherDuration: 3
-  tetherCooldown: 5
+  tetherDuration: 10
+  tetherCooldown: 3
+  tetherYankImpulse: 15
   tetherTargetLayer:
     serializedVersion: 2
     m_Bits: 4294967295

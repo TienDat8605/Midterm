@@ -63,7 +63,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 3.1548, y: 3.2784, z: 1}
+  m_LocalScale: {x: 2.5, y: 2.5, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1000000000000000005}
@@ -216,9 +216,9 @@ MonoBehaviour:
   walkSpeed: 5
   gravityScale: 1.5
   maxChargeTime: 1
-  minJumpUpSpeed: 8
-  maxJumpUpSpeed: 15
-  minJumpHorizontalSpeed: 3
+  minJumpUpSpeed: 0.5
+  maxJumpUpSpeed: 12
+  minJumpHorizontalSpeed: 1
   maxJumpHorizontalSpeed: 9
   groundCheckPoint: {fileID: 1000000000000000005}
   groundCheckRadius: 0.1
@@ -236,7 +236,7 @@ MonoBehaviour:
   anchorMass: 3
   anchorWalkSpeed: 4
   anchorMinJumpUpSpeed: 7
-  anchorMaxJumpUpSpeed: 12
+  anchorMaxJumpUpSpeed: 13
   stoneScale: {x: 1.2, y: 0.8, z: 1}
   stoneColor: {r: 0.4, g: 0.4, b: 0.4, a: 1}
 --- !u!95 &1000000000000000006

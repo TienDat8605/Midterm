@@ -3,6 +3,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
+using Photon.Pun;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
@@ -230,6 +231,48 @@ public sealed class NetworkingFoundationTests
         {
             EditorSceneManager.CloseScene(scene, true);
         }
+    }
+
+    [Test]
+    public void StickyTetherPrefab_UsesPlayerViewForReplication()
+    {
+        GameObject stickyPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(
+            "Assets/Prefabs/Resources/StickySlime.prefab");
+        Assert.That(stickyPrefab, Is.Not.Null);
+
+        StickySlime sticky = stickyPrefab.GetComponent<StickySlime>();
+        PhotonView playerView = stickyPrefab.GetComponent<PhotonView>();
+        Assert.That(sticky, Is.Not.Null);
+        Assert.That(playerView, Is.Not.Null);
+        Assert.That(playerView.ObservedComponents, Does.Contain(sticky));
+        Assert.That(sticky.tetherProjectilePrefab, Is.Not.Null);
+        Assert.That(sticky.tetherProjectilePrefab.GetComponent<TetherProjectile>(), Is.Not.Null);
+        Assert.That(sticky.tetherProjectilePrefab.GetComponent<PhotonView>(), Is.Null);
+    }
+
+    [Test]
+    public void TetherYank_ReplacesExistingVelocityWithVelocityTowardSticky()
+    {
+        Vector2 targetVelocity = new Vector2(7f, -3f);
+        Vector2 impulse = TetherPhysics.CalculateYankImpulse(
+            new Vector2(2f, 1f),
+            new Vector2(-1f, 5f),
+            targetVelocity,
+            15f,
+            2f);
+        Vector2 resultingVelocity = targetVelocity + impulse / 2f;
+
+        Assert.That(resultingVelocity.x, Is.EqualTo(-9f).Within(0.001f));
+        Assert.That(resultingVelocity.y, Is.EqualTo(12f).Within(0.001f));
+        Assert.That(resultingVelocity.magnitude, Is.EqualTo(15f).Within(0.001f));
+        Assert.That(
+            TetherPhysics.CalculateYankImpulse(
+                Vector2.one,
+                Vector2.one,
+                targetVelocity,
+                15f,
+                2f),
+            Is.EqualTo(Vector2.zero));
     }
 
     private static void AssertCharacterPrefab(
