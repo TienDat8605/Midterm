@@ -15,6 +15,7 @@ GameObject:
   - component: {fileID: 2579115152468048179}
   - component: {fileID: 6750314719004600149}
   - component: {fileID: 4391625998809674034}
+  - component: {fileID: 5412345678901234567}
   m_Layer: 0
   m_Name: PlayerPrefab
   m_TagString: Player
@@ -272,3 +273,15 @@ Transform:
   m_Children: []
   m_Father: {fileID: 3330855647925818685}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &5412345678901234567
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5412914231196962920}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a13c9e7d5b2f4a6081e3d9c7b5a2f6e4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BirdKnockbackReceiver
