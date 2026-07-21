@@ -56,7 +56,9 @@ public class UIManager : MonoBehaviour
     private Button    _singlePlayerButton;
     private Button    _joinButton;
     private TextField _codeInput;
-    private Button    _fullscreenButton;
+    private DropdownField _displayModeDropdown;
+    private readonly Dictionary<string, GameDisplayMode> _displayModesByLabel =
+        new Dictionary<string, GameDisplayMode>();
 
     // ---- Lobby ----
     private const int NUM_SLOTS = 3;
@@ -98,11 +100,11 @@ public class UIManager : MonoBehaviour
         // ---- Locate screen roots ----
         _mainMenuScreen = root.Q<VisualElement>("MainMenuScreen");
         _lobbyScreen    = root.Q<VisualElement>("LobbyScreen"); // from RootUI.uxml
-        _fullscreenButton = root.Q<Button>("FullscreenButton");
+        _displayModeDropdown = root.Q<DropdownField>("DisplayModeDropdown");
 
         SetupMainMenu();
         SetupLobby();
-        SetupFullscreenButton();
+        SetupDisplayModeDropdown();
 
         if (NetworkManager.Instance != null)
         {
@@ -125,14 +127,11 @@ public class UIManager : MonoBehaviour
         if (_startButton != null) _startButton.clicked -= OnStartClicked;
         if (_backButton  != null) _backButton.clicked  -= OnLeaveRoom;
         if (_copyBtn != null) _copyBtn.clicked -= OnCopyCodeClicked;
-        if (_fullscreenButton != null)
-        {
-            _fullscreenButton.UnregisterCallback<PointerDownEvent>(OnFullscreenPointerDown);
-            _fullscreenButton.UnregisterCallback<KeyDownEvent>(OnFullscreenKeyDown);
-        }
+        if (_displayModeDropdown != null)
+            _displayModeDropdown.UnregisterValueChangedCallback(OnDisplayModeSelected);
 
         if (DisplaySettingsManager.Instance != null)
-            DisplaySettingsManager.Instance.FullscreenChanged -= OnFullscreenChanged;
+            DisplaySettingsManager.Instance.DisplayModeChanged -= OnDisplayModeChanged;
 
         if (NetworkManager.Instance != null)
         {
@@ -226,60 +225,62 @@ public class UIManager : MonoBehaviour
         if (_joinButton != null) _joinButton.clicked += OnJoinClicked;
     }
 
-    private void SetupFullscreenButton()
+    private void SetupDisplayModeDropdown()
     {
-        if (_fullscreenButton == null)
+        if (_displayModeDropdown == null)
             return;
 
-        _fullscreenButton.UnregisterCallback<PointerDownEvent>(OnFullscreenPointerDown);
-        _fullscreenButton.UnregisterCallback<KeyDownEvent>(OnFullscreenKeyDown);
-        _fullscreenButton.RegisterCallback<PointerDownEvent>(OnFullscreenPointerDown);
-        _fullscreenButton.RegisterCallback<KeyDownEvent>(OnFullscreenKeyDown);
-        if (DisplaySettingsManager.Instance != null)
-        {
-            DisplaySettingsManager.Instance.FullscreenChanged -= OnFullscreenChanged;
-            DisplaySettingsManager.Instance.FullscreenChanged += OnFullscreenChanged;
-            RefreshFullscreenButton(DisplaySettingsManager.Instance.IsFullscreen);
-        }
-        else
-        {
-            RefreshFullscreenButton(UnityEngine.Screen.fullScreen);
-        }
-    }
+        _displayModeDropdown.UnregisterValueChangedCallback(OnDisplayModeSelected);
+        _displayModeDropdown.RegisterValueChangedCallback(OnDisplayModeSelected);
 
-    private void OnFullscreenPointerDown(PointerDownEvent evt)
-    {
-        ToggleFullscreenFromUserInput();
-    }
-
-    private void OnFullscreenKeyDown(KeyDownEvent evt)
-    {
-        if (evt.keyCode == KeyCode.Return || evt.keyCode == KeyCode.KeypadEnter ||
-            evt.keyCode == KeyCode.Space)
-        {
-            ToggleFullscreenFromUserInput();
-        }
-    }
-
-    private void ToggleFullscreenFromUserInput()
-    {
-        DisplaySettingsManager.Instance?.ToggleFullscreen();
-    }
-
-    private void OnFullscreenChanged(bool isFullscreen)
-    {
-        RefreshFullscreenButton(isFullscreen);
-    }
-
-    private void RefreshFullscreenButton(bool isFullscreen)
-    {
-        if (_fullscreenButton == null)
+        DisplaySettingsManager manager = DisplaySettingsManager.Instance;
+        if (manager == null)
             return;
 
-        _fullscreenButton.text = isFullscreen ? "WINDOW" : "FULL";
-        _fullscreenButton.tooltip = isFullscreen
-            ? "WINDOW — Switch to windowed mode"
-            : "FULL — Enter fullscreen";
+        manager.DisplayModeChanged -= OnDisplayModeChanged;
+        manager.DisplayModeChanged += OnDisplayModeChanged;
+        RefreshDisplayModeDropdown();
+    }
+
+    private void OnDisplayModeSelected(ChangeEvent<string> evt)
+    {
+        if (_displayModesByLabel.TryGetValue(evt.newValue, out GameDisplayMode mode))
+            DisplaySettingsManager.Instance?.ApplyDisplayMode(mode);
+    }
+
+    private void OnDisplayModeChanged(GameDisplayMode mode)
+    {
+        RefreshDisplayModeDropdown();
+    }
+
+    private void RefreshDisplayModeDropdown()
+    {
+        if (_displayModeDropdown == null || DisplaySettingsManager.Instance == null)
+            return;
+
+        DisplaySettingsManager manager = DisplaySettingsManager.Instance;
+        GameDisplayMode currentMode = manager.CurrentMode;
+        var modes = new List<GameDisplayMode>(manager.AvailableModes);
+        if (currentMode == GameDisplayMode.CustomWindow)
+            modes.Insert(Mathf.Max(0, modes.Count - 1), currentMode);
+
+        _displayModesByLabel.Clear();
+        var labels = new List<string>(modes.Count);
+        foreach (GameDisplayMode mode in modes)
+        {
+            string label = DisplaySettingsManager.GetDisplayModeLabel(
+                mode, UnityEngine.Screen.width, UnityEngine.Screen.height);
+            labels.Add(label);
+            _displayModesByLabel[label] = mode;
+        }
+
+        string currentLabel = DisplaySettingsManager.GetDisplayModeLabel(
+            currentMode, UnityEngine.Screen.width, UnityEngine.Screen.height);
+        _displayModeDropdown.choices = labels;
+        _displayModeDropdown.SetValueWithoutNotify(currentLabel);
+        _displayModeDropdown.tooltip = manager.UsesWebDisplayModes
+            ? "Choose embedded or browser fullscreen mode"
+            : "Choose window resolution or fullscreen mode";
     }
 
     private void OnSinglePlayerClicked()

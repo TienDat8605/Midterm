@@ -64,6 +64,48 @@ public sealed class DisplaySettingsTests
             Is.EqualTo(new Vector2Int(1024, 576)));
     }
 
+    [Test]
+    public void DisplayModes_ExposeDesktopPresetsAndWebBrowserModes()
+    {
+        Assert.That(DisplaySettingsManager.GetAvailableModes(false), Is.EqualTo(new[]
+        {
+            GameDisplayMode.Window1280x720,
+            GameDisplayMode.Window1600x900,
+            GameDisplayMode.Window1920x1080,
+            GameDisplayMode.Fullscreen
+        }));
+        Assert.That(DisplaySettingsManager.GetAvailableModes(true), Is.EqualTo(new[]
+        {
+            GameDisplayMode.WebEmbedded,
+            GameDisplayMode.Fullscreen
+        }));
+    }
+
+    [TestCase(GameDisplayMode.Window1280x720, 1280, 720)]
+    [TestCase(GameDisplayMode.Window1600x900, 1600, 900)]
+    [TestCase(GameDisplayMode.Window1920x1080, 1920, 1080)]
+    public void DisplayModes_MapWindowPresetsToExpectedSizes(
+        GameDisplayMode mode, int expectedWidth, int expectedHeight)
+    {
+        Assert.That(DisplaySettingsManager.TryGetWindowSize(mode, out Vector2Int size), Is.True);
+        Assert.That(size, Is.EqualTo(new Vector2Int(expectedWidth, expectedHeight)));
+    }
+
+    [Test]
+    public void DisplayModeResolution_DetectsPresetsFullscreenWebAndCustom()
+    {
+        Assert.That(DisplaySettingsManager.ResolveDisplayMode(false, false, 1600, 900),
+            Is.EqualTo(GameDisplayMode.Window1600x900));
+        Assert.That(DisplaySettingsManager.ResolveDisplayMode(false, true, 1920, 1080),
+            Is.EqualTo(GameDisplayMode.Fullscreen));
+        Assert.That(DisplaySettingsManager.ResolveDisplayMode(true, false, 1280, 720),
+            Is.EqualTo(GameDisplayMode.WebEmbedded));
+        Assert.That(DisplaySettingsManager.ResolveDisplayMode(false, false, 1400, 800),
+            Is.EqualTo(GameDisplayMode.CustomWindow));
+        Assert.That(DisplaySettingsManager.GetDisplayModeLabel(
+            GameDisplayMode.CustomWindow, 1400, 800), Is.EqualTo("Custom 1400×800"));
+    }
+
     private static void AssertRect(Rect actual, float x, float y, float width, float height)
     {
         Assert.That(actual.x, Is.EqualTo(x).Within(0.0001f));
