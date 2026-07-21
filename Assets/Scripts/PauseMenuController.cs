@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using Photon.Pun;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.SceneManagement;
 using UnityEngine.UIElements;
 
 /// <summary>
@@ -188,6 +189,11 @@ public class PauseMenuController : MonoBehaviour
     private void QuitGame()
     {
         SetPaused(false);
-        Application.Quit();
+        SinglePlayerSession.Stop();
+
+        if (PhotonNetwork.InRoom)
+            PhotonNetwork.LeaveRoom();
+
+        SceneManager.LoadScene("Main");
     }
 }
