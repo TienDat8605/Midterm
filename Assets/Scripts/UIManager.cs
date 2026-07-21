@@ -57,6 +57,7 @@ public class UIManager : MonoBehaviour
     private Button    _multiplayerNavButton;
     private Button    _instructionsNavButton;
     private Button    _singlePlayerButton;
+    private Button    _exitGameButton;
 
     // ---- Instructions Menu ----
     private Button _prevInstructionPageBut;
@@ -141,6 +142,7 @@ public class UIManager : MonoBehaviour
     {
         if (_hostButton != null) _hostButton.clicked -= OnHostClicked;
         if (_singlePlayerButton != null) _singlePlayerButton.clicked -= OnSinglePlayerClicked;
+        if (_exitGameButton != null) _exitGameButton.clicked -= OnExitGameClicked;
         if (_joinButton != null) _joinButton.clicked -= OnJoinClicked;
         if (_multiplayerNavButton != null) _multiplayerNavButton.clicked -= OnMultiplayerNavClicked;
         if (_instructionsNavButton != null) _instructionsNavButton.clicked -= OnInstructionsNavClicked;
@@ -233,10 +235,12 @@ public class UIManager : MonoBehaviour
         _multiplayerNavButton = _mainMenuScreen.Q<Button>("HostBut"); // user kept the name "HostBut" in MainMenu.uxml
         _instructionsNavButton = _mainMenuScreen.Q<Button>("InstructionsBut");
         _singlePlayerButton = _mainMenuScreen.Q<Button>("SinglePlayerBut");
+        _exitGameButton = _mainMenuScreen.Q<Button>("ExitBut");
 
         if (_multiplayerNavButton != null) _multiplayerNavButton.clicked += OnMultiplayerNavClicked;
         if (_instructionsNavButton != null) _instructionsNavButton.clicked += OnInstructionsNavClicked;
         if (_singlePlayerButton != null) _singlePlayerButton.clicked += OnSinglePlayerClicked;
+        if (_exitGameButton != null) _exitGameButton.clicked += OnExitGameClicked;
     }
 
     private void SetupInstructionsMenu()
@@ -285,9 +289,8 @@ public class UIManager : MonoBehaviour
 
     private void OnInstructionsNavClicked()
     {
-        _currentInstructionPage = 0;
-        UpdateInstructionPagination();
-        ShowScreen(Screen.Instructions);
+        Debug.Log("[UIManager] Starting tutorial gameplay.");
+        SinglePlayerSession.StartTutorial();
     }
 
     private void OnInstructionsBackClicked()
@@ -332,6 +335,11 @@ public class UIManager : MonoBehaviour
     private void OnMultiplayerNavClicked()
     {
         ShowScreen(Screen.MultiplayerMenu);
+    }
+
+    private void OnExitGameClicked()
+    {
+        Application.Quit();
     }
 
     private void SetupDisplayModeDropdown()

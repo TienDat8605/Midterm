@@ -17,6 +17,8 @@ public sealed class EndGameController : MonoBehaviour
     private VisualElement endGameScreen;
     private VisualElement map1Actions;
     private VisualElement map2Actions;
+    private Label adventureTitleLabel;
+    private Label adventureCompleteLabel;
     private Button nextLevelButton;
     private Button map1ExitButton;
     private Button map2ExitButton;
@@ -29,6 +31,8 @@ public sealed class EndGameController : MonoBehaviour
         endGameScreen = root.Q<VisualElement>("EndGameScreen");
         map1Actions = root.Q<VisualElement>("Map1Actions");
         map2Actions = root.Q<VisualElement>("Map2Actions");
+        adventureTitleLabel = root.Q<Label>("AdventureTitleLabel");
+        adventureCompleteLabel = root.Q<Label>("AdventureCompleteLabel");
         nextLevelButton = root.Q<Button>("NextLevelButton");
         map1ExitButton = root.Q<Button>("Map1ExitButton");
         map2ExitButton = root.Q<Button>("Map2ExitButton");
@@ -56,12 +60,31 @@ public sealed class EndGameController : MonoBehaviour
         isShowing = true;
         StopLocalPlayers();
 
-        bool hasNextLevel = !string.IsNullOrWhiteSpace(nextLevelSceneName) &&
-                            Application.CanStreamedLevelBeLoaded(nextLevelSceneName);
-        if (map1Actions != null)
-            map1Actions.style.display = hasNextLevel ? DisplayStyle.Flex : DisplayStyle.None;
-        if (map2Actions != null)
-            map2Actions.style.display = hasNextLevel ? DisplayStyle.None : DisplayStyle.Flex;
+        bool isTutorialMap =
+            SceneManager.GetActiveScene().name == SinglePlayerSession.TutorialSceneName;
+        if (isTutorialMap)
+        {
+            if (adventureTitleLabel != null)
+                adventureTitleLabel.text = "TUTORIAL";
+            if (adventureCompleteLabel != null)
+                adventureCompleteLabel.text = "COMPLETE";
+            if (map1Actions != null)
+                map1Actions.style.display = DisplayStyle.None;
+            if (map2Actions != null)
+                map2Actions.style.display = DisplayStyle.Flex;
+            if (map2ExitButton != null)
+                map2ExitButton.text = "EXIT";
+        }
+        else
+        {
+            bool hasNextLevel = !string.IsNullOrWhiteSpace(nextLevelSceneName) &&
+                                Application.CanStreamedLevelBeLoaded(nextLevelSceneName);
+            if (map1Actions != null)
+                map1Actions.style.display = hasNextLevel ? DisplayStyle.Flex : DisplayStyle.None;
+            if (map2Actions != null)
+                map2Actions.style.display = hasNextLevel ? DisplayStyle.None : DisplayStyle.Flex;
+
+        }
 
         // Photon scene changes must be issued by the master client.
         if (PhotonNetwork.InRoom && !PhotonNetwork.IsMasterClient && nextLevelButton != null)
