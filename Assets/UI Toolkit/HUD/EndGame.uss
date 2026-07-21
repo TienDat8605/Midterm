@@ -65,8 +65,8 @@
 }
 
 .endgame-title-large {
-    margin-top: -3px;
-    font-size: 68px;
+    margin-top: 12px;
+    font-size: 54px;
     letter-spacing: 3px;
     color: rgb(160, 82, 45);
 }
