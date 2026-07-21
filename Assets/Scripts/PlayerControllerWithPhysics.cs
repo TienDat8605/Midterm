@@ -57,6 +57,8 @@ public class PlayerControllerWithPhysics : MonoBehaviourPun, IPunObservable
     private bool isFlightMode;
     private Vector2 flightInput;
     private Collider2D playerCollider;
+    private PhysicsMaterial2D groundedMaterial;
+    private PhysicsMaterial2D airborneMaterial;
     private bool colliderWasEnabled;
     private float gravityBeforeFlight;
     private RigidbodyType2D bodyTypeBeforeFlight;
@@ -102,12 +104,24 @@ public class PlayerControllerWithPhysics : MonoBehaviourPun, IPunObservable
         groundAndPlayerMask = groundLayer | LayerMask.GetMask("Default");
 
         Collider2D col = GetComponent<Collider2D>();
-        if (col != null && col.sharedMaterial == null)
+        if (col != null)
         {
-            PhysicsMaterial2D slimeFriction = new PhysicsMaterial2D("SlimeFriction");
-            slimeFriction.friction = 0.5f;
-            slimeFriction.bounciness = 0f;
-            col.sharedMaterial = slimeFriction;
+            groundedMaterial = col.sharedMaterial;
+            if (groundedMaterial == null)
+            {
+                groundedMaterial = new PhysicsMaterial2D("SlimeFriction")
+                {
+                    friction = 0.5f,
+                    bounciness = 0f
+                };
+            }
+
+            airborneMaterial = new PhysicsMaterial2D("SlimeAirborne")
+            {
+                friction = 0f,
+                bounciness = groundedMaterial.bounciness
+            };
+            col.sharedMaterial = groundedMaterial;
         }
 
         Initialize();
@@ -233,6 +247,8 @@ public class PlayerControllerWithPhysics : MonoBehaviourPun, IPunObservable
 #endif
 
         UpdateGrounded();
+        if (playerCollider != null)
+            playerCollider.sharedMaterial = isGrounded ? groundedMaterial : airborneMaterial;
         if (anim) anim.SetBool("isGrounded", isGrounded);
 
         if (isGrounded && !hasJumped)

@@ -758,6 +758,10 @@ PrefabInstance:
       propertyPath: anchorMinJumpUpSpeed
       value: 6
       objectReference: {fileID: 0}
+    - target: {fileID: 1000000000000000007, guid: 85bcce2848c9ce640ba275bb37fd4a38, type: 3}
+      propertyPath: sceneViewId
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 7749952820001609931, guid: 85bcce2848c9ce640ba275bb37fd4a38, type: 3}
       propertyPath: m_LocalPosition.x
       value: -2
@@ -859,6 +863,10 @@ PrefabInstance:
       propertyPath: trampolineBoostMultiplier
       value: 1.2
       objectReference: {fileID: 0}
+    - target: {fileID: 2000000000000000007, guid: 2750512f84d51cb43aa8faa1ce7803fd, type: 3}
+      propertyPath: sceneViewId
+      value: 2
+      objectReference: {fileID: 0}
     - target: {fileID: 5541059187905051440, guid: 2750512f84d51cb43aa8faa1ce7803fd, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -948,6 +956,10 @@ PrefabInstance:
       propertyPath: tetherProjectilePrefab
       value: 
       objectReference: {fileID: 1000000000000000001, guid: d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9, type: 3}
+    - target: {fileID: 3000000000000000007, guid: cfd455f0ab6f9e44a8c9c107d03b5787, type: 3}
+      propertyPath: sceneViewId
+      value: 3
+      objectReference: {fileID: 0}
     - target: {fileID: 3570430728216023809, guid: cfd455f0ab6f9e44a8c9c107d03b5787, type: 3}
       propertyPath: m_LocalPosition.x
       value: 2

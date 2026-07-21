@@ -16,7 +16,7 @@ public class TetherProjectile : MonoBehaviour
     private StickySlime shooter;
     private SpriteRenderer sr;
     private float shooterRadius;
-    private float spriteHeight;
+    private float spriteWidth;
     private bool hasHit;
     private Rigidbody2D hitTarget;
 
@@ -24,11 +24,8 @@ public class TetherProjectile : MonoBehaviour
     {
         sr = GetComponent<SpriteRenderer>();
         if (sr != null)
-            spriteHeight = sr.size.y;
+            spriteWidth = sr.sprite.bounds.size.x;
 
-        Collider2D col = GetComponent<Collider2D>();
-        if (col != null)
-            col.enabled = false;
     }
 
     public void Launch(StickySlime owner, Vector2 dir, float maxRange)
@@ -82,10 +79,8 @@ public class TetherProjectile : MonoBehaviour
 
             float angle = Mathf.Atan2(diff.y, diff.x) * Mathf.Rad2Deg;
             transform.rotation = Quaternion.Euler(0f, 0f, angle);
-            transform.position = shooterPos + diff.normalized * (length * 0.5f);
-
-            if (sr != null)
-                sr.size = new Vector2(length, spriteHeight);
+            direction = diff.normalized;
+            UpdateVisual(shooterPos, length);
             return;
         }
 
@@ -132,7 +127,8 @@ public class TetherProjectile : MonoBehaviour
         if (sr == null)
             return;
 
-        sr.size = new Vector2(length, spriteHeight);
+        float scale = length / spriteWidth;
+        transform.localScale = new Vector3(scale, Mathf.Max(2f, scale), 1f);
         transform.position = origin + direction * (length * 0.5f);
     }
 

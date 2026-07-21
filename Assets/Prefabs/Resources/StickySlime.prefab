@@ -158,7 +158,7 @@ BoxCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0, y: 0}
+  m_Offset: {x: 0.014734298, y: -0.030390467}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
@@ -168,7 +168,7 @@ BoxCollider2D:
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 0.38, y: 0.34}
+  m_Size: {x: 0.2807675, y: 0.23427474}
   m_EdgeRadius: 0.06
 --- !u!114 &3000000000000000003
 MonoBehaviour:
@@ -182,7 +182,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 045705d0d93f48ce9506008efd04e5a4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::StickySlime
-  walkSpeed: 7
+  walkSpeed: 5
+  gravityScale: 1.5
   maxChargeTime: 1
   minJumpUpSpeed: 8
   maxJumpUpSpeed: 15
@@ -194,12 +195,20 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 64
   inputEnabled: 1
+  allowFlightHack: 1
+  startInFlightMode: 0
+  flightSpeed: 12
+  boostedFlightSpeed: 25
+  enableNoclipInFlight: 1
+  networkPositionLerpSpeed: 12
+  networkRotationLerpSpeed: 12
   maxClingDuration: 2
   clingGravityScale: 0.1
+  wallSlideSpeed: 1
+  wallClingEnabled: 0
   wallLayer:
     serializedVersion: 2
     m_Bits: 0
-  wallContactSpeedThreshold: 0.5
   tetherProjectilePrefab: {fileID: 1000000000000000001, guid: d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9, type: 3}
   tetherProjectileSpeed: 20
   tetherMaxRange: 8
@@ -209,7 +218,7 @@ MonoBehaviour:
   tetherCooldown: 5
   tetherTargetLayer:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 4294967295
 --- !u!95 &3000000000000000006
 Animator:
   serializedVersion: 7
@@ -242,7 +251,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: aa584fbee541324448dd18d8409c7a41, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: PhotonUnityNetworking::Photon.Pun.PhotonView
   ObservedComponentsFoldoutOpen: 1
   Group: 0
