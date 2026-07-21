@@ -568,6 +568,87 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1001 &1753048035
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 4660164475187627948, guid: 686780c2236ec4920a299ffeb0325f06, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 5.6831512
+      objectReference: {fileID: 0}
+    - target: {fileID: 4660164475187627948, guid: 686780c2236ec4920a299ffeb0325f06, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 157.96922
+      objectReference: {fileID: 0}
+    - target: {fileID: 4660164475187627948, guid: 686780c2236ec4920a299ffeb0325f06, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4660164475187627948, guid: 686780c2236ec4920a299ffeb0325f06, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4660164475187627948, guid: 686780c2236ec4920a299ffeb0325f06, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4660164475187627948, guid: 686780c2236ec4920a299ffeb0325f06, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4660164475187627948, guid: 686780c2236ec4920a299ffeb0325f06, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4660164475187627948, guid: 686780c2236ec4920a299ffeb0325f06, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4660164475187627948, guid: 686780c2236ec4920a299ffeb0325f06, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4660164475187627948, guid: 686780c2236ec4920a299ffeb0325f06, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7187339275723446677, guid: 686780c2236ec4920a299ffeb0325f06, type: 3}
+      propertyPath: m_Name
+      value: DaughterNPC
+      objectReference: {fileID: 0}
+    - target: {fileID: 7610127467356862820, guid: 686780c2236ec4920a299ffeb0325f06, type: 3}
+      propertyPath: dialogueText
+      value: 
+      objectReference: {fileID: 1753048036}
+    - target: {fileID: 7610127467356862820, guid: 686780c2236ec4920a299ffeb0325f06, type: 3}
+      propertyPath: speechBubble
+      value: 
+      objectReference: {fileID: 1753048037}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 686780c2236ec4920a299ffeb0325f06, type: 3}
+--- !u!114 &1753048036 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 2724322503758464709, guid: 686780c2236ec4920a299ffeb0325f06, type: 3}
+  m_PrefabInstance: {fileID: 1753048035}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TextMeshProUGUI
+--- !u!1 &1753048037 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 834961519253653419, guid: 686780c2236ec4920a299ffeb0325f06, type: 3}
+  m_PrefabInstance: {fileID: 1753048035}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1971867551
 GameObject:
   m_ObjectHideFlags: 0
@@ -2494,3 +2575,4 @@ SceneRoots:
   - {fileID: 1613093363}
   - {fileID: 1728118229}
   - {fileID: 321366506}
+  - {fileID: 1753048035}
