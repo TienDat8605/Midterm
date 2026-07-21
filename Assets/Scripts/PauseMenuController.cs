@@ -20,16 +20,19 @@ public class PauseMenuController : MonoBehaviour
     private Button tutorialsButton;
     private Button quitButton;
     private Button tutorialOverlayButton;
+    private VisualElement tutorialControlsOverlay;
     private Button previousTutorialButton;
     private Button nextTutorialButton;
     private Button tutorialBackButton;
     private readonly VisualElement[] tutorialPanels = new VisualElement[3];
+    private readonly bool[] viewedTutorialPages = new bool[3];
     private readonly Dictionary<PlayerControllerWithPhysics, bool> localInputStates =
         new Dictionary<PlayerControllerWithPhysics, bool>();
     private int currentTutorialPage;
     private bool isPaused;
     private bool isTutorialMap;
     private bool tutorialOpenedFromOverlay;
+    private bool tutorialIntroLocked;
 
     private void Start()
     {
@@ -42,6 +45,7 @@ public class PauseMenuController : MonoBehaviour
         tutorialsButton = root.Q<Button>("TutorialsButton");
         quitButton = root.Q<Button>("QuitButton");
         tutorialOverlayButton = root.Q<Button>("TutorialOverlayButton");
+        tutorialControlsOverlay = root.Q<VisualElement>("TutorialControlsOverlay");
         isTutorialMap = SceneManager.GetActiveScene().name == SinglePlayerSession.TutorialSceneName;
 
         if (tutorialScreen != null)
@@ -69,6 +73,9 @@ public class PauseMenuController : MonoBehaviour
         }
 
         SetPaused(false);
+
+        if (isTutorialMap)
+            OpenTutorialFromOverlay(true);
     }
 
     private void Update()
@@ -175,11 +182,15 @@ public class PauseMenuController : MonoBehaviour
             tutorialContainer.RemoveFromClassList("tutorial-gameplay-overlay");
 
         tutorialOpenedFromOverlay = false;
+        tutorialIntroLocked = false;
         currentTutorialPage = 0;
         UpdateTutorialPage();
 
         if (tutorialBackButton != null)
+        {
             tutorialBackButton.text = "BACK";
+            tutorialBackButton.style.display = DisplayStyle.Flex;
+        }
 
         if (pauseOverlay != null)
             pauseOverlay.style.display = DisplayStyle.None;
@@ -191,13 +202,17 @@ public class PauseMenuController : MonoBehaviour
     {
         currentTutorialPage =
             (currentTutorialPage - 1 + tutorialPanels.Length) % tutorialPanels.Length;
+        MarkCurrentTutorialPageViewed();
         UpdateTutorialPage();
+        UpdateTutorialCloseButton();
     }
 
     private void ShowNextTutorialPage()
     {
         currentTutorialPage = (currentTutorialPage + 1) % tutorialPanels.Length;
+        MarkCurrentTutorialPageViewed();
         UpdateTutorialPage();
+        UpdateTutorialCloseButton();
     }
 
     private void UpdateTutorialPage()
@@ -228,6 +243,11 @@ public class PauseMenuController : MonoBehaviour
 
     private void OpenTutorialFromOverlay()
     {
+        OpenTutorialFromOverlay(false);
+    }
+
+    private void OpenTutorialFromOverlay(bool requireAllPages)
+    {
         if (!isTutorialMap || isPaused)
             return;
 
@@ -235,7 +255,10 @@ public class PauseMenuController : MonoBehaviour
             tutorialContainer.AddToClassList("tutorial-gameplay-overlay");
 
         tutorialOpenedFromOverlay = true;
+        tutorialIntroLocked = requireAllPages;
         currentTutorialPage = 0;
+        ClearViewedTutorialPages();
+        MarkCurrentTutorialPageViewed();
         UpdateTutorialPage();
         SetPaused(true);
 
@@ -243,33 +266,84 @@ public class PauseMenuController : MonoBehaviour
             pauseOverlay.style.display = DisplayStyle.None;
         if (tutorialScreen != null)
             tutorialScreen.style.display = DisplayStyle.Flex;
-        if (tutorialBackButton != null)
-            tutorialBackButton.text = "CLOSE";
+        UpdateTutorialCloseButton();
 
         UpdateTutorialOverlayButton();
     }
 
     private void CloseTutorialOverlay()
     {
+        if (tutorialIntroLocked && !HasViewedAllTutorialPages())
+            return;
+
         tutorialOpenedFromOverlay = false;
+        tutorialIntroLocked = false;
 
         if (tutorialContainer != null)
             tutorialContainer.RemoveFromClassList("tutorial-gameplay-overlay");
 
-        if (tutorialBackButton != null)
-            tutorialBackButton.text = "BACK";
+        UpdateTutorialCloseButton();
 
         SetPaused(false);
     }
 
+    private void ClearViewedTutorialPages()
+    {
+        for (int i = 0; i < viewedTutorialPages.Length; i++)
+            viewedTutorialPages[i] = false;
+    }
+
+    private void MarkCurrentTutorialPageViewed()
+    {
+        if (currentTutorialPage >= 0 && currentTutorialPage < viewedTutorialPages.Length)
+            viewedTutorialPages[currentTutorialPage] = true;
+    }
+
+    private bool HasViewedAllTutorialPages()
+    {
+        for (int i = 0; i < viewedTutorialPages.Length; i++)
+        {
+            if (!viewedTutorialPages[i])
+                return false;
+        }
+
+        return true;
+    }
+
+    private void UpdateTutorialCloseButton()
+    {
+        if (tutorialBackButton == null)
+            return;
+
+        if (!tutorialOpenedFromOverlay)
+        {
+            tutorialBackButton.text = "BACK";
+            tutorialBackButton.style.display = DisplayStyle.Flex;
+            return;
+        }
+
+        bool canClose = !tutorialIntroLocked || HasViewedAllTutorialPages();
+        tutorialBackButton.text = "CLOSE";
+        tutorialBackButton.style.display = canClose ? DisplayStyle.Flex : DisplayStyle.None;
+    }
+
     private void UpdateTutorialOverlayButton()
     {
+        bool shouldShowTutorialOverlays =
+            isTutorialMap && !isPaused && !tutorialOpenedFromOverlay;
+
         if (tutorialOverlayButton != null)
         {
             tutorialOverlayButton.style.display =
-                isTutorialMap && !isPaused && !tutorialOpenedFromOverlay
+                shouldShowTutorialOverlays
                     ? DisplayStyle.Flex
                     : DisplayStyle.None;
+        }
+
+        if (tutorialControlsOverlay != null)
+        {
+            tutorialControlsOverlay.style.display =
+                shouldShowTutorialOverlays ? DisplayStyle.Flex : DisplayStyle.None;
         }
     }
 
