@@ -155,6 +155,16 @@ public class GameManager : MonoBehaviour
             if (rb != null)
                 rb.linearVelocity = Vector2.zero;
         }
+
+        EndGameController endGame = FindFirstObjectByType<EndGameController>();
+        if (endGame != null)
+            endGame.ShowEndGame();
+    }
+
+    public void CompleteLevel()
+    {
+        if (State == GameState.Playing)
+            Win();
     }
 
     public void RestartGame()

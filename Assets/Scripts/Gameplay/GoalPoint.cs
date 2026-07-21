@@ -6,6 +6,33 @@ using UnityEngine;
 /// </summary>
 public class GoalPoint : MonoBehaviour
 {
+    private bool hasCompleted;
+
+    private void OnTriggerEnter2D(Collider2D other)
+    {
+        if (hasCompleted)
+            return;
+
+        PlayerControllerWithPhysics networkPlayer = other.GetComponent<PlayerControllerWithPhysics>();
+        if (networkPlayer != null && networkPlayer.photonView != null &&
+            networkPlayer.photonView.ViewID != 0 && !networkPlayer.photonView.IsMine)
+        {
+            return;
+        }
+
+        if (networkPlayer == null && other.GetComponent<PlayerController>() == null)
+            return;
+
+        hasCompleted = true;
+        EndGameController endGame = FindFirstObjectByType<EndGameController>();
+        if (endGame != null)
+            endGame.ShowEndGame();
+        else if (GameManager.Instance != null)
+            GameManager.Instance.CompleteLevel();
+        else
+            Debug.LogWarning("[GoalPoint] No EndGameController is present in this scene.");
+    }
+
     private void OnDrawGizmos()
     {
         Gizmos.color = Color.yellow;
