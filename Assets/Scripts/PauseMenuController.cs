@@ -15,9 +15,11 @@ public class PauseMenuController : MonoBehaviour
     private UIDocument pauseDocument;
     private VisualElement pauseOverlay;
     private VisualElement tutorialScreen;
+    private VisualElement tutorialContainer;
     private Button resumeButton;
     private Button tutorialsButton;
     private Button quitButton;
+    private Button tutorialOverlayButton;
     private Button previousTutorialButton;
     private Button nextTutorialButton;
     private Button tutorialBackButton;
@@ -26,6 +28,8 @@ public class PauseMenuController : MonoBehaviour
         new Dictionary<PlayerControllerWithPhysics, bool>();
     private int currentTutorialPage;
     private bool isPaused;
+    private bool isTutorialMap;
+    private bool tutorialOpenedFromOverlay;
 
     private void Start()
     {
@@ -37,9 +41,12 @@ public class PauseMenuController : MonoBehaviour
         resumeButton = root.Q<Button>("ResumeButton");
         tutorialsButton = root.Q<Button>("TutorialsButton");
         quitButton = root.Q<Button>("QuitButton");
+        tutorialOverlayButton = root.Q<Button>("TutorialOverlayButton");
+        isTutorialMap = SceneManager.GetActiveScene().name == SinglePlayerSession.TutorialSceneName;
 
         if (tutorialScreen != null)
         {
+            tutorialContainer = tutorialScreen.Q<VisualElement>("InstructionsContainer");
             previousTutorialButton = tutorialScreen.Q<Button>("PrevPageBut");
             nextTutorialButton = tutorialScreen.Q<Button>("NextPageBut");
             tutorialBackButton = tutorialScreen.Q<Button>("GoodLuckBut");
@@ -51,6 +58,8 @@ public class PauseMenuController : MonoBehaviour
         if (resumeButton != null) resumeButton.clicked += ResumeGame;
         if (tutorialsButton != null) tutorialsButton.clicked += ShowTutorials;
         if (quitButton != null) quitButton.clicked += QuitGame;
+        if (tutorialOverlayButton != null)
+            tutorialOverlayButton.clicked += OpenTutorialFromOverlay;
         if (previousTutorialButton != null) previousTutorialButton.clicked += ShowPreviousTutorialPage;
         if (nextTutorialButton != null) nextTutorialButton.clicked += ShowNextTutorialPage;
         if (tutorialBackButton != null)
@@ -65,7 +74,21 @@ public class PauseMenuController : MonoBehaviour
     private void Update()
     {
         if (Keyboard.current != null && Keyboard.current.pKey.wasPressedThisFrame)
-            SetPaused(!isPaused);
+        {
+            if (tutorialOpenedFromOverlay)
+                CloseTutorialOverlay();
+            else
+                SetPaused(!isPaused);
+        }
+
+        if (isTutorialMap && Keyboard.current != null &&
+            Keyboard.current.tabKey.wasPressedThisFrame)
+        {
+            if (tutorialOpenedFromOverlay)
+                CloseTutorialOverlay();
+            else if (!isPaused)
+                OpenTutorialFromOverlay();
+        }
 
         if (isPaused && PhotonNetwork.InRoom)
             DisableLocalMultiplayerInput();
@@ -79,6 +102,8 @@ public class PauseMenuController : MonoBehaviour
         if (resumeButton != null) resumeButton.clicked -= ResumeGame;
         if (tutorialsButton != null) tutorialsButton.clicked -= ShowTutorials;
         if (quitButton != null) quitButton.clicked -= QuitGame;
+        if (tutorialOverlayButton != null)
+            tutorialOverlayButton.clicked -= OpenTutorialFromOverlay;
         if (previousTutorialButton != null) previousTutorialButton.clicked -= ShowPreviousTutorialPage;
         if (nextTutorialButton != null) nextTutorialButton.clicked -= ShowNextTutorialPage;
         if (tutorialBackButton != null) tutorialBackButton.clicked -= ReturnToPauseMenu;
@@ -105,6 +130,8 @@ public class PauseMenuController : MonoBehaviour
             pauseOverlay.style.display = shouldPause ? DisplayStyle.Flex : DisplayStyle.None;
         if (tutorialScreen != null)
             tutorialScreen.style.display = DisplayStyle.None;
+
+        UpdateTutorialOverlayButton();
     }
 
     private void DisableLocalMultiplayerInput()
@@ -144,8 +171,15 @@ public class PauseMenuController : MonoBehaviour
 
     private void ShowTutorials()
     {
+        if (tutorialContainer != null)
+            tutorialContainer.RemoveFromClassList("tutorial-gameplay-overlay");
+
+        tutorialOpenedFromOverlay = false;
         currentTutorialPage = 0;
         UpdateTutorialPage();
+
+        if (tutorialBackButton != null)
+            tutorialBackButton.text = "BACK";
 
         if (pauseOverlay != null)
             pauseOverlay.style.display = DisplayStyle.None;
@@ -180,10 +214,63 @@ public class PauseMenuController : MonoBehaviour
 
     private void ReturnToPauseMenu()
     {
+        if (tutorialOpenedFromOverlay)
+        {
+            CloseTutorialOverlay();
+            return;
+        }
+
         if (tutorialScreen != null)
             tutorialScreen.style.display = DisplayStyle.None;
         if (pauseOverlay != null)
             pauseOverlay.style.display = DisplayStyle.Flex;
+    }
+
+    private void OpenTutorialFromOverlay()
+    {
+        if (!isTutorialMap || isPaused)
+            return;
+
+        if (tutorialContainer != null)
+            tutorialContainer.AddToClassList("tutorial-gameplay-overlay");
+
+        tutorialOpenedFromOverlay = true;
+        currentTutorialPage = 0;
+        UpdateTutorialPage();
+        SetPaused(true);
+
+        if (pauseOverlay != null)
+            pauseOverlay.style.display = DisplayStyle.None;
+        if (tutorialScreen != null)
+            tutorialScreen.style.display = DisplayStyle.Flex;
+        if (tutorialBackButton != null)
+            tutorialBackButton.text = "CLOSE";
+
+        UpdateTutorialOverlayButton();
+    }
+
+    private void CloseTutorialOverlay()
+    {
+        tutorialOpenedFromOverlay = false;
+
+        if (tutorialContainer != null)
+            tutorialContainer.RemoveFromClassList("tutorial-gameplay-overlay");
+
+        if (tutorialBackButton != null)
+            tutorialBackButton.text = "BACK";
+
+        SetPaused(false);
+    }
+
+    private void UpdateTutorialOverlayButton()
+    {
+        if (tutorialOverlayButton != null)
+        {
+            tutorialOverlayButton.style.display =
+                isTutorialMap && !isPaused && !tutorialOpenedFromOverlay
+                    ? DisplayStyle.Flex
+                    : DisplayStyle.None;
+        }
     }
 
     private void QuitGame()
