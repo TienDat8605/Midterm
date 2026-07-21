@@ -1,0 +1,82 @@
+.display-mode-dropdown {
+    position: absolute;
+    right: 24px;
+    bottom: 24px;
+    width: 240px;
+    height: 52px;
+    font-size: 20px;
+    -unity-font-style: bold;
+    -unity-font-definition: resource("Fonts & Materials/pixelFont-7-8x14-sproutLands");
+}
+
+#DisplayModeDropdown .unity-base-popup-field__input,
+#DisplayModeDropdown .unity-popup-field__input {
+    background-color: rgba(28, 17, 10, 0.96);
+    color: rgb(255, 239, 204);
+    border-left-width: 4px;
+    border-right-width: 4px;
+    border-top-width: 4px;
+    border-bottom-width: 4px;
+    border-left-color: rgb(232, 178, 82);
+    border-right-color: rgb(232, 178, 82);
+    border-top-color: rgb(232, 178, 82);
+    border-bottom-color: rgb(232, 178, 82);
+    border-radius: 4px;
+    padding-left: 14px;
+    padding-right: 12px;
+}
+
+#DisplayModeDropdown .unity-base-popup-field__input:hover,
+#DisplayModeDropdown .unity-popup-field__input:hover {
+    background-color: rgb(66, 39, 18);
+    border-left-color: rgb(255, 211, 119);
+    border-right-color: rgb(255, 211, 119);
+    border-top-color: rgb(255, 211, 119);
+    border-bottom-color: rgb(255, 211, 119);
+}
+
+#DisplayModeDropdown .unity-base-popup-field__text {
+    color: rgb(255, 239, 204);
+    -unity-text-align: middle-center;
+}
+
+#DisplayModeDropdown .unity-base-popup-field__arrow {
+    -unity-background-image-tint-color: rgb(255, 224, 160);
+}
+
+.unity-base-dropdown {
+    background-color: rgba(28, 17, 10, 0.98);
+    border-left-width: 3px;
+    border-right-width: 3px;
+    border-top-width: 3px;
+    border-bottom-width: 3px;
+    border-left-color: rgb(232, 178, 82);
+    border-right-color: rgb(232, 178, 82);
+    border-top-color: rgb(232, 178, 82);
+    border-bottom-color: rgb(232, 178, 82);
+}
+
+.unity-base-dropdown__container-outer,
+.unity-base-dropdown__container-inner,
+.unity-base-dropdown__item {
+    background-color: rgba(28, 17, 10, 0.98);
+}
+
+.unity-base-dropdown__item {
+    min-height: 42px;
+    color: rgb(255, 239, 204);
+    font-size: 18px;
+    -unity-font-style: bold;
+    -unity-font-definition: resource("Fonts & Materials/pixelFont-7-8x14-sproutLands");
+}
+
+.unity-base-dropdown__item:hover,
+.unity-base-dropdown__item:checked {
+    background-color: rgb(100, 58, 23);
+    color: rgb(255, 245, 218);
+}
+
+.unity-base-dropdown__label,
+.unity-base-dropdown__item-content {
+    color: rgb(255, 239, 204);
+}

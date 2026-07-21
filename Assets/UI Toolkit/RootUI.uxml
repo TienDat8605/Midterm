@@ -3,15 +3,20 @@
          noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd"
          editor-extension-mode="False">
 
+    <Style src="RootUI.uss"/>
+
     <ui:Template name="MainMenu"   src="MainMenu.uxml"/>
     <ui:Template name="MultiplayerMenu" src="MultiplayerMenu.uxml"/>
     <ui:Template name="InstructionsMenu" src="InstructionsMenu.uxml"/>
     <ui:Template name="Lobby" src="Lobby.uxml"/>
 
-    <ui:VisualElement name="UIRoot" style="flex-grow: 1; flex-direction: column;">
-        <ui:Instance template="MainMenu"   name="MainMenuScreen"   style="flex-grow: 1; display: flex;"/>
-        <ui:Instance template="MultiplayerMenu" name="MultiplayerMenuScreen" style="flex-grow: 1; display: none;"/>
-        <ui:Instance template="InstructionsMenu" name="InstructionsMenuScreen" style="flex-grow: 1; display: none;"/>
-        <ui:Instance template="Lobby" name="LobbyScreen" style="flex-grow: 1; display: none;"/>
+    <ui:VisualElement name="UIRoot" style="flex-grow: 1; flex-direction: column; align-items: center; justify-content: center; background-color: rgb(0, 0, 0);">
+        <ui:VisualElement name="PresentationFrame" style="width: 1920px; height: 1080px; flex-shrink: 0; position: relative; overflow: hidden;">
+            <ui:Instance template="MainMenu" name="MainMenuScreen" style="position: absolute; left: 0; top: 0; right: 0; bottom: 0; display: flex;"/>
+            <ui:Instance template="MultiplayerMenu" name="MultiplayerMenuScreen" style="position: absolute; left: 0; top: 0; right: 0; bottom: 0; display: none;"/>
+            <ui:Instance template="InstructionsMenu" name="InstructionsMenuScreen" style="position: absolute; left: 0; top: 0; right: 0; bottom: 0; display: none;"/>
+            <ui:Instance template="Lobby" name="LobbyScreen" style="position: absolute; left: 0; top: 0; right: 0; bottom: 0; display: none;"/>
+            <ui:DropdownField value="1280×720" tooltip="Choose window resolution or fullscreen mode" name="DisplayModeDropdown" class="display-mode-dropdown"/>
+        </ui:VisualElement>
     </ui:VisualElement>
 </ui:UXML>

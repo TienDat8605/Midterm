@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 9e9bda4069f69984680c2997e538dd48
+guid: f59bd01be1ba18a4c92dadffe6033757
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 5973989424818232797
-    second: 9sprite_8bit_circle_0
+      213: -5976667800414658661
+    second: pausepanel_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -100,23 +100,23 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: 9sprite_8bit_circle_0
+      name: pausepanel_0
       rect:
         serializedVersion: 2
-        x: 0
+        x: 11
         y: 0
-        width: 512
-        height: 512
+        width: 1515
+        height: 1024
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 128, y: 128, z: 128, w: 128}
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: ddd1b36fabfd7e250800000000000000
-      internalID: 5973989424818232797
+      spriteID: b9fd4cf1d4c9e0da0800000000000000
+      internalID: -5976667800414658661
       vertices: []
       indices: 
       edges: []
@@ -125,7 +125,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 305745a63cf2dca46a1c3676729895ac
+    spriteID: 
     internalID: 0
     vertices: []
     indices: 
@@ -135,7 +135,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      9sprite_8bit_circle_0: 5973989424818232797
+      pausepanel_0: -5976667800414658661
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
