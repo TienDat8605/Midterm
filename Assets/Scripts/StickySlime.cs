@@ -180,6 +180,7 @@ public class StickySlime : PlayerControllerWithPhysics
             EndCling();
             rb.linearVelocity = new Vector2(clingNormal.x * maxJumpHorizontalSpeed, maxJumpUpSpeed);
             hasJumped = true;
+            AudioManager.Instance?.PlaySFX(SFX.Jump);
             OnJumpLaunched(rb.linearVelocity);
             return;
         }
