@@ -10,9 +10,9 @@
             <ui:Label name="AdventureCompleteLabel" text="COMPLETE" class="endgame-title endgame-title-large" style="color: rgb(245, 222, 179);"/>
             <ui:VisualElement class="title-divider">
                 <ui:VisualElement class="divider-line"/>
-                <ui:Label text="★" class="divider-star"/>
                 <ui:VisualElement class="divider-line"/>
             </ui:VisualElement>
+            <ui:Label text="★" class="divider-star"/>
             <ui:Label text="The summit has been reached!" class="endgame-message"/>
             <ui:VisualElement name="Map1Actions" class="endgame-actions map1-actions">
                 <ui:Button name="NextLevelButton" text="Next Level" class="button endgame-button endgame-button-primary"/>
@@ -21,7 +21,6 @@
             <ui:VisualElement name="Map2Actions" class="endgame-actions map2-actions">
                 <ui:Button name="Map2ExitButton" text="Save &amp; Exit" class="button endgame-button endgame-button-secondary"/>
             </ui:VisualElement>
-            <ui:Label text="Thank you for playing" class="endgame-footer"/>
         </ui:VisualElement>
     </ui:VisualElement>
 </ui:UXML>
