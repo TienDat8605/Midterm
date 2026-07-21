@@ -26,7 +26,10 @@ public class GoalPoint : MonoBehaviour
         hasCompleted = true;
         EndGameController endGame = FindFirstObjectByType<EndGameController>();
         if (endGame != null)
+        {
+            AudioManager.Instance?.PlaySFX(SFX.Win);
             endGame.ShowEndGame();
+        }
         else if (GameManager.Instance != null)
             GameManager.Instance.CompleteLevel();
         else

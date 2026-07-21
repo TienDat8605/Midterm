@@ -52,6 +52,7 @@ public class PlayerControllerWithPhysics : MonoBehaviourPun, IPunObservable
     protected float defaultGravityScale;
     protected float lastAirHorizontalSpeed;
     protected bool hasJumped;
+    private bool hasLeftGround;
 
     private bool isFlightMode;
     private Vector2 flightInput;
@@ -293,6 +294,7 @@ public class PlayerControllerWithPhysics : MonoBehaviourPun, IPunObservable
             anim.SetTrigger("doJump");
         }
 
+        AudioManager.Instance?.PlaySFX(SFX.Jump);
         OnJumpLaunched(launchVelocity);
     }
 
@@ -387,7 +389,20 @@ public class PlayerControllerWithPhysics : MonoBehaviourPun, IPunObservable
         return false;
     }
 
-    protected virtual void OnGroundedChanged(bool grounded) { }
+    protected virtual void OnGroundedChanged(bool grounded)
+    {
+        if (!grounded)
+        {
+            hasLeftGround = true;
+            return;
+        }
+
+        if (!hasLeftGround)
+            return;
+
+        hasLeftGround = false;
+        AudioManager.Instance?.PlaySFX(SFX.Land);
+    }
 
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
     private void ReadFlightInput()

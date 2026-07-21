@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public enum SFX
 {
@@ -21,6 +22,8 @@ public class AudioManager : MonoBehaviour
     [Header("BGM")]
     public AudioClip bgmClip;
     [Range(0f, 1f)] public float bgmVolume = 0.5f;
+    [Tooltip("BGM plays only while one of these scenes is active.")]
+    [SerializeField] private string[] gameplaySceneNames = { "Map1", "Map2" };
 
     [Header("SFX Clips")]
     public AudioClip sfxJump;
@@ -49,16 +52,54 @@ public class AudioManager : MonoBehaviour
         sfxSource = gameObject.AddComponent<AudioSource>();
         sfxSource.loop = false;
         sfxSource.volume = sfxVolume;
+
+        SceneManager.sceneLoaded += OnSceneLoaded;
     }
 
     private void Start()
     {
-        PlayBGM();
+        UpdateBGMForScene(SceneManager.GetActiveScene());
+    }
+
+    private void OnDestroy()
+    {
+        if (Instance == this)
+        {
+            SceneManager.sceneLoaded -= OnSceneLoaded;
+            Instance = null;
+        }
+    }
+
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        UpdateBGMForScene(scene);
+    }
+
+    private void UpdateBGMForScene(Scene scene)
+    {
+        bool isGameplayScene = false;
+        foreach (string gameplaySceneName in gameplaySceneNames)
+        {
+            if (scene.name == gameplaySceneName)
+            {
+                isGameplayScene = true;
+                break;
+            }
+        }
+
+        if (isGameplayScene)
+            PlayBGM();
+        else
+            StopBGM();
     }
 
     public void PlayBGM()
     {
         if (bgmClip == null) return;
+
+        if (bgmSource.isPlaying && bgmSource.clip == bgmClip)
+            return;
+
         bgmSource.clip = bgmClip;
         bgmSource.Play();
     }
@@ -80,7 +121,12 @@ public class AudioManager : MonoBehaviour
         };
 
         if (clip != null)
+        {
+            if (sfx == SFX.Jump)
+                Debug.Log($"[AudioManager] Playing jump SFX: {clip.name}", this);
+
             sfxSource.PlayOneShot(clip, sfxVolume);
+        }
     }
 
     public void SetBGMVolume(float volume)
