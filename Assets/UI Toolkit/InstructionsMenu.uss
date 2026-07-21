@@ -8,6 +8,12 @@
     padding: 40px;
 }
 
+/* Used only by the TutorialMap floating tutorial button. */
+.instructions-container.tutorial-gameplay-overlay {
+    background-image: none;
+    background-color: rgba(0, 0, 0, 0.7);
+}
+
 .instructions-title {
     font-size: 60px;
     -unity-font-definition: resource("Fonts & Materials/pixelFont-7-8x14-sproutLands");

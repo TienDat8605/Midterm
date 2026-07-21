@@ -7,5 +7,8 @@
         <ui:Button text="SINGLE PLAYER" name="SinglePlayerBut" class="button" style="position: absolute; top: 553px; left: 733px; height: 151px; width: 506px; font-size: 50px; white-space: nowrap; text-overflow: clip;"/>
         <ui:Button text="TUTORIALS" name="InstructionsBut" class="button" style="position: absolute; top: 884px; left: 738px; height: 138px; width: 507px; font-size: 50px; -unity-text-align: middle-center; white-space: pre-wrap; text-overflow: clip;"/>
         <ui:Button text="MULTIPLAYER" name="HostBut" class="button" style="position: absolute; top: 723px; left: 737px; height: 138px; width: 506px; font-size: 50px; -unity-text-align: middle-center; white-space: nowrap; text-overflow: clip;"/>
+        <ui:Button text="" name="ExitBut" class="button" style="position: absolute; top: 34px; left: 34px; height: 105px; width: 110px; font-size: 28px; -unity-text-align: middle-center; white-space: nowrap; text-overflow: clip; background-image: url(&quot;project://database/Assets/Sprites/UI/Sprite%20sheet%20for%20Basic%20Pack.png?fileID=4882712547059488457&amp;guid=f24abd975bb0c9d468f1c9fa23dcdd8e&amp;type=3#Sprite sheet for Basic Pack_125&quot;); -unity-background-image-tint-color: rgb(255, 255, 255);">
+            <ui:Image style="background-image: url(&quot;project://database/Assets/Sprites/UI/Sprites/UI_Flat_IconCross01a.png?fileID=2800000&amp;guid=7e65a70648b258d45a647938dbdd175a&amp;type=3#UI_Flat_IconCross01a&quot;);"/>
+        </ui:Button>
     </ui:VisualElement>
 </ui:UXML>

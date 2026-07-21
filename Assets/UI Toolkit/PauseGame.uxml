@@ -1,7 +1,8 @@
 <ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
     <ui:Template name="InstructionsMenu" src="project://database/Assets/UI%20Toolkit/InstructionsMenu.uxml?fileID=9197481963319205126&amp;guid=fcb59cef96cd10044ae74a7736ec11fc&amp;type=3#InstructionsMenu"/>
     <Style src="project://database/Assets/Stylesheet.uss?fileID=7433441132597879392&amp;guid=0bfe2cb5c3c612d4cb0c50b728ac6707&amp;type=3#Stylesheet"/>
-    <ui:VisualElement name="PauseOverlay" style="flex-grow: 1; align-items: center; justify-content: center; background-color: rgba(0, 0, 0, 0.7);">
+    <Style src="project://database/Assets/UI%20Toolkit/PauseGame.uss?fileID=7433441132597879392&amp;guid=c31b9123880133a4b9e263eb0bf60b0f&amp;type=3#PauseGame"/>
+    <ui:VisualElement name="PauseOverlay" style="flex-grow: 1; align-items: center; justify-content: center; background-color: rgba(0, 0, 0, 0.7); display: none;">
         <ui:VisualElement name="PausePanel" style="align-items: center; justify-content: flex-start; padding-top: 60px; background-image: url(&quot;project://database/Assets/Sprites/UI/pausepanel.png?fileID=2800000&amp;guid=f59bd01be1ba18a4c92dadffe6033757&amp;type=3#pausepanel&quot;); width: 700px; height: 800px; -unity-background-scale-mode: scale-and-crop; background-color: rgba(0, 0, 0, 0);">
             <ui:Button text="RESUME" name="ResumeButton" class="button" style="height: 118px; width: 398px; font-size: 45px; margin-bottom: 25px; -unity-text-align: middle-center; white-space: nowrap; text-overflow: clip; position: absolute; top: 262px; left: 161px;"/>
             <ui:Button text="TUTORIALS" name="TutorialsButton" class="button" style="height: 118px; width: 399px; font-size: 45px; margin-bottom: 25px; -unity-text-align: middle-center; white-space: nowrap; text-overflow: clip; position: absolute; top: 405px; left: 163px;"/>
@@ -9,4 +10,31 @@
         </ui:VisualElement>
     </ui:VisualElement>
     <ui:Instance template="InstructionsMenu" name="TutorialScreen" style="flex-grow: 1; display: none;"/>
+    <ui:VisualElement name="TutorialControlsOverlay" picking-mode="Ignore" class="tutorial-controls-overlay" style="display: flex; visibility: visible; background-image: url(&quot;project://database/Assets/Sprites/UI/Sprites/UI_Flat_Frame01a.png?fileID=2800000&amp;guid=1e546cf9433be4e46831ee674f21500e&amp;type=3#UI_Flat_Frame01a&quot;); height: 237px; width: 275px; left: 84px; bottom: 600px;">
+        <ui:Label name="TutorialControlsTitle" text="CONTROLS" class="tutorial-controls-title"/>
+        <ui:VisualElement name="TutorialControlsDivider" class="tutorial-controls-divider"/>
+        <ui:VisualElement name="TutorialMoveRow" class="tutorial-controls-row">
+            <ui:Label name="TutorialMoveLabel" text="MOVE" class="tutorial-controls-label"/>
+            <ui:VisualElement name="TutorialMoveKeys" class="tutorial-controls-key-group">
+                <ui:Label name="TutorialMoveAKey" text="" class="tutorial-controls-key" style="background-image: url(&quot;project://database/Assets/Sprites/UI/Controls/kb_light_alphanumeric.png?fileID=-7384178330773809545&amp;guid=cbaa96d798687fd46b135afb88f01841&amp;type=3#kb_light_alphanumeric_0&quot;); width: 38px;"/>
+                <ui:Label name="TutorialMoveDKey" text="" class="tutorial-controls-key tutorial-controls-key-spaced" style="background-image: url(&quot;project://database/Assets/Sprites/UI/Controls/kb_light_alphanumeric.png?fileID=-4512548227400645422&amp;guid=cbaa96d798687fd46b135afb88f01841&amp;type=3#kb_light_alphanumeric_24&quot;); width: 42px;"/>
+            </ui:VisualElement>
+        </ui:VisualElement>
+        <ui:VisualElement name="TutorialJumpRow" class="tutorial-controls-row">
+            <ui:Label name="TutorialJumpLabel" text="JUMP" class="tutorial-controls-label"/>
+            <ui:Label name="TutorialJumpKey" text="" class="tutorial-controls-key" style="background-image: url(&quot;project://database/Assets/Sprites/UI/Controls/kb_light_symbols.png?fileID=9030334045349218566&amp;guid=fee296bad03fc4b40bd235fd68d814c9&amp;type=3#kb_light_symbols_64&quot;); width: 46px;"/>
+        </ui:VisualElement>
+        <ui:VisualElement name="TutorialAbilityRow" class="tutorial-controls-row">
+            <ui:Label name="TutorialAbilityLabel" text="ABILITY" class="tutorial-controls-label" style="height: 28px;"/>
+            <ui:Label name="TutorialAbilityKey" text="" class="tutorial-controls-key" style="background-image: url(&quot;project://database/Assets/Sprites/UI/Controls/kb_light_alphanumeric.png?fileID=-4824337797193864798&amp;guid=cbaa96d798687fd46b135afb88f01841&amp;type=3#kb_light_alphanumeric_32&quot;); width: 31px;"/>
+        </ui:VisualElement>
+        <ui:VisualElement name="TutorialAimRow" class="tutorial-controls-row">
+            <ui:Label name="TutorialAimLabel" text="AIM" class="tutorial-controls-label"/>
+            <ui:Label name="TutorialAimKey" text="" class="tutorial-controls-key" style="background-image: url(&quot;project://database/Assets/Sprites/UI/Controls/mouse.png?fileID=-3154446981457803592&amp;guid=22c7c03baeea4ed47a775b25dc9c9039&amp;type=3#mouse_4&quot;); width: 29px; height: 31px;"/>
+        </ui:VisualElement>
+    </ui:VisualElement>
+    <ui:Button name="TutorialOverlayButton" class="button" style="display: flex; position: absolute; right: 1564px; bottom: 888px; width: 276px; height: 78px; align-items: center; justify-content: flex-start; padding-left: 22px; padding-right: 22px;">
+        <ui:Label text="TUTORIAL" name="TutorialOverlayLabel" picking-mode="Ignore" style="flex-grow: 1; margin-left: 86px; font-size: 30px; -unity-text-align: middle-center; white-space: nowrap;"/>
+        <ui:Image name="TutorialTabImage" picking-mode="Ignore" source="project://database/Assets/Sprites/UI/Controls/kb_light_symbols.png?fileID=2104194379806597190&amp;guid=fee296bad03fc4b40bd235fd68d814c9&amp;type=3#kb_light_symbols_16" style="position: absolute; right: 177px; bottom: 20px; width: 76px; height: 45px; z-index: 1; -unity-background-scale-mode: scale-to-fit;"/>
+    </ui:Button>
 </ui:UXML>
