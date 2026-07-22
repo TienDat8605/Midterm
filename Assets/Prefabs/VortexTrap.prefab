@@ -7,6 +7,7 @@ GameObject:
   - component: {fileID: 1200000000000000001}
   - component: {fileID: 1200000000000000002}
   - component: {fileID: 1200000000000000003}
+  - component: {fileID: 1200000000000000004}
   m_Layer: 0
   m_Name: VortexTrap
   m_TagString: Untagged
@@ -37,3 +38,18 @@ Animator:
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
+--- !u!114 &1200000000000000004
+MonoBehaviour:
+  m_GameObject: {fileID: 1200000000000000000}
+  m_Enabled: 1
+  m_Script: {fileID: 11500000, guid: 5b4dbd0b7c0b4b7c9bd52f080a13e4f8, type: 3}
+  m_EditorClassIdentifier: Assembly-CSharp::VortexTrap
+  captureRadius: 3
+  captureDuration: 3
+  orbitRadius: 1.1
+  clockwise: 1
+  startingOrbitSpeed: 120
+  finalOrbitSpeed: 2000
+  finalAnimationSpeedMultiplier: 2.5
+  downwardLaunchImpulse: 30
+  pauseAfterRelease: 1
