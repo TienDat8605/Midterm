@@ -80,6 +80,12 @@ public class AnchorSlime : PlayerControllerWithPhysics
             EndStone();
     }
 
+    protected override void PrepareForTetherYank()
+    {
+        if (isStone)
+            EndStone();
+    }
+
     private void StartStone()
     {
         isStone = true;

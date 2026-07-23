@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using Photon.Pun;
 
 public class StickySlime : PlayerControllerWithPhysics
 {
@@ -29,17 +30,17 @@ public class StickySlime : PlayerControllerWithPhysics
     [Tooltip("Maximum range to shoot the tether.")]
     public float tetherMaxRange = 8f;
 
-    [Tooltip("Force applied to pull the tethered target.")]
-    public float tetherPullForce = 15f;
-
     [Tooltip("Maximum force the tether can withstand before snapping.")]
     public float tetherBreakForce = 50f;
 
     [Tooltip("Duration the tether stays active (seconds).")]
-    public float tetherDuration = 3f;
+    public float tetherDuration = 10f;
 
     [Tooltip("Cooldown before Tether can be used again (seconds).")]
     public float tetherCooldown = 5f;
+
+    [Tooltip("Mass-independent velocity impulse applied to the attached slime when Tether is triggered again.")]
+    public float tetherYankImpulse = 15f;
 
     [Tooltip("Layer mask for valid tether targets (teammates, anchor points).")]
     public LayerMask tetherTargetLayer;
@@ -53,7 +54,10 @@ public class StickySlime : PlayerControllerWithPhysics
     private float tetherTimer;
     private float tetherCooldownTimer;
     private Rigidbody2D tetheredTarget;
-    private DistanceJoint2D tetherJoint;
+    private TetherProjectile activeTetherProjectile;
+    private int tetherShotId;
+    private int tetheredTargetViewId;
+    private Vector2 tetherShotDirection;
 
     protected override void Initialize()
     {
@@ -196,9 +200,19 @@ public class StickySlime : PlayerControllerWithPhysics
         {
             tetherTimer -= Time.deltaTime;
             if (tetherTimer <= 0f || tetheredTarget == null)
+            {
                 EndTether();
+                return;
+            }
+
+            if (inputEnabled && Keyboard.current.eKey.wasPressedThisFrame)
+                YankTetheredTarget();
+
             return;
         }
+
+        if (activeTetherProjectile != null)
+            return;
 
         if (inputEnabled && Keyboard.current.eKey.wasPressedThisFrame && tetherCooldownTimer <= 0f)
             TryShootTether();
@@ -213,15 +227,21 @@ public class StickySlime : PlayerControllerWithPhysics
         }
 
         Vector2 direction = GetAimDirection();
+        tetherShotDirection = direction;
 
         GameObject projectileObj = Instantiate(tetherProjectilePrefab, rb.position, Quaternion.identity);
-        TetherProjectile projectile = projectileObj.GetComponent<TetherProjectile>();
-        if (projectile != null)
+        activeTetherProjectile = projectileObj.GetComponent<TetherProjectile>();
+        if (activeTetherProjectile != null)
         {
-            projectile.extendSpeed = tetherProjectileSpeed;
-            projectile.hitMask = tetherTargetLayer | groundLayer;
-            projectile.Launch(this, direction, tetherMaxRange);
+            activeTetherProjectile.extendSpeed = tetherProjectileSpeed;
+            activeTetherProjectile.hitMask = tetherTargetLayer | groundLayer;
+            activeTetherProjectile.LaunchAuthoritative(this, direction, tetherMaxRange);
         }
+
+        tetherShotId = tetherShotId == int.MaxValue ? 1 : tetherShotId + 1;
+
+        if (HasNetworkView)
+            photonView.RPC(nameof(RpcTetherShot), RpcTarget.Others, tetherShotId, direction);
 
         tetherCooldownTimer = tetherCooldown;
     }
@@ -236,33 +256,68 @@ public class StickySlime : PlayerControllerWithPhysics
         return (mouseWorld - transform.position).normalized;
     }
 
-    public void OnProjectileHit(Rigidbody2D target)
+    public bool OnProjectileHit(Rigidbody2D target)
     {
         if (target == null)
-            return;
+            return false;
 
-        StartTether(target);
+        PhotonView targetView = target.GetComponent<PhotonView>();
+        if (HasNetworkView && (targetView == null || targetView.ViewID == 0))
+            return false;
+        if (targetView != null && targetView == photonView)
+            return false;
+
+        int targetViewId = targetView != null ? targetView.ViewID : 0;
+        StartTether(target, targetViewId);
+
+        if (HasNetworkView)
+        {
+            photonView.RPC(
+                nameof(RpcTetherAttached),
+                RpcTarget.Others,
+                tetherShotId,
+                targetViewId);
+        }
+
+        return true;
     }
 
-    private void StartTether(Rigidbody2D target)
+    private void StartTether(Rigidbody2D target, int targetViewId)
     {
         isTethered = true;
         tetherTimer = tetherDuration;
         tetheredTarget = target;
+        tetheredTargetViewId = targetViewId;
+
+        if (activeTetherProjectile != null)
+            activeTetherProjectile.AttachToTarget(target);
+
+        RegisterIncomingTetherIfLocallyOwned(targetViewId);
 
         if (anim) anim.SetBool("isTethered", true);
     }
 
     private void EndTether()
     {
+        int endedShotId = tetherShotId;
+        if (HasNetworkView)
+            photonView.RPC(nameof(RpcTetherEnded), RpcTarget.Others, endedShotId);
+
+        EndTetherLocal(endedShotId);
+    }
+
+    private void EndTetherLocal(int endedShotId)
+    {
+        ClearIncomingTetherIfLocallyOwned(endedShotId);
         isTethered = false;
         tetheredTarget = null;
+        tetheredTargetViewId = 0;
         tetherCooldownTimer = tetherCooldown;
 
-        if (tetherJoint != null)
+        if (activeTetherProjectile != null)
         {
-            Destroy(tetherJoint);
-            tetherJoint = null;
+            activeTetherProjectile.Terminate();
+            activeTetherProjectile = null;
         }
 
         if (anim) anim.SetBool("isTethered", false);
@@ -274,43 +329,208 @@ public class StickySlime : PlayerControllerWithPhysics
             return;
 
         float currentDistance = Vector2.Distance(rb.position, tetheredTarget.position);
-        
         if (currentDistance > 15f)
         {
             EndTether();
             return;
         }
 
-        Vector2 toTarget = (tetheredTarget.position - rb.position).normalized;
-        
-        if (currentDistance > 1.5f)
+    }
+
+    public void OnProjectileTerminated(TetherProjectile projectile)
+    {
+        if (projectile != activeTetherProjectile || isTethered)
+            return;
+
+        activeTetherProjectile = null;
+        if (HasNetworkView)
+            photonView.RPC(nameof(RpcTetherEnded), RpcTarget.Others, tetherShotId);
+    }
+
+    private void YankTetheredTarget()
+    {
+        if (tetheredTarget == null)
         {
-            float pullStrength = tetherPullForce * 10f;
-            rb.AddForce(toTarget * pullStrength, ForceMode2D.Force);
-            tetheredTarget.AddForce(-toTarget * pullStrength, ForceMode2D.Force);
+            EndTether();
+            return;
         }
 
-        if (currentDistance < 2.5f)
+        if (HasNetworkView)
         {
-            float approachSpeed = Vector2.Dot(rb.linearVelocity, toTarget);
-            if (approachSpeed > 2f)
+            photonView.RPC(
+                nameof(RpcTetherYanked),
+                RpcTarget.Others,
+                tetherShotId,
+                tetheredTargetViewId,
+                rb.position,
+                tetherYankImpulse);
+        }
+        else
+        {
+            PlayerControllerWithPhysics targetController =
+                tetheredTarget.GetComponent<PlayerControllerWithPhysics>();
+            if (targetController != null)
             {
-                rb.linearVelocity -= toTarget * (approachSpeed - 2f);
+                targetController.ApplyTetherYank(rb.position, tetherYankImpulse);
             }
-
-            float targetApproachSpeed = Vector2.Dot(tetheredTarget.linearVelocity, -toTarget);
-            if (targetApproachSpeed > 2f)
+            else
             {
-                tetheredTarget.linearVelocity -= (-toTarget) * (targetApproachSpeed - 2f);
+                Vector2 yankImpulse = TetherPhysics.CalculateYankImpulse(
+                    tetheredTarget.position,
+                    rb.position,
+                    tetheredTarget.linearVelocity,
+                    tetherYankImpulse,
+                    tetheredTarget.mass);
+                tetheredTarget.AddForce(yankImpulse, ForceMode2D.Impulse);
             }
+        }
 
-            Vector2 pushDirection = -toTarget;
-            if (pushDirection.sqrMagnitude < 0.01f)
-                pushDirection = Vector2.right;
-            
-            float pushStrength = (2.5f - currentDistance) * 400f;
-            rb.AddForce(pushDirection * pushStrength, ForceMode2D.Force);
-            tetheredTarget.AddForce(-pushDirection * pushStrength, ForceMode2D.Force);
+        EndTether();
+    }
+
+    [PunRPC]
+    private void RpcTetherShot(int shotId, Vector2 direction, PhotonMessageInfo info)
+    {
+        if (!IsRpcFromOwner(info) || shotId <= tetherShotId)
+            return;
+
+        if (isTethered || activeTetherProjectile != null)
+            EndTetherLocal(tetherShotId);
+
+        tetherShotId = shotId;
+        tetherShotDirection = direction;
+        CreateReplicaProjectile();
+    }
+
+    [PunRPC]
+    private void RpcTetherAttached(int shotId, int targetViewId, PhotonMessageInfo info)
+    {
+        if (!IsRpcFromOwner(info) || shotId != tetherShotId || targetViewId <= 0)
+            return;
+
+        PhotonView targetView = PhotonView.Find(targetViewId);
+        Rigidbody2D targetBody = targetView != null
+            ? targetView.GetComponent<Rigidbody2D>()
+            : null;
+        if (targetBody == null || targetView == photonView)
+            return;
+
+        if (activeTetherProjectile == null)
+            CreateReplicaProjectile();
+
+        StartTether(targetBody, targetViewId);
+    }
+
+    [PunRPC]
+    private void RpcTetherYanked(
+        int shotId,
+        int targetViewId,
+        Vector2 stickyPosition,
+        float impulse,
+        PhotonMessageInfo info)
+    {
+        if (!IsRpcFromOwner(info) ||
+            !isTethered ||
+            shotId != tetherShotId ||
+            targetViewId != tetheredTargetViewId)
+        {
+            return;
+        }
+
+        PhotonView targetView = PhotonView.Find(targetViewId);
+        if (targetView == null || !targetView.IsMine)
+            return;
+
+        PlayerControllerWithPhysics targetController =
+            targetView.GetComponent<PlayerControllerWithPhysics>();
+        if (targetController != null)
+        {
+            targetController.ApplyIncomingTetherYank(
+                photonView.ViewID,
+                shotId,
+                stickyPosition,
+                impulse);
+        }
+    }
+
+    [PunRPC]
+    private void RpcTetherEnded(int shotId, PhotonMessageInfo info)
+    {
+        if (!IsRpcFromOwner(info) || shotId != tetherShotId)
+            return;
+
+        EndTetherLocal(shotId);
+    }
+
+    private void CreateReplicaProjectile()
+    {
+        if (tetherProjectilePrefab == null || rb == null)
+            return;
+
+        GameObject projectileObject = Instantiate(
+            tetherProjectilePrefab,
+            rb.position,
+            Quaternion.identity);
+        activeTetherProjectile = projectileObject.GetComponent<TetherProjectile>();
+        if (activeTetherProjectile == null)
+            return;
+
+        activeTetherProjectile.extendSpeed = tetherProjectileSpeed;
+        activeTetherProjectile.LaunchReplica(this, tetherShotDirection, tetherMaxRange);
+    }
+
+    private void RegisterIncomingTetherIfLocallyOwned(int targetViewId)
+    {
+        if (!HasNetworkView || targetViewId <= 0)
+            return;
+
+        PhotonView targetView = PhotonView.Find(targetViewId);
+        if (targetView == null || !targetView.IsMine)
+            return;
+
+        PlayerControllerWithPhysics targetController =
+            targetView.GetComponent<PlayerControllerWithPhysics>();
+        if (targetController != null)
+        {
+            targetController.BeginIncomingTether(
+                photonView.ViewID,
+                tetherShotId);
+        }
+    }
+
+    private void ClearIncomingTetherIfLocallyOwned(int shotId)
+    {
+        if (!HasNetworkView || tetheredTargetViewId <= 0)
+            return;
+
+        PhotonView targetView = PhotonView.Find(tetheredTargetViewId);
+        if (targetView == null || !targetView.IsMine)
+            return;
+
+        PlayerControllerWithPhysics targetController =
+            targetView.GetComponent<PlayerControllerWithPhysics>();
+        if (targetController != null)
+            targetController.EndIncomingTether(photonView.ViewID, shotId);
+    }
+
+    private bool IsRpcFromOwner(PhotonMessageInfo info)
+    {
+        return photonView != null &&
+               photonView.Owner != null &&
+               info.Sender == photonView.Owner;
+    }
+
+    private bool HasNetworkView =>
+        PhotonNetwork.InRoom && photonView != null && photonView.ViewID != 0;
+
+    private void OnDisable()
+    {
+        ClearIncomingTetherIfLocallyOwned(tetherShotId);
+
+        if (activeTetherProjectile != null)
+        {
+            activeTetherProjectile.Terminate();
+            activeTetherProjectile = null;
         }
     }
 

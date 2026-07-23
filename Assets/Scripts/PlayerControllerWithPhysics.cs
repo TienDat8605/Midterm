@@ -74,6 +74,10 @@ public class PlayerControllerWithPhysics : MonoBehaviourPun, IPunObservable
     private bool networkIsGrounded;
     private bool networkIsChargingJump;
 
+    private bool hasIncomingTether;
+    private int incomingTetherSourceViewId;
+    private int incomingTetherShotId;
+
     /// <summary>
     /// Local scene instances remain controllable. Photon-instantiated instances are
     /// controlled and simulated only by their owning client.
@@ -512,6 +516,77 @@ public class PlayerControllerWithPhysics : MonoBehaviourPun, IPunObservable
 
         if (rb != null && isGrounded && !isFlightMode)
             rb.linearVelocity = new Vector2(0f, rb.linearVelocity.y);
+    }
+
+    public void BeginIncomingTether(int sourceViewId, int shotId)
+    {
+        if (!HasInputAuthority || sourceViewId <= 0)
+            return;
+
+        hasIncomingTether = true;
+        incomingTetherSourceViewId = sourceViewId;
+        incomingTetherShotId = shotId;
+    }
+
+    public void EndIncomingTether(int sourceViewId, int shotId)
+    {
+        if (!hasIncomingTether ||
+            incomingTetherSourceViewId != sourceViewId ||
+            incomingTetherShotId != shotId)
+        {
+            return;
+        }
+
+        ClearIncomingTether();
+    }
+
+    public void ApplyIncomingTetherYank(
+        int sourceViewId,
+        int shotId,
+        Vector2 stickyPosition,
+        float impulse)
+    {
+        if (!HasInputAuthority ||
+            !hasIncomingTether ||
+            incomingTetherSourceViewId != sourceViewId ||
+            incomingTetherShotId != shotId)
+        {
+            return;
+        }
+
+        ApplyTetherYank(stickyPosition, impulse);
+    }
+
+    public void ApplyTetherYank(Vector2 sourcePosition, float impulse)
+    {
+        if (!HasInputAuthority)
+            return;
+
+        if (rb == null)
+            rb = GetComponent<Rigidbody2D>();
+        if (rb == null)
+            return;
+
+        PrepareForTetherYank();
+        if (rb.bodyType != RigidbodyType2D.Dynamic)
+            return;
+
+        Vector2 yankImpulse = TetherPhysics.CalculateYankImpulse(
+            rb.position,
+            sourcePosition,
+            rb.linearVelocity,
+            impulse,
+            rb.mass);
+        rb.AddForce(yankImpulse, ForceMode2D.Impulse);
+    }
+
+    protected virtual void PrepareForTetherYank() { }
+
+    private void ClearIncomingTether()
+    {
+        hasIncomingTether = false;
+        incomingTetherSourceViewId = 0;
+        incomingTetherShotId = 0;
     }
 
     private void SmoothRemoteMovement()
