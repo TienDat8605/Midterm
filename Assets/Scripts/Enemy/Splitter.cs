@@ -18,7 +18,7 @@ public class Splitter : EnemyBase
     protected override void UpdateBehavior()
     {
         // Only Master Client fires projectiles; PUN.Instantiate propagates to all clients
-        if (!PhotonNetwork.IsMasterClient)
+        if (!IsAuthority)
             return;
 
         Collider2D hit = Physics2D.OverlapCircle(transform.position, detectionRadius, playerLayer);

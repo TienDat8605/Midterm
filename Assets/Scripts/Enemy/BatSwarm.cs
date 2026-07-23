@@ -30,7 +30,7 @@ public class BatSwarm : EnemyBase
         {
             case BatState.Patrolling:
                 Patrol();
-                if (PhotonNetwork.IsMasterClient)
+                if (IsAuthority)
                     TryDetectPlayer();
                 break;
             case BatState.PreDash:

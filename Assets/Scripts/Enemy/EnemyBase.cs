@@ -37,11 +37,16 @@ public abstract class EnemyBase : MonoBehaviourPun
     /// Call from subclass when the enemy should disable (e.g. after hitting a player).
     /// Only Master Client can initiate; all clients receive the RPC.
     /// </summary>
+    protected bool IsAuthority => !PhotonNetwork.InRoom || PhotonNetwork.IsMasterClient;
+
     protected void DisableTemporarily()
     {
-        if (!PhotonNetwork.IsMasterClient)
+        if (!IsAuthority)
             return;
-        photonView.RPC(nameof(RPC_Disable), RpcTarget.AllBuffered, disableDuration);
+        if (PhotonNetwork.InRoom)
+            photonView.RPC(nameof(RPC_Disable), RpcTarget.AllBuffered, disableDuration);
+        else
+            RPC_Disable(disableDuration);
     }
 
     /// <summary>

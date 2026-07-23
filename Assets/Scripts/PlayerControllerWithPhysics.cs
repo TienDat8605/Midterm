@@ -79,6 +79,9 @@ public class PlayerControllerWithPhysics : MonoBehaviourPun, IPunObservable
     private int incomingTetherSourceViewId;
     private int incomingTetherShotId;
 
+    private float speedMultiplier = 1f;
+    private Coroutine activeDebuff;
+
     /// <summary>
     /// Local scene instances remain controllable. Photon-instantiated instances are
     /// controlled and simulated only by their owning client.
@@ -287,7 +290,7 @@ public class PlayerControllerWithPhysics : MonoBehaviourPun, IPunObservable
 
     protected virtual float GetWalkSpeed()
     {
-        return walkSpeed;
+        return walkSpeed * speedMultiplier;
     }
 
     protected virtual bool CanChargeJump()
