@@ -444,6 +444,7 @@ MonoBehaviour:
   sfxJump: {fileID: 8300000, guid: 4e349dc959014a845b9aa317d1c2b7f0, type: 3}
   sfxLand: {fileID: 8300000, guid: eaae8fe8d600e1f459f34aa5757fa3b8, type: 3}
   sfxDeath: {fileID: 8300000, guid: 566d2ea6240b489479a6e9fd608c2621, type: 3}
+  sfxBirdHit: {fileID: 8300000, guid: 8b23b175a78d6b5458322e3a6c9905d0, type: 3}
   sfxWin: {fileID: 8300000, guid: c5cb2ac29e89dbf43a9b644caaad45e6, type: 3}
   sfxUIHover: {fileID: 8300000, guid: 35cf7766e9e2aa542811e896fde57989, type: 3}
   sfxUIClick: {fileID: 8300000, guid: c5cb2ac29e89dbf43a9b644caaad45e6, type: 3}
@@ -613,8 +614,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bface8a623a7fdd408cd02d5a874a888, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CameraFollow
-  smoothSpeed: 5
-  offset: {x: 0, y: 2, z: -10}
   target: {fileID: 0}
 --- !u!1 &1894361824
 GameObject:
