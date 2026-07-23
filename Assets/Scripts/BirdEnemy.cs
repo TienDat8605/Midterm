@@ -243,7 +243,7 @@ public class BirdEnemy : MonoBehaviourPun, IPunObservable
             return;
         Vector2 velocity = GetKnockbackDirection(Random.Range(-knockbackAngleRange, knockbackAngleRange)) * knockbackStrength;
         if (targetView != null && targetView.ViewID != 0)
-            targetView.RPC("ApplyBirdKnockbackRpc", targetView.Owner, velocity);
+            targetView.RPC("ApplyBirdKnockbackRpc", RpcTarget.All, velocity);
         else
             ApplyKnockback(other, velocity);
         playerHitTimes[key] = Time.time;
@@ -267,14 +267,30 @@ public class BirdEnemy : MonoBehaviourPun, IPunObservable
     {
         if (stream.IsWriting)
         {
-            stream.SendNext((Vector2)transform.position); stream.SendNext((int)state);
-            stream.SendNext(currentWaypoint); stream.SendNext(pathDirection); stream.SendNext(facingDirection);
+            stream.SendNext((Vector2)transform.position);
+            stream.SendNext((int)state);
+            stream.SendNext(currentWaypoint);
+            stream.SendNext(pathDirection);
+            stream.SendNext(facingDirection);
+            stream.SendNext(waitRemaining);
+            stream.SendNext(currentSpeed);
         }
         else
         {
-            networkPosition = (Vector2)stream.ReceiveNext(); networkState = (BirdState)(int)stream.ReceiveNext();
-            networkWaypoint = (int)stream.ReceiveNext(); networkDirection = (int)stream.ReceiveNext();
+            networkPosition = (Vector2)stream.ReceiveNext();
+            networkState = (BirdState)(int)stream.ReceiveNext();
+            networkWaypoint = (int)stream.ReceiveNext();
+            networkDirection = (int)stream.ReceiveNext();
             networkFacingDirection = (int)stream.ReceiveNext();
+            waitRemaining = (float)stream.ReceiveNext();
+            currentSpeed = (float)stream.ReceiveNext();
+
+            // Keep simulation state current so this client can take over room-object
+            // authority cleanly if the Master Client changes.
+            state = networkState;
+            currentWaypoint = networkWaypoint;
+            pathDirection = networkDirection;
+            facingDirection = networkFacingDirection;
         }
     }
 }

@@ -9,6 +9,7 @@ public enum SFX
     Jump,
     Land,
     Death,
+    BirdHit,
     Win,
     UIHover,
     UIClick
@@ -34,6 +35,7 @@ public class AudioManager : MonoBehaviour
     public AudioClip sfxJump;
     public AudioClip sfxLand;
     public AudioClip sfxDeath;
+    public AudioClip sfxBirdHit;
     public AudioClip sfxWin;
     public AudioClip sfxUIHover;
     public AudioClip sfxUIClick;
@@ -57,9 +59,7 @@ public class AudioManager : MonoBehaviour
         bgmSource.loop = true;
         bgmSource.volume = bgmVolume;
 
-        sfxSource = gameObject.AddComponent<AudioSource>();
-        sfxSource.loop = false;
-        sfxSource.volume = sfxVolume;
+        EnsureSfxSource();
 
         SceneManager.sceneLoaded += OnSceneLoaded;
     }
@@ -120,26 +120,28 @@ public class AudioManager : MonoBehaviour
         bgmSource.Stop();
     }
 
-    public void PlaySFX(SFX sfx)
+public void PlaySFX(SFX sfx)
     {
         AudioClip clip = sfx switch
         {
-            SFX.Jump  => sfxJump,
-            SFX.Land  => sfxLand,
+            SFX.Jump => sfxJump,
+            SFX.Land => sfxLand,
             SFX.Death => sfxDeath,
-            SFX.Win   => sfxWin,
+            SFX.BirdHit => sfxBirdHit,
+            SFX.Win => sfxWin,
             SFX.UIHover => sfxUIHover,
             SFX.UIClick => sfxUIClick,
-            _         => null
+            _ => null
         };
 
-        if (clip != null)
+        if (clip == null)
         {
-            if (sfx == SFX.Jump)
-                Debug.Log($"[AudioManager] Playing jump SFX: {clip.name}", this);
-
-            sfxSource.PlayOneShot(clip, sfxVolume);
+            Debug.LogWarning($"[AudioManager] No clip assigned for {sfx}.", this);
+            return;
         }
+
+        EnsureSfxSource();
+        sfxSource.PlayOneShot(clip, sfxVolume);
     }
 
     private IEnumerator BindUISoundsNextFrame()
@@ -181,5 +183,19 @@ public class AudioManager : MonoBehaviour
     public void SetSFXVolume(float volume)
     {
         sfxVolume = volume;
+    }
+
+
+private void EnsureSfxSource()
+    {
+        if (sfxSource != null)
+            return;
+
+        sfxSource = gameObject.AddComponent<AudioSource>();
+        sfxSource.playOnAwake = false;
+        sfxSource.loop = false;
+        sfxSource.spatialBlend = 0f;
+        sfxSource.volume = 1f;
+        sfxSource.ignoreListenerPause = true;
     }
 }

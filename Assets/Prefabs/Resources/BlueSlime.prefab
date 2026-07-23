@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 9006565014554677880}
   - component: {fileID: 2579115152468048179}
   - component: {fileID: 1205428513047656293}
+  - component: {fileID: 6872975139214264821}
   m_Layer: 0
   m_Name: BlueSlime
   m_TagString: Untagged
@@ -216,6 +217,27 @@ MonoBehaviour:
   groundLayer:
     serializedVersion: 2
     m_Bits: 64
+--- !u!114 &6872975139214264821
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5412914231196962920}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a13c9e7d5b2f4a6081e3d9c7b5a2f6e4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BirdKnockbackReceiver
+  hitEffectFrames:
+  - {fileID: 4860149802246724558, guid: 447db6bb07f02dc4d83279062c0fa05a, type: 3}
+  - {fileID: 5408860727570806038, guid: 447db6bb07f02dc4d83279062c0fa05a, type: 3}
+  - {fileID: 3508872964694136282, guid: 447db6bb07f02dc4d83279062c0fa05a, type: 3}
+  - {fileID: -1300845841124034343, guid: 447db6bb07f02dc4d83279062c0fa05a, type: 3}
+  - {fileID: -8396680587510599095, guid: 447db6bb07f02dc4d83279062c0fa05a, type: 3}
+  - {fileID: 8415834184982046565, guid: 447db6bb07f02dc4d83279062c0fa05a, type: 3}
+  hitEffectFrameDuration: 0.08
+  hitEffectScale: 3
 --- !u!1 &7437238408309308377
 GameObject:
   m_ObjectHideFlags: 0
