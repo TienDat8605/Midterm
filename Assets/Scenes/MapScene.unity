@@ -185,9 +185,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e999fe343eb4e354c9ca844ce07073e0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DirectMapTestCharacterSelector
-  anchorPrefab: {fileID: 8273126385904430692, guid: 85bcce2848c9ce640ba275bb37fd4a38, type: 3}
-  bouncyPrefab: {fileID: 7858553399837401226, guid: 2750512f84d51cb43aa8faa1ce7803fd, type: 3}
-  stickyPrefab: {fileID: 1633179491631302778, guid: cfd455f0ab6f9e44a8c9c107d03b5787, type: 3}
+  anchorPrefab: {fileID: 0}
+  bouncyPrefab: {fileID: 0}
+  stickyPrefab: {fileID: 0}
   testSpawnPoint: {fileID: 760279348}
 --- !u!1 &613132552
 GameObject:
@@ -447,8 +447,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bface8a623a7fdd408cd02d5a874a888, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CameraFollow
-  smoothSpeed: 5
-  offset: {x: 0, y: 2, z: -10}
   target: {fileID: 0}
 --- !u!1 &919581924
 GameObject:
