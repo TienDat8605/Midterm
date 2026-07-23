@@ -1,0 +1,55 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &1200000000000000000
+GameObject:
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1200000000000000001}
+  - component: {fileID: 1200000000000000002}
+  - component: {fileID: 1200000000000000003}
+  - component: {fileID: 1200000000000000004}
+  m_Layer: 0
+  m_Name: VortexTrap
+  m_TagString: Untagged
+  m_IsActive: 1
+--- !u!4 &1200000000000000001
+Transform:
+  serializedVersion: 2
+  m_GameObject: {fileID: 1200000000000000000}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+--- !u!212 &1200000000000000002
+SpriteRenderer:
+  serializedVersion: 2
+  m_GameObject: {fileID: 1200000000000000000}
+  m_Enabled: 1
+  m_Materials:
+  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
+  m_SortingLayerID: 0
+  m_SortingOrder: 0
+  m_Sprite: {fileID: 5088316998373936774, guid: 3d05b3517ab35490daab371571a9c7d4, type: 3}
+--- !u!95 &1200000000000000003
+Animator:
+  serializedVersion: 7
+  m_GameObject: {fileID: 1200000000000000000}
+  m_Enabled: 1
+  m_Controller: {fileID: 9100000, guid: 3d9ab100ccf14803b67be4f8d83acb5b, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+--- !u!114 &1200000000000000004
+MonoBehaviour:
+  m_GameObject: {fileID: 1200000000000000000}
+  m_Enabled: 1
+  m_Script: {fileID: 11500000, guid: 5b4dbd0b7c0b4b7c9bd52f080a13e4f8, type: 3}
+  m_EditorClassIdentifier: Assembly-CSharp::VortexTrap
+  captureRadius: 3
+  captureDuration: 3
+  orbitRadius: 1.1
+  clockwise: 1
+  startingOrbitSpeed: 120
+  finalOrbitSpeed: 2000
+  finalAnimationSpeedMultiplier: 2.5
+  downwardLaunchImpulse: 30
+  pauseAfterRelease: 1
