@@ -17,7 +17,7 @@ Transform:
   serializedVersion: 2
   m_GameObject: {fileID: 1200000000000000000}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 10, y: 10, z: 10}
   m_Children: []
 --- !u!212 &1200000000000000002
 SpriteRenderer:
