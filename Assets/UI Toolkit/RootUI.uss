@@ -1,3 +1,7 @@
+:root {
+    -unity-font-definition: resource("Fonts & Materials/pixelFont-7-8x14-sproutLands");
+}
+
 .display-mode-dropdown {
     position: absolute;
     right: 24px;

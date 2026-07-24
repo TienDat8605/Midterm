@@ -10,6 +10,23 @@
    - Text White/Off-white: rgb(240, 240, 240)
    ================================================================ */
 
+:root {
+    -unity-font-definition: resource("Fonts & Materials/pixelFont-7-8x14-sproutLands");
+}
+
+/* Match the main-menu button feedback without changing each lobby button's color scheme. */
+.root-canvas .unity-button {
+    transition: scale 0.1s ease-in-out;
+}
+
+.root-canvas .unity-button:hover {
+    scale: 1.05;
+}
+
+.root-canvas .unity-button:active {
+    scale: 0.95;
+}
+
 .root-canvas {
     flex-grow: 1;
     flex-direction: column;
@@ -214,6 +231,11 @@
     margin-bottom: 15px;
 }
 
+.map-selection-row,
+.max-players-row {
+    align-self: center;
+}
+
 .value-text-green {
     color: rgb(135, 185, 59);
     font-size: 18px;
@@ -287,6 +309,17 @@
     background-color: rgb(74, 53, 36);
     border-width: 4px;
     border-color: rgb(43, 28, 16);
+    border-radius: 6px;
+    position: relative;
+}
+
+.player-slot-shadow {
+    position: absolute;
+    left: 8px;
+    top: 8px;
+    right: -8px;
+    bottom: -8px;
+    background-color: rgba(0, 0, 0, 0.45);
     border-radius: 6px;
 }
 
@@ -372,6 +405,19 @@
     font-size: 22px;
     -unity-font-style: bold;
     letter-spacing: 2px;
+    width: 120px;
+    -unity-text-align: middle-center;
+    white-space: nowrap;
+}
+
+.char-description {
+    width: 250px;
+    min-height: 42px;
+    color: rgb(220, 200, 170);
+    font-size: 15px;
+    -unity-text-align: upper-center;
+    white-space: normal;
+    margin-top: 2px;
 }
 
 .ping-row {
@@ -514,7 +560,7 @@
 
 .ready-status-box {
     flex-direction: column;
-    align-items: flex-end;
+    align-items: center;
     justify-content: center;
     width: 150px;
     margin-left: 20px;
@@ -529,12 +575,24 @@
 
 .ready-icons-row {
     flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    height: 24px;
 }
 
 .ready-icon-dim {
     width: 24px;
     height: 24px;
-    background-color: rgba(135, 185, 59, 0.3);
-    border-radius: 12px;
-    margin-left: 5px;
+    margin: 0 2px;
+    -unity-background-scale-mode: scale-to-fit;
+}
+
+.ready-icon-ready {
+    background-image: url("project://database/Assets/Sprites/UI/All%20Icons.png?fileID=1434664892407584739&guid=762c495c3e8ce8c4d9b2c5eee98ad862&type=3#All Icons_45");
+    -unity-background-image-tint-color: rgb(73, 159, 35);
+}
+
+.ready-icon-not-ready {
+    background-image: url("project://database/Assets/Sprites/UI/All%20Icons.png?fileID=464944832571705610&guid=762c495c3e8ce8c4d9b2c5eee98ad862&type=3#All Icons_46");
+    -unity-background-image-tint-color: rgb(197, 34, 56);
 }
