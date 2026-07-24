@@ -2,14 +2,47 @@
     <Style src="project://database/Assets/Stylesheet.uss?fileID=7433441132597879392&amp;guid=0bfe2cb5c3c612d4cb0c50b728ac6707&amp;type=3#Stylesheet"/>
     <Style src="project://database/Assets/UI%20Toolkit/HUD/ProgressMinimap.uss?fileID=7433441132597879392&amp;guid=1a2aa35e8aadc0e4e83770d22876daa6&amp;type=3#ProgressMinimap"/>
     <ui:VisualElement name="ProgressMinimapRoot" picking-mode="Ignore" class="progress-minimap-root">
-        <ui:VisualElement class="progress-minimap-goal">
-            <ui:Label text="GOAL" class="progress-minimap-end-label" style="font-size: 43px; -unity-font-style: bold; left: 41px;"/>
-            <ui:VisualElement class="progress-minimap-flag" style="left: 39px;"/>
+        <ui:VisualElement class="progress-minimap-summit-row">
+            <ui:VisualElement class="progress-minimap-summit-flag">
+                <ui:VisualElement class="progress-minimap-flag-pole"/>
+                <ui:VisualElement class="progress-minimap-flag-cloth"/>
+            </ui:VisualElement>
+            <ui:VisualElement class="progress-minimap-summit-copy">
+                <ui:Label text="SUMMIT" class="progress-minimap-end-label"/>
+                <ui:Label text="100%" class="progress-minimap-end-percentage"/>
+            </ui:VisualElement>
         </ui:VisualElement>
         <ui:VisualElement name="ProgressTrack" class="progress-minimap-track">
-            <ui:VisualElement class="progress-minimap-rail"/>
+            <ui:VisualElement class="progress-minimap-rail-shell">
+                <ui:VisualElement class="progress-minimap-segment progress-minimap-segment-base"/>
+                <ui:VisualElement class="progress-minimap-segment progress-minimap-segment-forest"/>
+                <ui:VisualElement class="progress-minimap-segment progress-minimap-segment-ice"/>
+                <ui:VisualElement class="progress-minimap-segment progress-minimap-segment-summit"/>
+                <ui:VisualElement class="progress-minimap-rail-highlight"/>
+                <ui:VisualElement class="progress-minimap-cap progress-minimap-cap-top"/>
+                <ui:VisualElement class="progress-minimap-cap progress-minimap-cap-bottom"/>
+            </ui:VisualElement>
+            <ui:VisualElement class="progress-minimap-guide progress-minimap-guide-75"/>
+            <ui:VisualElement class="progress-minimap-guide progress-minimap-guide-50"/>
+            <ui:VisualElement class="progress-minimap-guide progress-minimap-guide-25"/>
+            <ui:VisualElement class="progress-minimap-guide progress-minimap-guide-0"/>
+            <ui:Label text="75%" class="progress-minimap-scale-label progress-minimap-scale-75"/>
+            <ui:Label text="50%" class="progress-minimap-scale-label progress-minimap-scale-50"/>
+            <ui:Label text="25%" class="progress-minimap-scale-label progress-minimap-scale-25"/>
+            <ui:Label text="0%" class="progress-minimap-scale-label progress-minimap-scale-0"/>
+            <ui:VisualElement class="progress-minimap-checkpoint progress-minimap-checkpoint-75">
+                <ui:VisualElement class="progress-minimap-checkpoint-core progress-minimap-checkpoint-core-75"/>
+            </ui:VisualElement>
+            <ui:VisualElement class="progress-minimap-checkpoint progress-minimap-checkpoint-50">
+                <ui:VisualElement class="progress-minimap-checkpoint-core progress-minimap-checkpoint-core-50"/>
+            </ui:VisualElement>
+            <ui:VisualElement class="progress-minimap-checkpoint progress-minimap-checkpoint-25">
+                <ui:VisualElement class="progress-minimap-checkpoint-core progress-minimap-checkpoint-core-25"/>
+            </ui:VisualElement>
             <ui:VisualElement name="PlayerMarkers" picking-mode="Ignore" class="progress-minimap-markers"/>
         </ui:VisualElement>
-        <ui:Label text="START" class="progress-minimap-end-label" style="-unity-font-style: bold; font-size: 43px; -unity-text-align: upper-right; left: 42px;"/>
+        <ui:VisualElement class="progress-minimap-base-row">
+            <ui:Label text="BASE" class="progress-minimap-base-label"/>
+        </ui:VisualElement>
     </ui:VisualElement>
 </ui:UXML>

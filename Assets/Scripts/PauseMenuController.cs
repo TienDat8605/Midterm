@@ -20,6 +20,7 @@ public class PauseMenuController : MonoBehaviour
     private Button tutorialsButton;
     private Button quitButton;
     private Button tutorialOverlayButton;
+    private Button tutorialExitButton;
     private VisualElement tutorialControlsOverlay;
     private Button previousTutorialButton;
     private Button nextTutorialButton;
@@ -45,6 +46,7 @@ public class PauseMenuController : MonoBehaviour
         tutorialsButton = root.Q<Button>("TutorialsButton");
         quitButton = root.Q<Button>("QuitButton");
         tutorialOverlayButton = root.Q<Button>("TutorialOverlayButton");
+        tutorialExitButton = root.Q<Button>("TutorialExitButton");
         tutorialControlsOverlay = root.Q<VisualElement>("TutorialControlsOverlay");
         isTutorialMap = SceneManager.GetActiveScene().name == SinglePlayerSession.TutorialSceneName;
 
@@ -64,6 +66,8 @@ public class PauseMenuController : MonoBehaviour
         if (quitButton != null) quitButton.clicked += QuitGame;
         if (tutorialOverlayButton != null)
             tutorialOverlayButton.clicked += OpenTutorialFromOverlay;
+        if (tutorialExitButton != null)
+            tutorialExitButton.clicked += ReturnToMainMenu;
         if (previousTutorialButton != null) previousTutorialButton.clicked += ShowPreviousTutorialPage;
         if (nextTutorialButton != null) nextTutorialButton.clicked += ShowNextTutorialPage;
         if (tutorialBackButton != null)
@@ -111,6 +115,8 @@ public class PauseMenuController : MonoBehaviour
         if (quitButton != null) quitButton.clicked -= QuitGame;
         if (tutorialOverlayButton != null)
             tutorialOverlayButton.clicked -= OpenTutorialFromOverlay;
+        if (tutorialExitButton != null)
+            tutorialExitButton.clicked -= ReturnToMainMenu;
         if (previousTutorialButton != null) previousTutorialButton.clicked -= ShowPreviousTutorialPage;
         if (nextTutorialButton != null) nextTutorialButton.clicked -= ShowNextTutorialPage;
         if (tutorialBackButton != null) tutorialBackButton.clicked -= ReturnToPauseMenu;
@@ -345,9 +351,20 @@ public class PauseMenuController : MonoBehaviour
             tutorialControlsOverlay.style.display =
                 shouldShowTutorialOverlays ? DisplayStyle.Flex : DisplayStyle.None;
         }
+
+        if (tutorialExitButton != null)
+        {
+            tutorialExitButton.style.display =
+                shouldShowTutorialOverlays ? DisplayStyle.Flex : DisplayStyle.None;
+        }
     }
 
     private void QuitGame()
+    {
+        ReturnToMainMenu();
+    }
+
+    private void ReturnToMainMenu()
     {
         SetPaused(false);
         SinglePlayerSession.Stop();

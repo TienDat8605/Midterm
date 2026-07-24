@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using Photon.Pun;
@@ -78,6 +79,12 @@ public class PlayerControllerWithPhysics : MonoBehaviourPun, IPunObservable
     private int incomingTetherSourceViewId;
     private int incomingTetherShotId;
 
+    private float speedMultiplier = 1f;
+    private Coroutine activeDebuff;
+    private JumpChargeBarView jumpChargeBar;
+
+    private const string JumpChargeBarResourcePath = "UI/JumpChargeBar";
+
     /// <summary>
     /// Local scene instances remain controllable. Photon-instantiated instances are
     /// controlled and simulated only by their owning client.
@@ -132,6 +139,7 @@ public class PlayerControllerWithPhysics : MonoBehaviourPun, IPunObservable
 
         if (HasInputAuthority)
         {
+            CreateJumpChargeBar();
             UpdateGrounded();
             TryAssignCamera();
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
@@ -165,6 +173,30 @@ public class PlayerControllerWithPhysics : MonoBehaviourPun, IPunObservable
     }
 
     protected virtual void Initialize() { }
+
+    private void CreateJumpChargeBar()
+    {
+        GameObject barPrefab = Resources.Load<GameObject>(JumpChargeBarResourcePath);
+        if (barPrefab == null)
+        {
+            Debug.LogWarning(
+                $"Missing local jump charge bar at Resources/{JumpChargeBarResourcePath}.",
+                this);
+            return;
+        }
+
+        GameObject barObject = Instantiate(barPrefab);
+        barObject.name = $"{name} Jump Charge Bar";
+        jumpChargeBar = barObject.GetComponent<JumpChargeBarView>();
+        if (jumpChargeBar == null)
+        {
+            Debug.LogWarning("Jump charge bar prefab has no JumpChargeBarView.", barObject);
+            Destroy(barObject);
+            return;
+        }
+
+        jumpChargeBar.Initialize(this);
+    }
 
     void Update()
     {
@@ -233,6 +265,21 @@ public class PlayerControllerWithPhysics : MonoBehaviourPun, IPunObservable
 
     protected virtual void UpdateAbility() { }
 
+    private void LateUpdate()
+    {
+        if (jumpChargeBar == null)
+            return;
+
+        float normalizedCharge = maxChargeTime <= 0f
+            ? 1f
+            : jumpCharge / maxChargeTime;
+        bool shouldShowCharge = isChargingJump &&
+                                inputEnabled &&
+                                isGrounded &&
+                                !isFlightMode;
+        jumpChargeBar.SetChargeState(shouldShowCharge, normalizedCharge);
+    }
+
     void FixedUpdate()
     {
         if (!HasInputAuthority)
@@ -286,7 +333,7 @@ public class PlayerControllerWithPhysics : MonoBehaviourPun, IPunObservable
 
     protected virtual float GetWalkSpeed()
     {
-        return walkSpeed;
+        return walkSpeed * speedMultiplier;
     }
 
     protected virtual bool CanChargeJump()
@@ -678,6 +725,35 @@ public class PlayerControllerWithPhysics : MonoBehaviourPun, IPunObservable
 
         float lag = Mathf.Clamp((float)(PhotonNetwork.Time - info.SentServerTime), 0f, 1f);
         networkPosition = receivedPosition + networkVelocity * lag;
+    }
+
+    public void ApplyKnockback(Vector2 force)
+    {
+        isChargingJump = false;
+        jumpCharge = 0f;
+        rb.linearVelocity = Vector2.zero;
+        rb.AddForce(force, ForceMode2D.Impulse);
+    }
+
+    public void ApplyDebuff(float slowMultiplier, float duration)
+    {
+        if (activeDebuff != null)
+            StopCoroutine(activeDebuff);
+        activeDebuff = StartCoroutine(DebuffRoutine(slowMultiplier, duration));
+    }
+
+    private IEnumerator DebuffRoutine(float multiplier, float duration)
+    {
+        speedMultiplier = multiplier;
+        yield return new WaitForSeconds(duration);
+        speedMultiplier = 1f;
+        activeDebuff = null;
+    }
+
+    private void OnDestroy()
+    {
+        if (jumpChargeBar != null)
+            Destroy(jumpChargeBar.gameObject);
     }
 
     private void OnDrawGizmosSelected()

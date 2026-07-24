@@ -1,4 +1,5 @@
 :root {
+    -unity-font-definition: resource("Fonts & Materials/pixelFont-7-8x14-sproutLands");
 }
 
 .button {

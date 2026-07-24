@@ -17,6 +17,6 @@ MonoBehaviour:
   - id: map1
     displayName: Map 1
     sceneName: Map1
-  - id: test-map
-    displayName: Test Map
-    sceneName: MapScene
+  - id: map2
+    displayName: Map 2
+    sceneName: Map2

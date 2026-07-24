@@ -59,3 +59,14 @@
 .tutorial-controls-key-spaced {
     margin-left: 8px;
 }
+
+.tutorial-exit-button {
+    display: none;
+    position: absolute;
+    top: 42px;
+    right: 42px;
+    width: 190px;
+    height: 72px;
+    font-size: 30px;
+    -unity-text-align: middle-center;
+}

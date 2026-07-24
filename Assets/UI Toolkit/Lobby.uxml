@@ -1,219 +1,139 @@
 <ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
     <Style src="project://database/Assets/UI%20Toolkit/Lobby.uss?fileID=7433441132597879392&amp;guid=2c31384ed16fb504d95205766c3bce37&amp;type=3#Lobby"/>
     <ui:VisualElement name="Root" class="root-canvas">
-        
-        <!-- TOP BAR -->
         <ui:VisualElement name="TopBar" class="top-bar">
-            
-            <!-- Lobby Title Box -->
-            <ui:VisualElement class="top-box title-box">
-                <ui:VisualElement class="cat-icon-yellow"/>
-                <ui:Label text="LOBBY" class="lobby-title"/>
-                <ui:VisualElement class="cat-icon-gray"/>
-            </ui:VisualElement>
-            
-            <ui:VisualElement class="top-right-group">
-                <!-- Map & Mode Box -->
-                <ui:VisualElement class="top-box right-box">
-                    <ui:VisualElement class="info-row-top" style="align-items: center; justify-content: center; flex-direction: row;">
-                        <ui:Button text="&lt;" name="PreviousMapButton" class="arrow-button-brown" style="width: 24px; height: 24px; margin-right: 4px; padding: 0; font-size: 14px;"/>
-                        <ui:VisualElement class="map-icon"/>
-                        <ui:VisualElement class="info-text-col">
-                            <ui:Label text="MAP" class="small-title-gold"/>
-                            <ui:Label text="MAP 1" name="MapLabel" class="value-text-white"/>
-                        </ui:VisualElement>
-                        <ui:Button text="&gt;" name="NextMapButton" class="arrow-button-brown" style="width: 24px; height: 24px; margin-left: 4px; padding: 0; font-size: 14px;"/>
-                    </ui:VisualElement>
-                    
-                    <ui:VisualElement class="divider-vertical"/>
-                    
-                    <ui:VisualElement class="info-row-top">
-                        <ui:VisualElement class="flag-icon"/>
-                        <ui:VisualElement class="info-text-col">
-                            <ui:Label text="MODE" class="small-title-gold"/>
-                            <ui:Label text="NORMAL" name="ModeLabel" class="value-text-white"/>
-                        </ui:VisualElement>
-                    </ui:VisualElement>
-                </ui:VisualElement>
-                
+            <ui:VisualElement class="top-box title-box" style="height: 99px; width: 432px; position: absolute; top: 33px; left: 727px;">
+                <ui:VisualElement class="cat-icon-yellow" style="background-image: url(&quot;project://database/Assets/Sprites/UI/Sprite%20sheet%20for%20Basic%20Pack.png?fileID=-3765290273801814435&amp;guid=f24abd975bb0c9d468f1c9fa23dcdd8e&amp;type=3#Sprite sheet for Basic Pack_167&quot;); height: 60px; width: 62px;"/>
+                <ui:Label text="LOBBY" name="LobbyTitle" class="lobby-title"/>
+                <ui:VisualElement class="cat-icon-gray" style="background-image: url(&quot;project://database/Assets/Sprites/UI/Sprite%20sheet%20for%20Basic%20Pack.png?fileID=-6501402399690028855&amp;guid=f24abd975bb0c9d468f1c9fa23dcdd8e&amp;type=3#Sprite sheet for Basic Pack_171&quot;); background-color: rgb(212, 163, 83); height: 62px; width: 62px;"/>
             </ui:VisualElement>
         </ui:VisualElement>
-
-        <!-- MAIN CONTENT -->
         <ui:VisualElement class="main-content">
-            
-            <!-- LEFT COLUMN (Info & Chat) -->
             <ui:VisualElement class="left-column">
-                
-                <!-- Room Info -->
-                <ui:VisualElement class="panel-box room-info-box">
+                <ui:VisualElement class="panel-box room-info-box" style="display: flex;">
                     <ui:VisualElement class="panel-title-row">
-                        <ui:VisualElement class="diamond-icon"/>
-                        <ui:Label text="ROOM INFO" class="panel-title"/>
-                        <ui:VisualElement class="diamond-icon"/>
+                        <ui:VisualElement class="diamond-icon" style="background-color: rgb(205, 120, 50);"/>
+                        <ui:Label text="ROOM INFO" name="RoomInfoTitle" class="panel-title" style="font-size: 28px;"/>
+                        <ui:VisualElement class="diamond-icon" style="background-color: rgb(205, 120, 50);"/>
                     </ui:VisualElement>
-                    
-                    <ui:VisualElement class="info-row">
-                        <ui:VisualElement class="map-icon-large"/>
+                    <ui:VisualElement class="info-row map-selection-row" style="width: 168px;">
+                        <ui:Button text="" name="PreviousMapButton" class="arrow-button-brown" style="height: 42px; width: 41px; background-image: url(&quot;project://database/Assets/Sprites/UI/Sprite%20sheet%20for%20Basic%20Pack.png?fileID=-4314349355719926730&amp;guid=f24abd975bb0c9d468f1c9fa23dcdd8e&amp;type=3#Sprite sheet for Basic Pack_29&quot;); background-color: rgba(255, 255, 255, 0); opacity: 1; border-left-color: rgba(43, 28, 16, 0); border-right-color: rgba(43, 28, 16, 0); border-top-color: rgba(43, 28, 16, 0); border-bottom-color: rgba(43, 28, 16, 0); top: 16px;"/>
                         <ui:VisualElement class="info-text-col">
-                            <ui:Label text="MAP" class="small-title-gold"/>
-                            <ui:Label text="MAP 1" class="value-text-green"/>
+                            <ui:Label text="MAP" class="small-title-gold" style="font-size: 24px; -unity-text-align: upper-center; width: 109px; left: -30px; right: -7px; top: -7px;"/>
+                            <ui:Label text="MAP 1" name="MapLabel" class="value-text-green" style="color: rgb(255, 255, 255); font-size: 21px; width: 46px; -unity-text-align: upper-center;"/>
                         </ui:VisualElement>
+                        <ui:Button text="" name="NextMapButton" class="arrow-button-brown" style="height: 45px; width: 42px; background-image: url(&quot;project://database/Assets/Sprites/UI/Sprite%20sheet%20for%20Basic%20Pack.png?fileID=-4104028942534283489&amp;guid=f24abd975bb0c9d468f1c9fa23dcdd8e&amp;type=3#Sprite sheet for Basic Pack_7&quot;); background-color: rgba(180, 130, 80, 0); border-top-width: 0; border-right-width: 0; border-bottom-width: 0; border-left-width: 0; top: 15px;"/>
                     </ui:VisualElement>
-                    
-                    <ui:VisualElement class="info-row">
-                        <ui:VisualElement class="flag-icon-large"/>
-                        <ui:VisualElement class="info-text-col">
-                            <ui:Label text="MODE" class="small-title-gold"/>
-                            <ui:Label text="NORMAL" class="value-text-green"/>
-                        </ui:VisualElement>
+                    <ui:VisualElement name="RoomInfoSpacer" class="info-row">
+                        <ui:VisualElement class="info-text-col"/>
                     </ui:VisualElement>
-                    
-                    <ui:VisualElement class="info-row">
-                        <ui:VisualElement class="players-icon-large"/>
+                    <ui:VisualElement name="MaxPlayersRow" class="info-row max-players-row">
                         <ui:VisualElement class="info-text-col">
-                            <ui:Label text="MAX PLAYERS" class="small-title-gold"/>
-                            <ui:Label text="3 PLAYERS" class="value-text-green"/>
+                            <ui:Label text="MAX PLAYERS" class="small-title-gold" style="font-size: 18px;"/>
+                            <ui:Label text="3 PLAYERS" class="value-text-green" style="color: rgb(255, 255, 255); left: 10px; width: 94px;"/>
                         </ui:VisualElement>
                     </ui:VisualElement>
                 </ui:VisualElement>
-                
-                <!-- Chat Box -->
-                <ui:VisualElement class="panel-box chat-box">
+                <ui:VisualElement name="ChatBox" class="panel-box chat-box">
                     <ui:VisualElement class="panel-title-row">
-                        <ui:VisualElement class="diamond-icon"/>
+                        <ui:VisualElement class="diamond-icon" style="background-color: rgb(205, 120, 50);"/>
                         <ui:Label text="CHAT" class="panel-title"/>
-                        <ui:VisualElement class="diamond-icon"/>
+                        <ui:VisualElement class="diamond-icon" style="background-color: rgb(205, 120, 50);"/>
                     </ui:VisualElement>
-                    
                     <ui:ScrollView class="chat-scroll">
                         <ui:Label text="SYSTEM: Room created" class="chat-msg-system"/>
                     </ui:ScrollView>
-                    
                     <ui:VisualElement class="chat-input-row">
-                        <ui:TextField text="Type a message..." class="chat-input"/>
-                        <ui:Button class="btn-chat-send"/>
+                        <ui:TextField value="Type a message..." class="chat-input" style="color: rgb(0, 0, 0);"/>
+                        <ui:Button text="ENTER" class="btn-chat-send" style="width: 59px;"/>
                     </ui:VisualElement>
                 </ui:VisualElement>
-
             </ui:VisualElement>
-            
-            <!-- RIGHT COLUMN -->
             <ui:VisualElement class="right-column-container">
-                
-                <ui:VisualElement name="SlotRow" class="right-column-slots">
-                    
-                    <!-- Slot 1 -->
-                    <ui:VisualElement name="Slot1" class="player-slot host-slot">
+                <ui:VisualElement name="SlotRow" class="right-column-slots" style="border-top-width: 0; border-right-width: 0; border-bottom-width: 0; border-left-width: 0;">
+                    <ui:VisualElement name="Slot1" class="player-slot host-slot" style="border-top-width: 4px; border-right-width: 4px; border-bottom-width: 4px; border-left-width: 4px;">
                         <ui:VisualElement class="player-title-row">
-                            <ui:Label text="HOST" name="HostCrown1" class="host-label-inline"/>
                             <ui:Label text="Player 1" name="PlayerLabel1" class="player-label"/>
-                            <ui:VisualElement class="crown-icon-topright" name="HostCrownIcon1"/>
+                            <ui:VisualElement name="HostCrownIcon1" class="crown-icon-topright" style="background-color: rgba(212, 163, 83, 0); background-image: url(&quot;project://database/Assets/Sprites/UI/All%20Icons.png?fileID=1582047715318275626&amp;guid=762c495c3e8ce8c4d9b2c5eee98ad862&amp;type=3#All Icons_26&quot;); border-top-left-radius: 0; border-bottom-left-radius: 0; border-top-right-radius: 0; border-bottom-right-radius: 0; height: 40px; width: 50px; left: 213px; top: -3px; right: -1px; -unity-background-image-tint-color: rgba(0, 0, 0, 0.549);"/>
+                            <ui:VisualElement name="HostCrownIcon1" class="crown-icon-topright" style="background-color: rgba(212, 163, 83, 0); background-image: url(&quot;project://database/Assets/Sprites/UI/All%20Icons.png?fileID=1582047715318275626&amp;guid=762c495c3e8ce8c4d9b2c5eee98ad862&amp;type=3#All Icons_26&quot;); border-top-left-radius: 0; border-bottom-left-radius: 0; border-top-right-radius: 0; border-bottom-right-radius: 0; height: 40px; width: 50px; left: 205px; top: -11px; right: 8px; -unity-background-image-tint-color: rgb(242, 210, 45);"/>
                         </ui:VisualElement>
-                        
-                        <ui:VisualElement class="char-portrait-bg">
+                        <ui:VisualElement class="char-portrait-bg" style="border-top-left-radius: 12px; border-bottom-left-radius: 12px; border-bottom-right-radius: 12px; border-top-right-radius: 12px;">
                             <ui:VisualElement name="CharImage1" class="char-image" style="background-image: url(&quot;project://database/Assets/Sprites/Slimes/9.png?fileID=4113829005332862926&amp;guid=193cdb3ea0f1e4d9091d7e76a7dfc123&amp;type=3#9_0&quot;);"/>
                         </ui:VisualElement>
-                        
-                        <ui:VisualElement name="CharDisplay1" class="char-display-row">
-                            <ui:Button text="&lt;" name="LeftArrow1" class="arrow-button-brown"/>
-                            <ui:Label text="ANCHOR" name="CharName1" class="char-name-label-big"/>
-                            <ui:Button text="&gt;" name="RightArrow1" class="arrow-button-brown"/>
+                        <ui:VisualElement name="CharDisplay1" class="char-display-row" style="font-size: 27px;">
+                            <ui:Button text="" name="LeftArrow1" class="arrow-button-brown" style="height: 62px; width: 58px; background-image: url(&quot;project://database/Assets/Sprites/UI/Sprite%20sheet%20for%20Basic%20Pack.png?fileID=-4314349355719926730&amp;guid=f24abd975bb0c9d468f1c9fa23dcdd8e&amp;type=3#Sprite sheet for Basic Pack_29&quot;); background-color: rgba(255, 255, 255, 0); opacity: 1; border-left-color: rgba(43, 28, 16, 0); border-right-color: rgba(43, 28, 16, 0); border-top-color: rgba(43, 28, 16, 0); border-bottom-color: rgba(43, 28, 16, 0);"/>
+                            <ui:Label text="ANCHOR" name="CharName1" class="char-name-label-big" style="font-size: 31px; left: 2px;"/>
+                            <ui:Button text="" name="RightArrow1" class="arrow-button-brown" style="height: 62px; width: 59px; background-image: url(&quot;project://database/Assets/Sprites/UI/Sprite%20sheet%20for%20Basic%20Pack.png?fileID=-4104028942534283489&amp;guid=f24abd975bb0c9d468f1c9fa23dcdd8e&amp;type=3#Sprite sheet for Basic Pack_7&quot;); background-color: rgba(180, 130, 80, 0); border-top-width: 0; border-right-width: 0; border-bottom-width: 0; border-left-width: 0;"/>
                         </ui:VisualElement>
-                        
-                        <ui:VisualElement class="ping-row">
+                        <ui:VisualElement name="PingRow1" class="ping-row">
                             <ui:Label text="PING: 42ms" name="PingLabel1" class="ping-label-green"/>
-                            <ui:VisualElement class="signal-bars"/>
                         </ui:VisualElement>
-                        
-                        <ui:Button text="READY" name="ReadyBtn1" class="btn-green-large"/>
+                        <ui:Button text="READY" name="ReadyBtn1" class="btn-green-large" style="background-image: url(&quot;project://database/Assets/Sprites/UI/UI%20Big%20Play%20Button.png?fileID=-7635131891296033614&amp;guid=0614e562b2a1560449f74e3b38c5f2c8&amp;type=3#UI Big Play Button_0&quot;); background-color: rgba(135, 185, 59, 0); border-top-left-radius: 0; border-top-right-radius: 0; border-bottom-right-radius: 0; border-bottom-left-radius: 0; border-top-width: 0; border-right-width: 0; border-bottom-width: 0; border-left-width: 0; -unity-background-image-tint-color: rgb(80, 196, 54); color: rgb(255, 255, 255);"/>
                     </ui:VisualElement>
-                    
-                    <!-- Slot 2 -->
-                    <ui:VisualElement name="Slot2" class="player-slot">
+                    <ui:VisualElement name="Slot2" class="player-slot" style="border-left-color: rgb(212, 163, 83); border-right-color: rgb(212, 163, 83); border-top-color: rgb(212, 163, 83); border-bottom-color: rgb(212, 163, 83);">
                         <ui:VisualElement class="player-title-row">
                             <ui:Label text="HOST" name="HostCrown2" class="host-label-inline" style="display: none;"/>
                             <ui:Label text="Player 2" name="PlayerLabel2" class="player-label"/>
-                            <ui:VisualElement class="crown-icon-topright" name="HostCrownIcon2" style="display: none;"/>
+                            <ui:VisualElement name="HostCrownIcon2" class="crown-icon-topright" style="display: none;"/>
                         </ui:VisualElement>
-                        
-                        <ui:VisualElement class="char-portrait-bg">
+                        <ui:VisualElement class="char-portrait-bg" style="border-top-left-radius: 12px; border-bottom-left-radius: 12px; border-top-right-radius: 12px; border-bottom-right-radius: 12px;">
                             <ui:VisualElement name="CharImage2" class="char-image" style="background-image: url(&quot;project://database/Assets/Sprites/Slimes/11.png?fileID=-2966200626249415253&amp;guid=91b27f3e6ea7d49bdbc0929091318b93&amp;type=3#11_0&quot;);"/>
                         </ui:VisualElement>
-                        
                         <ui:VisualElement name="CharDisplay2" class="char-display-row">
-                            <ui:Button text="&lt;" name="LeftArrow2" class="arrow-button-brown"/>
-                            <ui:Label text="BOUNCE" name="CharName2" class="char-name-label-big"/>
-                            <ui:Button text="&gt;" name="RightArrow2" class="arrow-button-brown"/>
+                            <ui:Button text="" name="LeftArrow2" class="arrow-button-brown" style="height: 62px; width: 58px; background-image: url(&quot;project://database/Assets/Sprites/UI/Sprite%20sheet%20for%20Basic%20Pack.png?fileID=-4314349355719926730&amp;guid=f24abd975bb0c9d468f1c9fa23dcdd8e&amp;type=3#Sprite sheet for Basic Pack_29&quot;); background-color: rgba(255, 255, 255, 0); opacity: 1; border-left-color: rgba(43, 28, 16, 0); border-right-color: rgba(43, 28, 16, 0); border-top-color: rgba(43, 28, 16, 0); border-bottom-color: rgba(43, 28, 16, 0);"/>
+                            <ui:Label text="BOUNCE" name="CharName2" class="char-name-label-big" style="font-size: 31px; left: 6px;"/>
+                            <ui:Button text="" name="RightArrow2" class="arrow-button-brown" style="height: 62px; width: 59px; background-image: url(&quot;project://database/Assets/Sprites/UI/Sprite%20sheet%20for%20Basic%20Pack.png?fileID=-4104028942534283489&amp;guid=f24abd975bb0c9d468f1c9fa23dcdd8e&amp;type=3#Sprite sheet for Basic Pack_7&quot;); background-color: rgba(180, 130, 80, 0); border-top-width: 0; border-right-width: 0; border-bottom-width: 0; border-left-width: 0;"/>
                         </ui:VisualElement>
-                        
-                        <ui:VisualElement class="ping-row">
+                        <ui:VisualElement name="PingRow2" class="ping-row">
                             <ui:Label text="PING: 38ms" name="PingLabel2" class="ping-label-green"/>
-                            <ui:VisualElement class="signal-bars"/>
                         </ui:VisualElement>
-                        
-                        <ui:Button text="READY" name="ReadyBtn2" class="btn-green-large"/>
+                        <ui:Button text="READY" name="ReadyBtn2" class="btn-green-large" style="background-image: url(&quot;project://database/Assets/Sprites/UI/UI%20Big%20Play%20Button.png?fileID=-7635131891296033614&amp;guid=0614e562b2a1560449f74e3b38c5f2c8&amp;type=3#UI Big Play Button_0&quot;); background-color: rgba(135, 185, 59, 0); border-top-left-radius: 0; border-top-right-radius: 0; border-bottom-right-radius: 0; border-bottom-left-radius: 0; border-top-width: 0; border-right-width: 0; border-bottom-width: 0; border-left-width: 0; -unity-background-image-tint-color: rgb(80, 196, 54); color: rgb(255, 255, 255);"/>
                     </ui:VisualElement>
-                    
-                    <!-- Slot 3 -->
-                    <ui:VisualElement name="Slot3" class="player-slot">
+                    <ui:VisualElement name="Slot3" class="player-slot" style="border-left-color: rgb(212, 163, 83); border-right-color: rgb(212, 163, 83); border-top-color: rgb(212, 163, 83); border-bottom-color: rgb(212, 163, 83);">
                         <ui:VisualElement class="player-title-row">
                             <ui:Label text="HOST" name="HostCrown3" class="host-label-inline" style="display: none;"/>
                             <ui:Label text="Player 3" name="PlayerLabel3" class="player-label"/>
-                            <ui:VisualElement class="crown-icon-topright" name="HostCrownIcon3" style="display: none;"/>
+                            <ui:VisualElement name="HostCrownIcon3" class="crown-icon-topright" style="display: none;"/>
                         </ui:VisualElement>
-                        
-                        <ui:VisualElement class="char-portrait-bg">
+                        <ui:VisualElement class="char-portrait-bg" style="border-top-left-radius: 12px; border-bottom-left-radius: 12px; border-top-right-radius: 12px; border-bottom-right-radius: 12px;">
                             <ui:VisualElement name="CharImage3" class="char-image" style="background-image: url(&quot;project://database/Assets/Sprites/Slimes/7.png?fileID=7028616704906629411&amp;guid=bfc27ec53642c4de7bab469eca17e256&amp;type=3#7_0&quot;);"/>
                         </ui:VisualElement>
-                        
                         <ui:VisualElement name="CharDisplay3" class="char-display-row">
-                            <ui:Button text="&lt;" name="LeftArrow3" class="arrow-button-brown"/>
-                            <ui:Label text="STICKY" name="CharName3" class="char-name-label-big"/>
-                            <ui:Button text="&gt;" name="RightArrow3" class="arrow-button-brown"/>
+                            <ui:Button text="" name="LeftArrow3" class="arrow-button-brown" style="height: 62px; width: 58px; background-image: url(&quot;project://database/Assets/Sprites/UI/Sprite%20sheet%20for%20Basic%20Pack.png?fileID=-4314349355719926730&amp;guid=f24abd975bb0c9d468f1c9fa23dcdd8e&amp;type=3#Sprite sheet for Basic Pack_29&quot;); background-color: rgba(255, 255, 255, 0); opacity: 1; border-left-color: rgba(43, 28, 16, 0); border-right-color: rgba(43, 28, 16, 0); border-top-color: rgba(43, 28, 16, 0); border-bottom-color: rgba(43, 28, 16, 0);"/>
+                            <ui:Label text="STICKY" name="CharName3" class="char-name-label-big" style="font-size: 31px; left: 3px;"/>
+                            <ui:Button text="" name="RightArrow3" class="arrow-button-brown" style="height: 62px; width: 59px; background-image: url(&quot;project://database/Assets/Sprites/UI/Sprite%20sheet%20for%20Basic%20Pack.png?fileID=-4104028942534283489&amp;guid=f24abd975bb0c9d468f1c9fa23dcdd8e&amp;type=3#Sprite sheet for Basic Pack_7&quot;); background-color: rgba(180, 130, 80, 0); border-top-width: 0; border-right-width: 0; border-bottom-width: 0; border-left-width: 0;"/>
                         </ui:VisualElement>
-                        
-                        <ui:VisualElement class="ping-row">
+                        <ui:VisualElement name="PingRow3" class="ping-row">
                             <ui:Label text="PING: 55ms" name="PingLabel3" class="ping-label-green"/>
-                            <ui:VisualElement class="signal-bars"/>
                         </ui:VisualElement>
-                        
-                        <ui:Button text="READY" name="ReadyBtn3" class="btn-green-large"/>
+                        <ui:Button text="READY" name="ReadyBtn3" class="btn-green-large" style="background-image: url(&quot;project://database/Assets/Sprites/UI/UI%20Big%20Play%20Button.png?fileID=-7635131891296033614&amp;guid=0614e562b2a1560449f74e3b38c5f2c8&amp;type=3#UI Big Play Button_0&quot;); background-color: rgba(135, 185, 59, 0); border-top-left-radius: 0; border-top-right-radius: 0; border-bottom-right-radius: 0; border-bottom-left-radius: 0; border-top-width: 0; border-right-width: 0; border-bottom-width: 0; border-left-width: 0; -unity-background-image-tint-color: rgb(80, 196, 54); color: rgb(255, 255, 255);"/>
                     </ui:VisualElement>
-                    
                 </ui:VisualElement>
-                
-                <!-- Room Code Box (Moved to bottom) -->
-                <ui:VisualElement class="bottom-code-box">
+                <ui:VisualElement name="RoomCodePanel" class="bottom-code-box" style="top: -70px;">
                     <ui:Label text="ROOM CODE" class="small-title-gold-large"/>
                     <ui:VisualElement class="row-center code-row">
                         <ui:Label text="------" name="RoomCodeLabel" class="code-text-large"/>
                         <ui:Button text="COPY" name="CopyBtn" class="btn-gold-large"/>
                     </ui:VisualElement>
                 </ui:VisualElement>
-
             </ui:VisualElement>
-
         </ui:VisualElement>
-
-        <!-- BOTTOM BAR -->
-        <ui:VisualElement class="bottom-bar-panel">
-            <ui:Button text="LEAVE ROOM" name="BackButton" class="btn-red-large"/>
-            
+        <ui:VisualElement class="bottom-bar-panel" style="top: -77px; height: 126px;">
+            <ui:Button text="LEAVE ROOM" name="BackButton" class="btn-red-large" style="height: 72px;"/>
             <ui:VisualElement class="start-container">
-                <ui:Button text="START GAME" name="StartButton" class="btn-start-game"/>
-                <ui:Label text="Waiting for all players to ready up..." name="StatusLabel" class="bottom-status-text"/>
+                <ui:Button text="START GAME" name="StartButton" class="btn-start-game" style="background-color: rgb(73, 159, 35); color: rgb(255, 255, 255); height: 87px; border-top-left-radius: 31px; border-bottom-left-radius: 31px; border-bottom-right-radius: 31px; border-top-right-radius: 31px;"/>
             </ui:VisualElement>
-            
-            <ui:VisualElement class="ready-status-box">
-                <ui:Label text="0 / 3 READY" name="ReadyCountLabel" class="ready-count-text"/>
+            <ui:VisualElement name="ReadyStatusBox" class="ready-status-box">
+                <ui:Label text="0 / 3 READY" name="ReadyCountLabel" class="ready-count-text" style="left: 1px;"/>
                 <ui:VisualElement class="ready-icons-row">
-                    <ui:VisualElement class="ready-icon-dim"/>
-                    <ui:VisualElement class="ready-icon-dim"/>
-                    <ui:VisualElement class="ready-icon-dim"/>
+                    <ui:VisualElement name="Ready1" class="ready-icon-dim ready-icon-ready" style="display: none;"/>
+                    <ui:VisualElement name="NotReady1" class="ready-icon-dim ready-icon-not-ready"/>
+                    <ui:VisualElement name="Ready2" class="ready-icon-dim ready-icon-ready" style="display: none;"/>
+                    <ui:VisualElement name="NotReady2" class="ready-icon-dim ready-icon-not-ready"/>
+                    <ui:VisualElement name="Ready3" class="ready-icon-dim ready-icon-ready" style="display: none;"/>
+                    <ui:VisualElement name="NotReady3" class="ready-icon-dim ready-icon-not-ready"/>
                 </ui:VisualElement>
             </ui:VisualElement>
         </ui:VisualElement>
-
     </ui:VisualElement>
 </ui:UXML>

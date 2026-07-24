@@ -1,0 +1,55 @@
+<ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <Style src="project://database/Assets/UI%20Toolkit/Lobby.uss?fileID=7433441132597879392&amp;guid=2c31384ed16fb504d95205766c3bce37&amp;type=3#Lobby"/>
+    <ui:VisualElement name="Root" class="root-canvas">
+        <ui:VisualElement name="TopBar" class="top-bar">
+            <ui:VisualElement class="top-box title-box" style="height: 99px; width: 790px; position: absolute; top: 33px; left: 597px;">
+                <ui:VisualElement class="cat-icon-yellow" style="background-image: url(&quot;project://database/Assets/Sprites/UI/Sprite%20sheet%20for%20Basic%20Pack.png?fileID=-3765290273801814435&amp;guid=f24abd975bb0c9d468f1c9fa23dcdd8e&amp;type=3#Sprite sheet for Basic Pack_167&quot;); height: 60px; width: 62px;"/>
+                <ui:Label text="CHARACTER SELECT" class="lobby-title"/>
+                <ui:VisualElement class="cat-icon-gray" style="background-image: url(&quot;project://database/Assets/Sprites/UI/Sprite%20sheet%20for%20Basic%20Pack.png?fileID=-6501402399690028855&amp;guid=f24abd975bb0c9d468f1c9fa23dcdd8e&amp;type=3#Sprite sheet for Basic Pack_171&quot;); background-color: rgb(212, 163, 83); height: 62px; width: 62px;"/>
+            </ui:VisualElement>
+        </ui:VisualElement>
+        <ui:VisualElement class="main-content">
+            <ui:VisualElement class="left-column">
+                <ui:VisualElement class="panel-box room-info-box" style="display: flex; top: -51px; left: 134px;">
+                    <ui:VisualElement class="panel-title-row">
+                        <ui:VisualElement class="diamond-icon" style="background-color: rgb(205, 120, 50);"/>
+                        <ui:Label text="MAP SELECT" class="panel-title" style="font-size: 28px;"/>
+                        <ui:VisualElement class="diamond-icon" style="background-color: rgb(205, 120, 50);"/>
+                    </ui:VisualElement>
+                    <ui:VisualElement class="info-row map-selection-row" style="width: 168px;">
+                        <ui:Button text="" name="PreviousMapButton" class="arrow-button-brown" style="height: 42px; width: 41px; background-image: url(&quot;project://database/Assets/Sprites/UI/Sprite%20sheet%20for%20Basic%20Pack.png?fileID=-4314349355719926730&amp;guid=f24abd975bb0c9d468f1c9fa23dcdd8e&amp;type=3#Sprite sheet for Basic Pack_29&quot;); background-color: rgba(255, 255, 255, 0); border-width: 0; top: 16px;"/>
+                        <ui:VisualElement class="info-text-col">
+                            <ui:Label text="MAP" class="small-title-gold" style="font-size: 24px; -unity-text-align: upper-center; width: 109px; left: -30px; right: -7px; top: -7px;"/>
+                            <ui:Label text="MAP 1" name="MapLabel" class="value-text-green" style="color: rgb(255, 255, 255); font-size: 21px; width: 100px; -unity-text-align: upper-center; left: -27px;"/>
+                        </ui:VisualElement>
+                        <ui:Button text="" name="NextMapButton" class="arrow-button-brown" style="height: 45px; width: 42px; background-image: url(&quot;project://database/Assets/Sprites/UI/Sprite%20sheet%20for%20Basic%20Pack.png?fileID=-4104028942534283489&amp;guid=f24abd975bb0c9d468f1c9fa23dcdd8e&amp;type=3#Sprite sheet for Basic Pack_7&quot;); background-color: rgba(180, 130, 80, 0); border-width: 0; top: 15px;"/>
+                    </ui:VisualElement>
+                </ui:VisualElement>
+            </ui:VisualElement>
+            <ui:VisualElement class="right-column-container">
+                <ui:VisualElement class="right-column-slots" style="justify-content: center;">
+                    <ui:VisualElement name="Slot1" class="player-slot host-slot" style="border-width: 4px;">
+                        <ui:VisualElement class="player-title-row">
+                            <ui:Label text="PLAYER 1" name="PlayerLabel1" class="player-label"/>
+                        </ui:VisualElement>
+                        <ui:VisualElement class="char-portrait-bg" style="border-radius: 12px;">
+                            <ui:VisualElement name="CharImage1" class="char-image" style="background-image: url(&quot;project://database/Assets/Sprites/Slimes/9.png?fileID=4113829005332862926&amp;guid=193cdb3ea0f1e4d9091d7e76a7dfc123&amp;type=3#9_0&quot;);"/>
+                        </ui:VisualElement>
+                        <ui:VisualElement name="CharDisplay1" class="char-display-row">
+                            <ui:Button text="" name="LeftArrow1" class="arrow-button-brown" style="height: 62px; width: 58px; background-image: url(&quot;project://database/Assets/Sprites/UI/Sprite%20sheet%20for%20Basic%20Pack.png?fileID=-4314349355719926730&amp;guid=f24abd975bb0c9d468f1c9fa23dcdd8e&amp;type=3#Sprite sheet for Basic Pack_29&quot;); background-color: rgba(255, 255, 255, 0); border-width: 0;"/>
+                            <ui:Label text="ANCHOR" name="CharName1" class="char-name-label-big" style="font-size: 31px;"/>
+                            <ui:Button text="" name="RightArrow1" class="arrow-button-brown" style="height: 62px; width: 59px; background-image: url(&quot;project://database/Assets/Sprites/UI/Sprite%20sheet%20for%20Basic%20Pack.png?fileID=-4104028942534283489&amp;guid=f24abd975bb0c9d468f1c9fa23dcdd8e&amp;type=3#Sprite sheet for Basic Pack_7&quot;); background-color: rgba(180, 130, 80, 0); border-width: 0;"/>
+                        </ui:VisualElement>
+                        <ui:Label text="Heavy and stable. Brace to anchor to surfaces." name="CharDesc1" class="char-description" style="letter-spacing: 9px; word-spacing: 12px; -unity-paragraph-spacing: -3px;"/>
+                    </ui:VisualElement>
+                </ui:VisualElement>
+            </ui:VisualElement>
+        </ui:VisualElement>
+        <ui:VisualElement class="bottom-bar-panel" style="top: -77px; height: 126px; width: 735px;">
+            <ui:Button text="MAIN MENU" name="BackButton" class="btn-red-large" style="height: 72px;"/>
+            <ui:VisualElement class="start-container">
+                <ui:Button text="START GAME" name="StartButton" class="btn-start-game start-button--enabled" style="background-color: rgba(73, 159, 35, 0); color: rgb(255, 255, 255); height: 87px; border-radius: 31px; border-top-left-radius: 16px; border-bottom-left-radius: 16px; border-bottom-right-radius: 16px; border-top-right-radius: 16px; background-image: url(&quot;project://database/Assets/Sprites/UI/UI%20Big%20Play%20Button.png?fileID=-7635131891296033614&amp;guid=0614e562b2a1560449f74e3b38c5f2c8&amp;type=3#UI Big Play Button_0&quot;); -unity-background-image-tint-color: rgb(73, 159, 35);"/>
+            </ui:VisualElement>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>
