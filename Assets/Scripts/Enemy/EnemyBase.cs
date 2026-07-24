@@ -64,7 +64,7 @@ public abstract class EnemyBase : MonoBehaviourPun
     }
 
     [PunRPC]
-    private void RPC_Disable(float duration)
+    public void RPC_Disable(float duration)
     {
         if (State == EnemyState.Disabled)
             return;
