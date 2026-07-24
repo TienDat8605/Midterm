@@ -1,0 +1,87 @@
+.progress-minimap-root {
+    position: absolute;
+    top: 34px;
+    right: 38px;
+    width: 230px;
+    height: 590px;
+    align-items: center;
+    -unity-font-definition: resource("Fonts & Materials/pixelFont-7-8x14-sproutLands");
+}
+
+.progress-minimap-goal {
+    height: 44px;
+    flex-direction: row;
+    align-items: center;
+}
+
+.progress-minimap-end-label {
+    font-size: 20px;
+    letter-spacing: 2px;
+    color: rgb(245, 222, 179);
+    -unity-text-outline-width: 1px;
+    -unity-text-outline-color: rgb(55, 35, 24);
+}
+
+.progress-minimap-flag {
+    width: 28px;
+    height: 28px;
+    margin-left: 10px;
+    background-color: rgb(191, 72, 47);
+    border-left-width: 4px;
+    border-left-color: rgb(57, 38, 25);
+    border-top-width: 3px;
+    border-top-color: rgb(57, 38, 25);
+    border-right-width: 3px;
+    border-right-color: rgb(57, 38, 25);
+    border-bottom-width: 3px;
+    border-bottom-color: rgb(57, 38, 25);
+}
+
+.progress-minimap-track {
+    position: relative;
+    width: 210px;
+    flex-grow: 1;
+}
+
+.progress-minimap-rail {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 36px;
+    width: 12px;
+    background-color: rgb(68, 49, 34);
+    border-left-width: 3px;
+    border-left-color: rgb(225, 190, 123);
+    border-right-width: 3px;
+    border-right-color: rgb(225, 190, 123);
+}
+
+.progress-minimap-markers {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+}
+
+.progress-minimap-player-marker {
+    position: absolute;
+    width: 180px;
+    height: 54px;
+    flex-direction: row;
+    align-items: center;
+}
+
+.progress-minimap-player-icon {
+    width: 54px;
+    height: 54px;
+    -unity-image-size: contain;
+}
+
+.progress-minimap-player-percentage {
+    margin-left: 10px;
+    font-size: 27px;
+    color: rgb(255, 245, 211);
+    -unity-text-outline-width: 2px;
+    -unity-text-outline-color: rgb(51, 35, 25);
+}

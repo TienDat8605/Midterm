@@ -15,6 +15,7 @@ GameObject:
   - component: {fileID: 3000000000000000003}
   - component: {fileID: 3000000000000000006}
   - component: {fileID: 3000000000000000007}
+  - component: {fileID: 7856894903785412975}
   m_Layer: 0
   m_Name: StickySlime
   m_TagString: Player
@@ -186,7 +187,7 @@ MonoBehaviour:
   gravityScale: 1.5
   maxChargeTime: 1
   minJumpUpSpeed: 0.5
-  maxJumpUpSpeed: 13
+  maxJumpUpSpeed: 15
   minJumpHorizontalSpeed: 1
   maxJumpHorizontalSpeed: 9
   groundCheckPoint: {fileID: 3000000000000000005}
@@ -264,6 +265,27 @@ MonoBehaviour:
   sceneViewId: 0
   InstantiationId: 0
   isRuntimeInstantiated: 0
+--- !u!114 &7856894903785412975
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1633179491631302778}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a13c9e7d5b2f4a6081e3d9c7b5a2f6e4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BirdKnockbackReceiver
+  hitEffectFrames:
+  - {fileID: 4860149802246724558, guid: 447db6bb07f02dc4d83279062c0fa05a, type: 3}
+  - {fileID: 5408860727570806038, guid: 447db6bb07f02dc4d83279062c0fa05a, type: 3}
+  - {fileID: 3508872964694136282, guid: 447db6bb07f02dc4d83279062c0fa05a, type: 3}
+  - {fileID: -1300845841124034343, guid: 447db6bb07f02dc4d83279062c0fa05a, type: 3}
+  - {fileID: -8396680587510599095, guid: 447db6bb07f02dc4d83279062c0fa05a, type: 3}
+  - {fileID: 8415834184982046565, guid: 447db6bb07f02dc4d83279062c0fa05a, type: 3}
+  hitEffectFrameDuration: 0.08
+  hitEffectScale: 3
 --- !u!1 &3000000000000000004
 GameObject:
   m_ObjectHideFlags: 0

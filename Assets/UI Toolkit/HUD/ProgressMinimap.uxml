@@ -1,0 +1,15 @@
+<ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <Style src="project://database/Assets/Stylesheet.uss?fileID=7433441132597879392&amp;guid=0bfe2cb5c3c612d4cb0c50b728ac6707&amp;type=3#Stylesheet"/>
+    <Style src="project://database/Assets/UI%20Toolkit/HUD/ProgressMinimap.uss?fileID=7433441132597879392&amp;guid=1a2aa35e8aadc0e4e83770d22876daa6&amp;type=3#ProgressMinimap"/>
+    <ui:VisualElement name="ProgressMinimapRoot" picking-mode="Ignore" class="progress-minimap-root">
+        <ui:VisualElement class="progress-minimap-goal">
+            <ui:Label text="GOAL" class="progress-minimap-end-label" style="font-size: 43px; -unity-font-style: bold; left: 41px;"/>
+            <ui:VisualElement class="progress-minimap-flag" style="left: 39px;"/>
+        </ui:VisualElement>
+        <ui:VisualElement name="ProgressTrack" class="progress-minimap-track">
+            <ui:VisualElement class="progress-minimap-rail"/>
+            <ui:VisualElement name="PlayerMarkers" picking-mode="Ignore" class="progress-minimap-markers"/>
+        </ui:VisualElement>
+        <ui:Label text="START" class="progress-minimap-end-label" style="-unity-font-style: bold; font-size: 43px; -unity-text-align: upper-right; left: 42px;"/>
+    </ui:VisualElement>
+</ui:UXML>
