@@ -51,7 +51,9 @@ public class UIManager : MonoBehaviour
     private VisualElement _mainMenuScreen;
     private VisualElement _multiplayerMenuScreen;
     private VisualElement _instructionsScreen;
-    private VisualElement _lobbyScreen; // renamed from charSelectScreen
+    private VisualElement _multiplayerLobbyScreen;
+    private VisualElement _singlePlayerLobbyScreen;
+    private VisualElement _lobbyScreen;
 
     // ---- Main Menu ----
     private Button    _multiplayerNavButton;
@@ -83,7 +85,10 @@ public class UIManager : MonoBehaviour
     private VisualElement[] _charImages    = new VisualElement[NUM_SLOTS];
     private Label[]         _charNames     = new Label[NUM_SLOTS];
     private Label[]         _charTags      = new Label[NUM_SLOTS];
+    private Label[]         _charDescs     = new Label[NUM_SLOTS];
     private Button[]        _readyBtns     = new Button[NUM_SLOTS];
+    private VisualElement[] _readyStatusVisuals = new VisualElement[NUM_SLOTS];
+    private VisualElement[] _notReadyStatusVisuals = new VisualElement[NUM_SLOTS];
     
     // New Lobby elements
     private Label           _roomCodeLabel;
@@ -95,6 +100,7 @@ public class UIManager : MonoBehaviour
     private int             _selectedMapIndex;
 
     private Label           _statusLabel;
+    private Label           _readyCountLabel;
     private Button          _startButton;
     private Button          _backButton;
 
@@ -116,13 +122,17 @@ public class UIManager : MonoBehaviour
         _mainMenuScreen = root.Q<VisualElement>("MainMenuScreen");
         _multiplayerMenuScreen = root.Q<VisualElement>("MultiplayerMenuScreen");
         _instructionsScreen = root.Q<VisualElement>("InstructionsMenuScreen");
-        _lobbyScreen    = root.Q<VisualElement>("LobbyScreen"); // from RootUI.uxml
+        _multiplayerLobbyScreen = root.Q<VisualElement>("LobbyScreen");
+        _singlePlayerLobbyScreen = root.Q<VisualElement>("SinglePlayerLobbyScreen");
+        _lobbyScreen = _multiplayerLobbyScreen;
         _displayModeDropdown = root.Q<DropdownField>("DisplayModeDropdown");
 
         SetupMainMenu();
         SetupMultiplayerMenu();
         SetupInstructionsMenu();
         SetupLobby();
+        SetupSinglePlayerLobby();
+        UseMultiplayerLobbyReferences();
         SetupDisplayModeDropdown();
 
         if (NetworkManager.Instance != null)
@@ -183,12 +193,13 @@ public class UIManager : MonoBehaviour
             return;
 
         if (lobby == null) return;
+        UseMultiplayerLobbyReferences();
         RestoreMultiplayerLobbyPresentation();
         
         if (_roomCodeLabel != null) _roomCodeLabel.text = lobby.RoomCode;
 
         if (_mapLabel != null && !string.IsNullOrEmpty(lobby.SelectedMapDisplayName))
-            _mapLabel.text = $"MAP: {lobby.SelectedMapDisplayName.ToUpper()}";
+            _mapLabel.text = lobby.SelectedMapDisplayName.ToUpper();
 
         for (int i = 0; i < NUM_SLOTS; i++)
         {
@@ -221,8 +232,13 @@ public class UIManager : MonoBehaviour
         if (_instructionsScreen != null)
             _instructionsScreen.style.display = (screen == Screen.Instructions) ? DisplayStyle.Flex : DisplayStyle.None;
 
-        if (_lobbyScreen != null)
-            _lobbyScreen.style.display = (screen == Screen.Lobby) ? DisplayStyle.Flex : DisplayStyle.None;
+        if (_multiplayerLobbyScreen != null)
+            _multiplayerLobbyScreen.style.display = screen == Screen.Lobby && !SinglePlayerSession.IsActive
+                ? DisplayStyle.Flex : DisplayStyle.None;
+
+        if (_singlePlayerLobbyScreen != null)
+            _singlePlayerLobbyScreen.style.display = screen == Screen.Lobby && SinglePlayerSession.IsActive
+                ? DisplayStyle.Flex : DisplayStyle.None;
     }
 
     // ================================================================
@@ -435,11 +451,8 @@ public class UIManager : MonoBehaviour
     {
         if (_lobbyScreen == null) return;
 
-        _roomCodeLabel = _lobbyScreen.Q<Label>("RoomCodeLabel");
-        _copyBtn = _lobbyScreen.Q<Button>("CopyBtn");
-        _mapLabel = _lobbyScreen.Q<Label>("MapLabel");
-        _previousMapButton = _lobbyScreen.Q<Button>("PreviousMapButton");
-        _nextMapButton = _lobbyScreen.Q<Button>("NextMapButton");
+        CacheLobbyReferences();
+
         if (_copyBtn != null) _copyBtn.clicked += OnCopyCodeClicked;
         if (_previousMapButton != null) _previousMapButton.clicked += () => CycleMap(-1);
         if (_nextMapButton != null) _nextMapButton.clicked += () => CycleMap(1);
@@ -447,28 +460,81 @@ public class UIManager : MonoBehaviour
         for (int i = 0; i < NUM_SLOTS; i++)
         {
             int slotNumber = i + 1;
-            int captured   = i;
+            int captured = i;
+
+            var leftArrow = _lobbyScreen.Q<Button>($"LeftArrow{slotNumber}");
+            var rightArrow = _lobbyScreen.Q<Button>($"RightArrow{slotNumber}");
+
+            if (leftArrow != null) leftArrow.clicked += () => CycleCharacter(captured, -1);
+            if (rightArrow != null) rightArrow.clicked += () => CycleCharacter(captured, +1);
+            if (_readyBtns[i] != null) _readyBtns[i].clicked += () => ToggleReady(captured);
+        }
+
+        if (_startButton != null) _startButton.clicked += OnStartClicked;
+        if (_backButton != null) _backButton.clicked += OnLeaveRoom;
+    }
+
+    private void SetupSinglePlayerLobby()
+    {
+        if (_singlePlayerLobbyScreen == null) return;
+
+        var previousMapButton = _singlePlayerLobbyScreen.Q<Button>("PreviousMapButton");
+        var nextMapButton = _singlePlayerLobbyScreen.Q<Button>("NextMapButton");
+        var leftArrow = _singlePlayerLobbyScreen.Q<Button>("LeftArrow1");
+        var rightArrow = _singlePlayerLobbyScreen.Q<Button>("RightArrow1");
+        var startButton = _singlePlayerLobbyScreen.Q<Button>("StartButton");
+        var backButton = _singlePlayerLobbyScreen.Q<Button>("BackButton");
+
+        if (previousMapButton != null) previousMapButton.clicked += () => CycleMap(-1);
+        if (nextMapButton != null) nextMapButton.clicked += () => CycleMap(1);
+        if (leftArrow != null) leftArrow.clicked += () => CycleCharacter(0, -1);
+        if (rightArrow != null) rightArrow.clicked += () => CycleCharacter(0, 1);
+        if (startButton != null) startButton.clicked += OnStartClicked;
+        if (backButton != null) backButton.clicked += OnLeaveRoom;
+    }
+
+    private void UseMultiplayerLobbyReferences()
+    {
+        _lobbyScreen = _multiplayerLobbyScreen;
+        CacheLobbyReferences();
+    }
+
+    private void UseSinglePlayerLobbyReferences()
+    {
+        _lobbyScreen = _singlePlayerLobbyScreen;
+        CacheLobbyReferences();
+    }
+
+    private void CacheLobbyReferences()
+    {
+        if (_lobbyScreen == null) return;
+
+        _roomCodeLabel = _lobbyScreen.Q<Label>("RoomCodeLabel");
+        _copyBtn = _lobbyScreen.Q<Button>("CopyBtn");
+        _mapLabel = _lobbyScreen.Q<Label>("MapLabel");
+        _previousMapButton = _lobbyScreen.Q<Button>("PreviousMapButton");
+        _nextMapButton = _lobbyScreen.Q<Button>("NextMapButton");
+
+        for (int i = 0; i < NUM_SLOTS; i++)
+        {
+            int slotNumber = i + 1;
 
             _slotRoots[i]  = _lobbyScreen.Q<VisualElement>($"Slot{slotNumber}");
             _charImages[i] = _lobbyScreen.Q<VisualElement>($"CharImage{slotNumber}");
             _charNames[i]  = _lobbyScreen.Q<Label>($"CharName{slotNumber}");
             _charTags[i]   = _lobbyScreen.Q<Label>($"CharTag{slotNumber}");
+            _charDescs[i]  = _lobbyScreen.Q<Label>($"CharDesc{slotNumber}");
             _readyBtns[i]  = _lobbyScreen.Q<Button>($"ReadyBtn{slotNumber}");
+            _readyStatusVisuals[i] = _lobbyScreen.Q<VisualElement>($"Ready{slotNumber}");
+            _notReadyStatusVisuals[i] = _lobbyScreen.Q<VisualElement>($"NotReady{slotNumber}");
 
-            var leftArrow  = _lobbyScreen.Q<Button>($"LeftArrow{slotNumber}");
-            var rightArrow = _lobbyScreen.Q<Button>($"RightArrow{slotNumber}");
-
-            if (leftArrow  != null) leftArrow.clicked  += () => CycleCharacter(captured, -1);
-            if (rightArrow != null) rightArrow.clicked += () => CycleCharacter(captured, +1);
-            if (_readyBtns[i] != null) _readyBtns[i].clicked += () => ToggleReady(captured);
         }
 
         _statusLabel = _lobbyScreen.Q<Label>("StatusLabel");
+        _readyCountLabel = _lobbyScreen.Q<Label>("ReadyCountLabel");
         _startButton = _lobbyScreen.Q<Button>("StartButton");
         _backButton  = _lobbyScreen.Q<Button>("BackButton");
 
-        if (_startButton != null) _startButton.clicked += OnStartClicked;
-        if (_backButton  != null) _backButton.clicked  += OnLeaveRoom;
     }
 
     private void OnCopyCodeClicked()
@@ -559,7 +625,7 @@ public class UIManager : MonoBehaviour
         else
         {
             if (_charImages[slot] != null) _charImages[slot].style.backgroundImage = null;
-            if (_charNames[slot] != null) _charNames[slot].text = "SELECTING...";
+            if (_charNames[slot] != null) _charNames[slot].text = "";
             if (_charTags[slot] != null) _charTags[slot].text = "";
         }
 
@@ -570,8 +636,8 @@ public class UIManager : MonoBehaviour
         // Arrows visibility (only local player)
         var leftArrow = _lobbyScreen.Q<Button>($"LeftArrow{slot + 1}");
         var rightArrow = _lobbyScreen.Q<Button>($"RightArrow{slot + 1}");
-        if (leftArrow != null) leftArrow.style.display = isLocal && !player.IsReady ? DisplayStyle.Flex : DisplayStyle.None;
-        if (rightArrow != null) rightArrow.style.display = isLocal && !player.IsReady ? DisplayStyle.Flex : DisplayStyle.None;
+        if (leftArrow != null) leftArrow.style.visibility = isLocal && !player.IsReady ? Visibility.Visible : Visibility.Hidden;
+        if (rightArrow != null) rightArrow.style.visibility = isLocal && !player.IsReady ? Visibility.Visible : Visibility.Hidden;
 
         // Ready Button visibility
         if (_readyBtns[slot] != null)
@@ -612,8 +678,8 @@ public class UIManager : MonoBehaviour
 
         var leftArrow = _lobbyScreen.Q<Button>($"LeftArrow{slot + 1}");
         var rightArrow = _lobbyScreen.Q<Button>($"RightArrow{slot + 1}");
-        if (leftArrow != null) leftArrow.style.display = DisplayStyle.None;
-        if (rightArrow != null) rightArrow.style.display = DisplayStyle.None;
+        if (leftArrow != null) leftArrow.style.visibility = Visibility.Hidden;
+        if (rightArrow != null) rightArrow.style.visibility = Visibility.Hidden;
 
         if (_readyBtns[slot] != null)
         {
@@ -625,16 +691,21 @@ public class UIManager : MonoBehaviour
 
     private void RefreshBottomPanel(LobbySnapshot lobby)
     {
+        int readyCount = 0;
+        foreach (var player in lobby.Players)
+        {
+            if (player.IsReady) readyCount++;
+        }
+
+        if (_readyCountLabel != null)
+            _readyCountLabel.text = $"{readyCount} / {NUM_SLOTS} READY";
+
         if (_statusLabel != null)
         {
             if (lobby.CanStartGame)
                 _statusLabel.text = "Waiting for Host to Start... (3/3 ready)";
             else
-            {
-                int readyCount = 0;
-                foreach (var p in lobby.Players) if (p.IsReady) readyCount++;
                 _statusLabel.text = $"Waiting for all players to ready... ({readyCount}/3 ready)";
-            }
         }
 
         if (_startButton != null)
@@ -652,6 +723,17 @@ public class UIManager : MonoBehaviour
                 _startButton.RemoveFromClassList(CSS_START_ENABLED);
                 _startButton.SetEnabled(false);
             }
+        }
+
+        for (int i = 0; i < NUM_SLOTS; i++)
+        {
+            bool isReady = i < lobby.Players.Count && lobby.Players[i].IsReady;
+
+            if (_readyStatusVisuals[i] != null)
+                _readyStatusVisuals[i].style.display = isReady ? DisplayStyle.Flex : DisplayStyle.None;
+
+            if (_notReadyStatusVisuals[i] != null)
+                _notReadyStatusVisuals[i].style.display = isReady ? DisplayStyle.None : DisplayStyle.Flex;
         }
     }
 
@@ -688,6 +770,7 @@ public class UIManager : MonoBehaviour
 
     private void ShowSinglePlayerLobby()
     {
+        UseSinglePlayerLobbyReferences();
         _mapCatalog = Resources.Load<MultiplayerMapCatalog>("MultiplayerMapCatalog");
         _selectedMapIndex = 0;
         if (_mapCatalog != null)
@@ -705,35 +788,21 @@ public class UIManager : MonoBehaviour
         _selectedIndex[0] = (int)SinglePlayerSession.SelectedRole - 1;
         ShowScreen(Screen.Lobby);
 
-        if (_roomCodeLabel != null) _roomCodeLabel.text = "LOCAL";
-        if (_copyBtn != null) _copyBtn.style.display = DisplayStyle.None;
-        Label roomTitle = _lobbyScreen.Q<Label>("RoomCodeTitle");
-        if (roomTitle != null) roomTitle.text = "SINGLE PLAYER";
-        Label modeLabel = _lobbyScreen.Q<Label>("ModeLabel");
-        if (modeLabel != null) modeLabel.text = "MODE: SOLO";
-
         for (int i = 0; i < NUM_SLOTS; i++)
         {
-            _slotRoots[i].style.display = i == 0 ? DisplayStyle.Flex : DisplayStyle.None;
+            if (_slotRoots[i] != null)
+                _slotRoots[i].style.display = i == 0 ? DisplayStyle.Flex : DisplayStyle.None;
             if (_readyBtns[i] != null)
                 _readyBtns[i].style.display = DisplayStyle.None;
 
             Button leftArrow = _lobbyScreen.Q<Button>($"LeftArrow{i + 1}");
             Button rightArrow = _lobbyScreen.Q<Button>($"RightArrow{i + 1}");
             if (leftArrow != null)
-                leftArrow.style.display = i == 0 ? DisplayStyle.Flex : DisplayStyle.None;
+                leftArrow.style.visibility = i == 0 ? Visibility.Visible : Visibility.Hidden;
             if (rightArrow != null)
-                rightArrow.style.display = i == 0 ? DisplayStyle.Flex : DisplayStyle.None;
+                rightArrow.style.visibility = i == 0 ? Visibility.Visible : Visibility.Hidden;
         }
 
-        Label playerLabel = _lobbyScreen.Q<Label>("PlayerLabel1");
-        if (playerLabel != null) playerLabel.text = "PLAYER 1";
-        Label hostCrown = _lobbyScreen.Q<Label>("HostCrown1");
-        if (hostCrown != null) hostCrown.style.display = DisplayStyle.None;
-        Label pingLabel = _lobbyScreen.Q<Label>("PingLabel1");
-        if (pingLabel != null) pingLabel.text = "LOCAL";
-
-        if (_statusLabel != null) _statusLabel.text = "Choose a character and map";
         if (_startButton != null)
         {
             _startButton.style.display = DisplayStyle.Flex;
@@ -748,7 +817,26 @@ public class UIManager : MonoBehaviour
 
     private void RestoreMultiplayerLobbyPresentation()
     {
-        if (_copyBtn != null) _copyBtn.style.display = DisplayStyle.Flex;
+        VisualElement roomCodePanel = _lobbyScreen.Q<VisualElement>("RoomCodePanel");
+        if (roomCodePanel != null) roomCodePanel.style.display = DisplayStyle.Flex;
+        VisualElement readyStatusBox = _lobbyScreen.Q<VisualElement>("ReadyStatusBox");
+        if (readyStatusBox != null) readyStatusBox.style.display = DisplayStyle.Flex;
+        VisualElement maxPlayersRow = _lobbyScreen.Q<VisualElement>("MaxPlayersRow");
+        if (maxPlayersRow != null) maxPlayersRow.style.display = DisplayStyle.Flex;
+        VisualElement roomInfoSpacer = _lobbyScreen.Q<VisualElement>("RoomInfoSpacer");
+        if (roomInfoSpacer != null) roomInfoSpacer.style.display = DisplayStyle.Flex;
+        VisualElement chatBox = _lobbyScreen.Q<VisualElement>("ChatBox");
+        if (chatBox != null) chatBox.style.display = DisplayStyle.Flex;
+        Label lobbyTitle = _lobbyScreen.Q<Label>("LobbyTitle");
+        if (lobbyTitle != null) lobbyTitle.text = "LOBBY";
+        Label roomInfoTitle = _lobbyScreen.Q<Label>("RoomInfoTitle");
+        if (roomInfoTitle != null) roomInfoTitle.text = "ROOM INFO";
+
+        for (int i = 1; i <= NUM_SLOTS; i++)
+        {
+            VisualElement pingRow = _lobbyScreen.Q<VisualElement>($"PingRow{i}");
+            if (pingRow != null) pingRow.style.display = DisplayStyle.Flex;
+        }
         
         bool isMaster = NetworkManager.Instance != null && NetworkManager.Instance.IsMasterClient;
         if (_previousMapButton != null) _previousMapButton.style.display = isMaster ? DisplayStyle.Flex : DisplayStyle.None;
@@ -779,6 +867,7 @@ public class UIManager : MonoBehaviour
             _charImages[0].style.backgroundImage = new StyleBackground(data.portrait);
         if (_charNames[0] != null) _charNames[0].text = data.charName;
         if (_charTags[0] != null) _charTags[0].text = data.charTag;
+        if (_charDescs[0] != null) _charDescs[0].text = data.description;
     }
 
     private void CycleMap(int direction)
@@ -817,6 +906,6 @@ public class UIManager : MonoBehaviour
         if (_previousMapButton != null) _previousMapButton.style.display = hasMaps ? DisplayStyle.Flex : DisplayStyle.None;
         if (_nextMapButton != null) _nextMapButton.style.display = hasMaps ? DisplayStyle.Flex : DisplayStyle.None;
         if (hasMaps && _mapLabel != null)
-            _mapLabel.text = $"MAP: {_mapCatalog.Maps[_selectedMapIndex].DisplayName.ToUpper()}";
+            _mapLabel.text = _mapCatalog.Maps[_selectedMapIndex].DisplayName.ToUpper();
     }
 }

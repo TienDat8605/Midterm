@@ -1,50 +1,91 @@
 using System.Collections.Generic;
+using Photon.Pun;
 using UnityEngine;
-using UnityEngine.SceneManagement;
+using UnityEngine.InputSystem;
 using UnityEngine.UIElements;
 
 /// <summary>
-/// Shows the live vertical progress of active players in Map1 and Map2.
+/// Shows the live vertical progress of active players in scenes with configured bounds.
 /// </summary>
 [RequireComponent(typeof(UIDocument))]
 [RequireComponent(typeof(ProgressMinimapBounds))]
 public sealed class ProgressMinimapController : MonoBehaviour
 {
-    private const float OverlapThreshold = 0.055f;
-    private static readonly float[] SharedLaneOffsets = { 0f, -24f, 24f };
-
     private readonly Dictionary<int, PlayerMarker> markers = new Dictionary<int, PlayerMarker>();
     private readonly List<PlayerProgress> playerProgress = new List<PlayerProgress>();
     private readonly List<int> staleMarkerKeys = new List<int>();
 
     private ProgressMinimapBounds bounds;
+    private UIDocument document;
     private VisualElement minimapRoot;
+    private VisualElement mapNameOverlay;
     private VisualElement markerContainer;
-    private bool isSupportedScene;
+    private bool isConfigured;
+    private bool isUiInitialized;
+    private bool isVisible;
 
     private void Awake()
     {
-        isSupportedScene = IsGameplayScene(SceneManager.GetActiveScene().name);
         bounds = GetComponent<ProgressMinimapBounds>();
+        document = GetComponent<UIDocument>();
+    }
 
-        UIDocument document = GetComponent<UIDocument>();
+    private void OnEnable()
+    {
+        TryInitializeUi();
+    }
+
+    private bool TryInitializeUi()
+    {
+        if (isUiInitialized)
+            return isConfigured;
+
+        if (bounds == null)
+            bounds = GetComponent<ProgressMinimapBounds>();
+        if (document == null)
+            document = GetComponent<UIDocument>();
+        if (bounds == null || document == null)
+            return false;
+
         minimapRoot = document.rootVisualElement.Q<VisualElement>("ProgressMinimapRoot");
+        mapNameOverlay = document.rootVisualElement.Q<VisualElement>("MapNameOverlay");
         markerContainer = document.rootVisualElement.Q<VisualElement>("PlayerMarkers");
+        if (minimapRoot == null || markerContainer == null)
+            return false;
 
-        if (minimapRoot != null)
-            minimapRoot.style.display = isSupportedScene && bounds != null && bounds.IsConfigured
-                ? DisplayStyle.Flex
-                : DisplayStyle.None;
+        isConfigured = bounds.IsConfigured;
+        SetMinimapVisible(isConfigured);
+        isUiInitialized = true;
+        return isConfigured;
     }
 
     private void LateUpdate()
     {
-        if (!isSupportedScene || bounds == null || !bounds.IsConfigured || markerContainer == null)
+        if (!TryInitializeUi())
+            return;
+
+        if (Keyboard.current != null && Keyboard.current.tabKey.wasPressedThisFrame)
+            SetMinimapVisible(!isVisible);
+
+        if (!isVisible)
             return;
 
         playerProgress.Clear();
+        if (PhotonNetwork.InRoom)
+            CollectNetworkPlayerProgress();
+        else
+            CollectLocalPlayerProgress();
+
+        playerProgress.Sort((left, right) => right.progress01.CompareTo(left.progress01));
+        UpdateMarkers();
+    }
+
+    private void CollectLocalPlayerProgress()
+    {
         PlayerControllerWithPhysics[] players =
-            FindObjectsByType<PlayerControllerWithPhysics>(FindObjectsSortMode.None);
+            FindObjectsByType<PlayerControllerWithPhysics>(
+                FindObjectsInactive.Include,
+                FindObjectsSortMode.None);
 
         foreach (PlayerControllerWithPhysics player in players)
         {
@@ -52,41 +93,54 @@ public sealed class ProgressMinimapController : MonoBehaviour
                 continue;
 
             SpriteRenderer spriteRenderer = player.GetComponent<SpriteRenderer>();
-            playerProgress.Add(new PlayerProgress(
-                GetPlayerKey(player),
-                bounds.GetProgress01(player.transform.position.y),
-                spriteRenderer != null ? spriteRenderer.sprite : null));
+            AddPlayerProgress(
+                player.GetInstanceID(),
+                player.transform.position.y,
+                spriteRenderer != null ? spriteRenderer.sprite : null);
         }
+    }
 
-        playerProgress.Sort((left, right) => right.progress01.CompareTo(left.progress01));
-        UpdateMarkers();
+    private void CollectNetworkPlayerProgress()
+    {
+        PhotonView[] networkViews = FindObjectsByType<PhotonView>(
+            FindObjectsInactive.Include,
+            FindObjectsSortMode.None);
+        foreach (PhotonView view in networkViews)
+        {
+            if (view == null || !view.gameObject.activeInHierarchy || view.ViewID == 0 ||
+                view.GetComponent<PlayerControllerWithPhysics>() == null)
+                continue;
+
+            SpriteRenderer spriteRenderer = view.GetComponent<SpriteRenderer>();
+            AddPlayerProgress(
+                view.ViewID,
+                view.transform.position.y,
+                spriteRenderer != null ? spriteRenderer.sprite : null);
+        }
+    }
+
+    private void AddPlayerProgress(int key, float worldHeight, Sprite sprite)
+    {
+        playerProgress.Add(new PlayerProgress(
+            key,
+            bounds.GetProgress01(worldHeight),
+            sprite));
+    }
+
+    private void SetMinimapVisible(bool visible)
+    {
+        isVisible = visible;
+        minimapRoot.style.display = visible ? DisplayStyle.Flex : DisplayStyle.None;
+        if (mapNameOverlay != null)
+            mapNameOverlay.style.display = visible ? DisplayStyle.Flex : DisplayStyle.None;
     }
 
     private void UpdateMarkers()
     {
-        for (int i = 0; i < playerProgress.Count;)
+        foreach (PlayerProgress progress in playerProgress)
         {
-            int groupEnd = i + 1;
-            while (groupEnd < playerProgress.Count &&
-                   Mathf.Abs(playerProgress[groupEnd].progress01 - playerProgress[i].progress01) <
-                   OverlapThreshold)
-            {
-                groupEnd++;
-            }
-
-            for (int groupIndex = i; groupIndex < groupEnd; groupIndex++)
-            {
-                PlayerProgress progress = playerProgress[groupIndex];
-                int sharedLaneIndex = groupIndex - i;
-                float laneOffset = sharedLaneIndex < SharedLaneOffsets.Length
-                    ? SharedLaneOffsets[sharedLaneIndex]
-                    : 0f;
-
-                PlayerMarker marker = GetOrCreateMarker(progress.key);
-                marker.Update(progress, laneOffset);
-            }
-
-            i = groupEnd;
+            PlayerMarker marker = GetOrCreateMarker(progress.key);
+            marker.Update(progress);
         }
 
         staleMarkerKeys.Clear();
@@ -130,18 +184,6 @@ public sealed class ProgressMinimapController : MonoBehaviour
         return marker;
     }
 
-    private static int GetPlayerKey(PlayerControllerWithPhysics player)
-    {
-        return player.photonView != null && player.photonView.ViewID != 0
-            ? player.photonView.ViewID
-            : player.GetInstanceID();
-    }
-
-    private static bool IsGameplayScene(string sceneName)
-    {
-        return sceneName == "Map1" || sceneName == "Map2";
-    }
-
     private readonly struct PlayerProgress
     {
         public readonly int key;
@@ -169,10 +211,10 @@ public sealed class ProgressMinimapController : MonoBehaviour
             this.percentage = percentage;
         }
 
-        public void Update(PlayerProgress progress, float laneOffset)
+        public void Update(PlayerProgress progress)
         {
             root.style.bottom = new Length(progress.progress01 * 100f, LengthUnit.Percent);
-            root.style.left = 30f + laneOffset;
+            root.style.left = 65f;
             icon.sprite = progress.sprite;
             percentage.text = $"{Mathf.RoundToInt(progress.progress01 * 100f)}%";
         }
