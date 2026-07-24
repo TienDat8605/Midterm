@@ -14,13 +14,13 @@ public class RollingRock : EnemyBase
     {
         base.Start();
         rb = GetComponent<Rigidbody2D>();
-        if (PhotonNetwork.IsMasterClient)
+        if (IsAuthority)
             rb.AddForce(Vector2.right * initialNudgeForce, ForceMode2D.Impulse);
     }
 
     protected override void UpdateBehavior()
     {
-        if (!PhotonNetwork.IsMasterClient)
+        if (!IsAuthority)
             return;
         if (rb.linearVelocity.magnitude > maxSpeed)
             rb.linearVelocity = rb.linearVelocity.normalized * maxSpeed;
@@ -30,7 +30,7 @@ public class RollingRock : EnemyBase
     {
         if (State == EnemyState.Disabled)
             return;
-        if (!PhotonNetwork.IsMasterClient)
+        if (!IsAuthority)
             return;
 
         PlayerControllerWithPhysics player = collision.gameObject.GetComponent<PlayerControllerWithPhysics>();
@@ -63,7 +63,7 @@ public class RollingRock : EnemyBase
         if (rb == null)
             return;
         rb.bodyType = RigidbodyType2D.Dynamic;
-        if (PhotonNetwork.IsMasterClient)
+        if (IsAuthority)
             rb.AddForce(Vector2.right * initialNudgeForce, ForceMode2D.Impulse);
     }
 }

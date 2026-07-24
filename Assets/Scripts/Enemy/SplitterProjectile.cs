@@ -23,28 +23,37 @@ public class SplitterProjectile : MonoBehaviourPun
         StartCoroutine(LifetimeExpire());
     }
 
+    private bool IsAuthority => !PhotonNetwork.InRoom || photonView.IsMine;
+
+    private void DestroyProjectile()
+    {
+        if (PhotonNetwork.InRoom)
+            PhotonNetwork.Destroy(gameObject);
+        else
+            Destroy(gameObject);
+    }
+
     private void OnTriggerEnter2D(Collider2D other)
     {
-        if (!photonView.IsMine)
+        if (!IsAuthority)
             return;
 
         PlayerControllerWithPhysics player = other.GetComponent<PlayerControllerWithPhysics>();
         if (player != null)
         {
             player.ApplyDebuff(debuffSlowMultiplier, debuffDuration);
-            PhotonNetwork.Destroy(gameObject);
+            DestroyProjectile();
             return;
         }
 
-        // Destroy on terrain contact
         if (other.gameObject.layer == LayerMask.NameToLayer("Ground"))
-            PhotonNetwork.Destroy(gameObject);
+            DestroyProjectile();
     }
 
     private IEnumerator LifetimeExpire()
     {
         yield return new WaitForSeconds(lifetime);
-        if (photonView.IsMine)
-            PhotonNetwork.Destroy(gameObject);
+        if (IsAuthority)
+            DestroyProjectile();
     }
 }
