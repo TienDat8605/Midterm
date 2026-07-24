@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using Photon.Pun;
@@ -77,6 +78,9 @@ public class PlayerControllerWithPhysics : MonoBehaviourPun, IPunObservable
     private bool hasIncomingTether;
     private int incomingTetherSourceViewId;
     private int incomingTetherShotId;
+
+    private float speedMultiplier = 1f;
+    private Coroutine activeDebuff;
 
     /// <summary>
     /// Local scene instances remain controllable. Photon-instantiated instances are
@@ -286,7 +290,7 @@ public class PlayerControllerWithPhysics : MonoBehaviourPun, IPunObservable
 
     protected virtual float GetWalkSpeed()
     {
-        return walkSpeed;
+        return walkSpeed * speedMultiplier;
     }
 
     protected virtual bool CanChargeJump()
@@ -643,6 +647,29 @@ public class PlayerControllerWithPhysics : MonoBehaviourPun, IPunObservable
 
         float lag = Mathf.Clamp((float)(PhotonNetwork.Time - info.SentServerTime), 0f, 1f);
         networkPosition = receivedPosition + networkVelocity * lag;
+    }
+
+    public void ApplyKnockback(Vector2 force)
+    {
+        isChargingJump = false;
+        jumpCharge = 0f;
+        rb.linearVelocity = Vector2.zero;
+        rb.AddForce(force, ForceMode2D.Impulse);
+    }
+
+    public void ApplyDebuff(float slowMultiplier, float duration)
+    {
+        if (activeDebuff != null)
+            StopCoroutine(activeDebuff);
+        activeDebuff = StartCoroutine(DebuffRoutine(slowMultiplier, duration));
+    }
+
+    private IEnumerator DebuffRoutine(float multiplier, float duration)
+    {
+        speedMultiplier = multiplier;
+        yield return new WaitForSeconds(duration);
+        speedMultiplier = 1f;
+        activeDebuff = null;
     }
 
     private void OnDrawGizmosSelected()

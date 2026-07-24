@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public class AnchorSlime : PlayerControllerWithPhysics
+public class AnchorSlime : PlayerControllerWithPhysics, IBraceable
 {
     [Header("Anchor Tuning")]
     [Tooltip("Rigidbody mass for this heavy slime.")]
@@ -114,4 +114,5 @@ public class AnchorSlime : PlayerControllerWithPhysics
     }
 
     public bool IsStone => isStone;
+    public bool IsBraced => isStone;
 }
