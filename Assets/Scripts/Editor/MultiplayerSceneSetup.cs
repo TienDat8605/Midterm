@@ -6,13 +6,18 @@ using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.Tilemaps;
+using UnityEngine.UIElements;
 
 public static class MultiplayerSceneSetup
 {
     private const string LobbyScenePath = "Assets/Scenes/DevMultiplayerLobby.unity";
     private const string Map1ScenePath = "Assets/Scenes/NewMap/Map1.unity";
+    private const string Map2ScenePath = "Assets/Scenes/NewMap/Map2.unity";
     private const string TestMapScenePath = "Assets/Scenes/MapScene.unity";
     private const string CatalogPath = "Assets/Resources/MultiplayerMapCatalog.asset";
+    private const string ProgressMinimapMap1UxmlPath = "Assets/UI Toolkit/HUD/ProgressMinimapMap1.uxml";
+    private const string ProgressMinimapMap2UxmlPath = "Assets/UI Toolkit/HUD/ProgressMinimapMap2.uxml";
+    private const string ProgressMinimapPanelSettingsGuid = "f6db9b6aeff441d4a8bb81caee21b178";
 
     [MenuItem("Tools/DINO PARK/Configure Multiplayer Test Scenes")]
     public static void Configure()
@@ -21,13 +26,11 @@ public static class MultiplayerSceneSetup
         ConfigureLobbyScene(catalog);
         ConfigureGameplayScene(Map1ScenePath, new Vector3(-2f, -3f, 0f),
             new Vector3(0f, -3f, 0f), new Vector3(2f, -3f, 0f), true);
-        ConfigureGameplayScene(TestMapScenePath, new Vector3(-2f, 1f, 0f),
-            new Vector3(0f, 1f, 0f), new Vector3(2f, 1f, 0f), false);
         ConfigureBuildSettings();
         AssetDatabase.SaveAssets();
         AssetDatabase.Refresh();
         EditorSceneManager.OpenScene(LobbyScenePath, OpenSceneMode.Single);
-        Debug.Log("[MultiplayerSetup] Catalog, lobby, Map1, MapScene, and Build Settings configured.");
+        Debug.Log("[MultiplayerSetup] Catalog, lobby, Map1, Map2, and Build Settings configured.");
     }
 
     public static void ConfigureMapSceneDirectTest()
@@ -53,7 +56,7 @@ public static class MultiplayerSceneSetup
         SerializedProperty maps = serializedCatalog.FindProperty("maps");
         maps.arraySize = 2;
         ConfigureMapEntry(maps.GetArrayElementAtIndex(0), "map1", "Map 1", "Map1");
-        ConfigureMapEntry(maps.GetArrayElementAtIndex(1), "test-map", "Test Map", "MapScene");
+        ConfigureMapEntry(maps.GetArrayElementAtIndex(1), "map2", "Map 2", "Map2");
         serializedCatalog.ApplyModifiedPropertiesWithoutUndo();
         EditorUtility.SetDirty(catalog);
         return catalog;
@@ -151,6 +154,8 @@ public static class MultiplayerSceneSetup
         if (configureMap1Physics)
             ConfigureMap1Ground();
 
+        ConfigureProgressMinimap(scene, anchor, scenePath == Map1ScenePath);
+
         EditorSceneManager.MarkSceneDirty(scene);
         EditorSceneManager.SaveScene(scene);
     }
@@ -194,6 +199,62 @@ public static class MultiplayerSceneSetup
         tilemapCollider.compositeOperation = Collider2D.CompositeOperation.Merge;
     }
 
+    private static void ConfigureProgressMinimap(Scene scene, Transform startReference, bool useGoalDoor)
+    {
+        GameObject hudObject = Object.FindFirstObjectByType<ProgressMinimapController>()?.gameObject;
+        if (hudObject == null)
+            hudObject = new GameObject("ProgressMinimapHUD");
+
+        UIDocument document = GetOrAdd<UIDocument>(hudObject);
+        document.panelSettings = AssetDatabase.LoadAssetAtPath<PanelSettings>(
+            AssetDatabase.GUIDToAssetPath(ProgressMinimapPanelSettingsGuid));
+        string minimapUxmlPath = scene.name == "Map2"
+            ? ProgressMinimapMap2UxmlPath
+            : ProgressMinimapMap1UxmlPath;
+        document.visualTreeAsset = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(minimapUxmlPath);
+        document.sortingOrder = 5;
+
+        ProgressMinimapBounds bounds = GetOrAdd<ProgressMinimapBounds>(hudObject);
+        GetOrAdd<ProgressMinimapController>(hudObject);
+
+        Transform goalReference = useGoalDoor
+            ? FindTransformInScene(scene, "GoalDoor")
+            : GetOrCreateProgressEndMarker(startReference);
+        if (goalReference == null)
+            throw new MissingReferenceException("Map1 must contain a GoalDoor for the progress minimap.");
+
+        SerializedObject serializedBounds = new SerializedObject(bounds);
+        serializedBounds.FindProperty("startReference").objectReferenceValue = startReference;
+        serializedBounds.FindProperty("goalReference").objectReferenceValue = goalReference;
+        serializedBounds.ApplyModifiedPropertiesWithoutUndo();
+    }
+
+    private static Transform GetOrCreateProgressEndMarker(Transform startReference)
+    {
+        GameObject marker = GameObject.Find("ProgressMinimapEndReference");
+        if (marker == null)
+        {
+            marker = new GameObject("ProgressMinimapEndReference");
+            marker.transform.position = startReference.position + Vector3.up * 10f;
+        }
+
+        return marker.transform;
+    }
+
+    private static Transform FindTransformInScene(Scene scene, string name)
+    {
+        foreach (GameObject root in scene.GetRootGameObjects())
+        {
+            foreach (Transform transform in root.GetComponentsInChildren<Transform>(true))
+            {
+                if (transform.name == name)
+                    return transform;
+            }
+        }
+
+        return null;
+    }
+
     private static T GetOrAdd<T>(GameObject gameObject) where T : Component
     {
         T component = gameObject.GetComponent<T>();
@@ -217,10 +278,10 @@ public static class MultiplayerSceneSetup
         List<EditorBuildSettingsScene> scenes = EditorBuildSettings.scenes.ToList();
         scenes.RemoveAll(scene => scene.path == LobbyScenePath ||
                                   scene.path == Map1ScenePath ||
-                                  scene.path == TestMapScenePath);
+                                  scene.path == Map2ScenePath);
         scenes.Insert(0, new EditorBuildSettingsScene(LobbyScenePath, true));
         scenes.Insert(1, new EditorBuildSettingsScene(Map1ScenePath, true));
-        scenes.Insert(2, new EditorBuildSettingsScene(TestMapScenePath, true));
+        scenes.Insert(2, new EditorBuildSettingsScene(Map2ScenePath, true));
         EditorBuildSettings.scenes = scenes.ToArray();
     }
 }

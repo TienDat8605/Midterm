@@ -1,6 +1,9 @@
 <ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
     <Style src="project://database/Assets/Stylesheet.uss?fileID=7433441132597879392&amp;guid=0bfe2cb5c3c612d4cb0c50b728ac6707&amp;type=3#Stylesheet"/>
     <Style src="project://database/Assets/UI%20Toolkit/HUD/ProgressMinimap.uss?fileID=7433441132597879392&amp;guid=1a2aa35e8aadc0e4e83770d22876daa6&amp;type=3#ProgressMinimap"/>
+    <ui:VisualElement name="MapNameOverlay" picking-mode="Ignore" class="progress-minimap-map-name">
+        <ui:Label text="MAP 1" class="progress-minimap-map-name-label"/>
+    </ui:VisualElement>
     <ui:VisualElement name="ProgressMinimapRoot" picking-mode="Ignore" class="progress-minimap-root">
         <ui:VisualElement class="progress-minimap-summit-row">
             <ui:VisualElement class="progress-minimap-summit-flag">
@@ -14,10 +17,10 @@
         </ui:VisualElement>
         <ui:VisualElement name="ProgressTrack" class="progress-minimap-track">
             <ui:VisualElement class="progress-minimap-rail-shell">
-                <ui:VisualElement class="progress-minimap-segment progress-minimap-segment-base"/>
-                <ui:VisualElement class="progress-minimap-segment progress-minimap-segment-forest"/>
-                <ui:VisualElement class="progress-minimap-segment progress-minimap-segment-ice"/>
-                <ui:VisualElement class="progress-minimap-segment progress-minimap-segment-summit"/>
+                <ui:VisualElement class="progress-minimap-segment progress-minimap-segment-base" style="background-color: rgb(91, 244, 101);"/>
+                <ui:VisualElement class="progress-minimap-segment progress-minimap-segment-forest" style="background-color: rgb(19, 241, 230);"/>
+                <ui:VisualElement class="progress-minimap-segment progress-minimap-segment-ice" style="background-color: rgb(225, 127, 52);"/>
+                <ui:VisualElement class="progress-minimap-segment progress-minimap-segment-summit" style="background-color: rgb(212, 125, 65);"/>
                 <ui:VisualElement class="progress-minimap-rail-highlight"/>
                 <ui:VisualElement class="progress-minimap-cap progress-minimap-cap-top"/>
                 <ui:VisualElement class="progress-minimap-cap progress-minimap-cap-bottom"/>
@@ -39,7 +42,7 @@
             <ui:VisualElement class="progress-minimap-checkpoint progress-minimap-checkpoint-25">
                 <ui:VisualElement class="progress-minimap-checkpoint-core progress-minimap-checkpoint-core-25"/>
             </ui:VisualElement>
-            <ui:VisualElement name="PlayerMarkers" picking-mode="Ignore" class="progress-minimap-markers"/>
+            <ui:VisualElement name="PlayerMarkers" picking-mode="Ignore" class="progress-minimap-markers" style="top: 8px; bottom: 8px; left: 0; right: 0;"/>
         </ui:VisualElement>
         <ui:VisualElement class="progress-minimap-base-row">
             <ui:Label text="BASE" class="progress-minimap-base-label"/>

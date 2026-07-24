@@ -1,87 +1,459 @@
+/*
+ * Sticky Summit progress minimap
+ * Transparent, compact HUD treatment matching the game's pixel-art UI.
+ * The runtime may keep creating children with these classes:
+ *   .progress-minimap-player-marker
+ *   .progress-minimap-player-icon
+ *   .progress-minimap-player-percentage
+ */
+
 .progress-minimap-root {
     position: absolute;
-    top: 34px;
-    right: 38px;
-    width: 230px;
-    height: 590px;
-    align-items: center;
+    top: 30px;
+    right: 28px;
+    width: 220px;
+    height: 650px;
+    overflow: visible;
+    align-items: stretch;
+    background-color: rgba(50, 35, 27, 0.94);
+    border-top-width: 2px;
+    border-right-width: 2px;
+    border-bottom-width: 2px;
+    border-left-width: 2px;
+    border-top-color: rgb(139, 93, 52);
+    border-right-color: rgb(71, 45, 29);
+    border-bottom-color: rgb(71, 45, 29);
+    border-left-color: rgb(139, 93, 52);
+    border-top-left-radius: 6px;
+    border-top-right-radius: 6px;
+    border-bottom-left-radius: 6px;
+    border-bottom-right-radius: 6px;
     -unity-font-definition: resource("Fonts & Materials/pixelFont-7-8x14-sproutLands");
 }
 
-.progress-minimap-goal {
-    height: 44px;
+.progress-minimap-map-name {
+    position: absolute;
+    top: 30px;
+    left: 28px;
+    min-width: 160px;
+    height: 48px;
+    padding-left: 14px;
+    padding-right: 14px;
+    justify-content: center;
+    background-color: rgba(50, 35, 27, 0.94);
+    border-top-width: 2px;
+    border-right-width: 2px;
+    border-bottom-width: 2px;
+    border-left-width: 2px;
+    border-top-color: rgb(139, 93, 52);
+    border-right-color: rgb(71, 45, 29);
+    border-bottom-color: rgb(71, 45, 29);
+    border-left-color: rgb(139, 93, 52);
+    border-top-left-radius: 6px;
+    border-top-right-radius: 6px;
+    border-bottom-left-radius: 6px;
+    border-bottom-right-radius: 6px;
+    -unity-font-definition: resource("Fonts & Materials/pixelFont-7-8x14-sproutLands");
+}
+
+.progress-minimap-map-name-label {
+    color: rgb(255, 241, 204);
+    font-size: 22px;
+    letter-spacing: 2px;
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+    -unity-text-outline-width: 2px;
+    -unity-text-outline-color: rgb(46, 29, 20);
+}
+
+/* ---------- Summit ---------- */
+
+.progress-minimap-summit-row {
+    height: 66px;
+    margin-left: 48px;
     flex-direction: row;
     align-items: center;
 }
 
-.progress-minimap-end-label {
-    font-size: 20px;
-    letter-spacing: 2px;
-    color: rgb(245, 222, 179);
-    -unity-text-outline-width: 1px;
-    -unity-text-outline-color: rgb(55, 35, 24);
+.progress-minimap-summit-flag {
+    position: relative;
+    width: 34px;
+    height: 42px;
+    margin-right: 8px;
 }
 
-.progress-minimap-flag {
-    width: 28px;
-    height: 28px;
-    margin-left: 10px;
-    background-color: rgb(191, 72, 47);
-    border-left-width: 4px;
-    border-left-color: rgb(57, 38, 25);
-    border-top-width: 3px;
-    border-top-color: rgb(57, 38, 25);
-    border-right-width: 3px;
-    border-right-color: rgb(57, 38, 25);
-    border-bottom-width: 3px;
-    border-bottom-color: rgb(57, 38, 25);
+.progress-minimap-flag-pole {
+    position: absolute;
+    left: 5px;
+    top: 5px;
+    width: 4px;
+    height: 34px;
+    background-color: rgb(82, 48, 27);
+    border-left-width: 1px;
+    border-left-color: rgb(239, 191, 91);
 }
+
+.progress-minimap-flag-cloth {
+    position: absolute;
+    left: 8px;
+    top: 4px;
+    width: 23px;
+    height: 16px;
+    background-color: rgb(231, 91, 37);
+    border-top-width: 2px;
+    border-right-width: 2px;
+    border-bottom-width: 2px;
+    border-left-width: 2px;
+    border-top-color: rgb(91, 45, 25);
+    border-right-color: rgb(91, 45, 25);
+    border-bottom-color: rgb(91, 45, 25);
+    border-left-color: rgb(91, 45, 25);
+}
+
+.progress-minimap-summit-copy {
+    justify-content: center;
+}
+
+.progress-minimap-end-label,
+.progress-minimap-base-label {
+    color: rgb(255, 241, 204);
+    letter-spacing: 2px;
+    -unity-font-style: bold;
+    -unity-text-outline-width: 2px;
+    -unity-text-outline-color: rgb(46, 29, 20);
+}
+
+.progress-minimap-end-label {
+    font-size: 22px;
+}
+
+.progress-minimap-end-percentage {
+    margin-top: -2px;
+    color: rgb(255, 241, 204);
+    font-size: 18px;
+    -unity-font-style: bold;
+    -unity-text-outline-width: 2px;
+    -unity-text-outline-color: rgb(46, 29, 20);
+}
+
+/* ---------- Track ---------- */
 
 .progress-minimap-track {
     position: relative;
-    width: 210px;
-    flex-grow: 1;
+    height: 510px;
+    overflow: visible;
 }
 
-.progress-minimap-rail {
+.progress-minimap-rail-shell {
     position: absolute;
-    top: 0;
-    bottom: 0;
-    left: 36px;
-    width: 12px;
-    background-color: rgb(68, 49, 34);
-    border-left-width: 3px;
-    border-left-color: rgb(225, 190, 123);
+    top: 8px;
+    bottom: 8px;
+    left: 76px;
+    width: 22px;
+    overflow: hidden;
+    background-color: rgb(35, 29, 25);
+    border-top-width: 3px;
     border-right-width: 3px;
-    border-right-color: rgb(225, 190, 123);
+    border-bottom-width: 3px;
+    border-left-width: 3px;
+    border-top-color: rgb(242, 210, 139);
+    border-right-color: rgb(91, 58, 32);
+    border-bottom-color: rgb(91, 58, 32);
+    border-left-color: rgb(242, 210, 139);
+    border-top-left-radius: 3px;
+    border-top-right-radius: 3px;
+    border-bottom-left-radius: 3px;
+    border-bottom-right-radius: 3px;
 }
+
+.progress-minimap-segment {
+    position: absolute;
+    left: 2px;
+    right: 2px;
+    height: 25%;
+}
+
+.progress-minimap-segment-base {
+    bottom: 0;
+    background-color: rgb(71, 55, 43);
+}
+
+.progress-minimap-segment-forest {
+    bottom: 25%;
+    background-color: rgb(91, 166, 49);
+}
+
+.progress-minimap-segment-ice {
+    bottom: 50%;
+    background-color: rgb(54, 150, 207);
+}
+
+.progress-minimap-segment-summit {
+    bottom: 75%;
+    background-color: rgb(247, 170, 16);
+}
+
+.progress-minimap-rail-highlight {
+    position: absolute;
+    top: 2px;
+    bottom: 2px;
+    left: 2px;
+    width: 3px;
+    background-color: rgba(255, 255, 255, 0.20);
+}
+
+.progress-minimap-cap {
+    position: absolute;
+    left: -8px;
+    width: 32px;
+    height: 4px;
+    background-color: rgb(255, 239, 196);
+    border-top-width: 1px;
+    border-bottom-width: 1px;
+    border-top-color: rgb(86, 57, 34);
+    border-bottom-color: rgb(86, 57, 34);
+}
+
+.progress-minimap-cap-top {
+    top: -2px;
+}
+
+.progress-minimap-cap-bottom {
+    bottom: -2px;
+}
+
+/* ---------- Percentage guides ---------- */
+
+.progress-minimap-guide {
+    position: absolute;
+    left: 55px;
+    width: 43px;
+    height: 2px;
+    background-color: rgb(241, 222, 172);
+}
+
+.progress-minimap-guide-75 {
+    bottom: 75%;
+}
+
+.progress-minimap-guide-50 {
+    bottom: 50%;
+}
+
+.progress-minimap-guide-25 {
+    bottom: 25%;
+}
+
+.progress-minimap-guide-0 {
+    bottom: 8px;
+}
+
+.progress-minimap-scale-label {
+    position: absolute;
+    left: 0;
+    width: 52px;
+    color: rgb(255, 241, 204);
+    font-size: 19px;
+    -unity-font-style: bold;
+    -unity-text-align: middle-right;
+    -unity-text-outline-width: 2px;
+    -unity-text-outline-color: rgb(43, 29, 21);
+}
+
+.progress-minimap-scale-75 {
+    bottom: 75%;
+    margin-bottom: -12px;
+}
+
+.progress-minimap-scale-50 {
+    bottom: 50%;
+    margin-bottom: -12px;
+}
+
+.progress-minimap-scale-25 {
+    bottom: 25%;
+    margin-bottom: -12px;
+}
+
+.progress-minimap-scale-0 {
+    bottom: 0;
+}
+
+/* ---------- Checkpoints ---------- */
+
+.progress-minimap-checkpoint {
+    position: absolute;
+    left: 73px;
+    width: 28px;
+    height: 28px;
+    rotate: 45deg;
+    background-color: rgb(42, 31, 25);
+    border-top-width: 2px;
+    border-right-width: 2px;
+    border-bottom-width: 2px;
+    border-left-width: 2px;
+    border-top-color: rgb(246, 218, 157);
+    border-right-color: rgb(91, 52, 29);
+    border-bottom-color: rgb(91, 52, 29);
+    border-left-color: rgb(246, 218, 157);
+}
+
+.progress-minimap-checkpoint-75 {
+    bottom: 75%;
+    margin-bottom: -14px;
+}
+
+.progress-minimap-checkpoint-50 {
+    bottom: 50%;
+    margin-bottom: -14px;
+}
+
+.progress-minimap-checkpoint-25 {
+    bottom: 25%;
+    margin-bottom: -14px;
+}
+
+.progress-minimap-checkpoint-core {
+    position: absolute;
+    top: 7px;
+    left: 7px;
+    width: 10px;
+    height: 10px;
+    background-color: rgb(255, 245, 216);
+    border-top-left-radius: 2px;
+    border-top-right-radius: 2px;
+    border-bottom-left-radius: 2px;
+    border-bottom-right-radius: 2px;
+}
+
+.progress-minimap-checkpoint-core-75 {
+    border-top-width: 3px;
+    border-top-color: rgb(235, 108, 34);
+}
+
+.progress-minimap-checkpoint-core-50 {
+    border-top-width: 3px;
+    border-top-color: rgb(66, 167, 224);
+}
+
+.progress-minimap-checkpoint-core-25 {
+    border-top-width: 3px;
+    border-top-color: rgb(107, 188, 57);
+}
+
+/* ---------- Runtime player markers ---------- */
 
 .progress-minimap-markers {
     position: absolute;
-    top: 0;
+    top: 8px;
     right: 0;
-    bottom: 0;
+    bottom: 8px;
     left: 0;
+    overflow: visible;
 }
 
 .progress-minimap-player-marker {
     position: absolute;
-    width: 180px;
-    height: 54px;
+    left: 106px;
+    width: 142px;
+    height: 50px;
+    margin-bottom: -25px;
     flex-direction: row;
     align-items: center;
+    overflow: visible;
 }
 
 .progress-minimap-player-icon {
-    width: 54px;
-    height: 54px;
+    width: 45px;
+    height: 45px;
+    flex-shrink: 0;
+    -unity-background-scale-mode: scale-to-fit;
     -unity-image-size: contain;
 }
 
 .progress-minimap-player-percentage {
-    margin-left: 10px;
-    font-size: 27px;
-    color: rgb(255, 245, 211);
-    -unity-text-outline-width: 2px;
-    -unity-text-outline-color: rgb(51, 35, 25);
+    min-width: 62px;
+    height: 34px;
+    margin-left: 7px;
+    padding-left: 9px;
+    padding-right: 9px;
+    justify-content: center;
+    color: rgb(255, 241, 204);
+    background-color: rgba(42, 31, 25, 0.96);
+    border-top-width: 2px;
+    border-right-width: 2px;
+    border-bottom-width: 2px;
+    border-left-width: 2px;
+    border-top-color: rgb(184, 118, 47);
+    border-right-color: rgb(91, 52, 29);
+    border-bottom-color: rgb(91, 52, 29);
+    border-left-color: rgb(184, 118, 47);
+    border-top-left-radius: 3px;
+    border-top-right-radius: 3px;
+    border-bottom-left-radius: 3px;
+    border-bottom-right-radius: 3px;
+    font-size: 20px;
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+    -unity-text-outline-width: 1px;
+    -unity-text-outline-color: rgb(43, 29, 21);
+}
+
+/* Optional per-player accent classes your controller may add. */
+.progress-minimap-player-marker.anchor .progress-minimap-player-percentage {
+    border-left-color: rgb(196, 203, 207);
+}
+
+.progress-minimap-player-marker.bounce .progress-minimap-player-percentage {
+    border-left-color: rgb(117, 202, 54);
+}
+
+.progress-minimap-player-marker.sticky .progress-minimap-player-percentage {
+    border-left-color: rgb(183, 85, 222);
+}
+
+/* ---------- Base ---------- */
+
+.progress-minimap-base-row {
+    height: 68px;
+    margin-left: 54px;
+    flex-direction: row;
+    align-items: center;
+}
+
+.progress-minimap-base-flag {
+    position: relative;
+    width: 30px;
+    height: 35px;
+    margin-right: 7px;
+}
+
+.progress-minimap-base-flag-pole {
+    position: absolute;
+    left: 5px;
+    top: 4px;
+    width: 3px;
+    height: 28px;
+    background-color: rgb(82, 48, 27);
+}
+
+.progress-minimap-base-flag-cloth {
+    position: absolute;
+    left: 8px;
+    top: 4px;
+    width: 18px;
+    height: 12px;
+    background-color: rgb(231, 91, 37);
+    border-top-width: 2px;
+    border-right-width: 2px;
+    border-bottom-width: 2px;
+    border-left-width: 2px;
+    border-top-color: rgb(91, 45, 25);
+    border-right-color: rgb(91, 45, 25);
+    border-bottom-color: rgb(91, 45, 25);
+    border-left-color: rgb(91, 45, 25);
+}
+
+.progress-minimap-base-label {
+    font-size: 19px;
 }
