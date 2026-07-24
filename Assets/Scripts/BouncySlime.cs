@@ -101,6 +101,14 @@ public class BouncySlime : PlayerControllerWithPhysics
         HandleBounceCollision(collision);
     }
 
+    protected override void OnCollisionStay2D(Collision2D collision)
+    {
+        base.OnCollisionStay2D(collision);
+
+        if (HasInputAuthority)
+            HandleBounceCollision(collision);
+    }
+
     private void HandleBounceCollision(Collision2D collision)
     {
         if (!isTrampoline)
@@ -109,8 +117,10 @@ public class BouncySlime : PlayerControllerWithPhysics
         if (!collision.gameObject.CompareTag("Player"))
             return;
 
-        Rigidbody2D otherRb = collision.gameObject.GetComponent<Rigidbody2D>();
-        if (otherRb == null || otherRb == rb)
+        PlayerControllerWithPhysics otherSlime =
+            collision.gameObject.GetComponent<PlayerControllerWithPhysics>();
+        Rigidbody2D otherRb = collision.rigidbody;
+        if (otherSlime == null || otherRb == null || otherRb == rb)
             return;
 
         // Respect per-target cooldown.
@@ -143,7 +153,7 @@ public class BouncySlime : PlayerControllerWithPhysics
         finalSpeed = Mathf.Min(finalSpeed, trampolineMaxLaunchForce);
 
         Debug.Log($"[BouncySlime] BOUNCING {collision.gameObject.name} upward with speed {finalSpeed}!");
-        otherRb.linearVelocity = new Vector2(otherRb.linearVelocity.x, finalSpeed);
+        otherSlime.RequestBounce(finalSpeed);
     }
 
     private void CleanupBounceCooldowns()
