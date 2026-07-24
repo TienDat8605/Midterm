@@ -13,6 +13,7 @@ using Debug = UnityEngine.Debug;
 public static class DinoParkBuildTools
 {
     public const string UiScenePath = "Assets/Scenes/Main.unity";
+    public const string TutorialScenePath = "Assets/Scenes/NewMap/TutorialMap.unity";
     public const string CatalogPath = "Assets/Resources/MultiplayerMapCatalog.asset";
     private const string PendingKey = "DinoParkBuildTools.Pending";
     private const string TestExe = "Builds/Windows/Test/DinoPark.exe";
@@ -109,10 +110,12 @@ public static class DinoParkBuildTools
     public static string[] ResolveBuildScenes()
     {
         if (!File.Exists(Absolute(UiScenePath))) throw new BuildFailedException($"Missing scene: {UiScenePath}");
+        if (!File.Exists(Absolute(TutorialScenePath)))
+            throw new BuildFailedException($"Missing scene: {TutorialScenePath}");
         MultiplayerMapCatalog catalog = AssetDatabase.LoadAssetAtPath<MultiplayerMapCatalog>(CatalogPath);
         if (catalog == null) throw new BuildFailedException($"Missing catalog: {CatalogPath}");
         if (!catalog.IsValid(out string error)) throw new BuildFailedException(error);
-        List<string> scenes = new List<string> { UiScenePath };
+        List<string> scenes = new List<string> { UiScenePath, TutorialScenePath };
         HashSet<string> unique = new HashSet<string>(scenes, StringComparer.OrdinalIgnoreCase);
         foreach (MultiplayerMapEntry map in catalog.Maps)
         {

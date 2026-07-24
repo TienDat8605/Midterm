@@ -106,7 +106,7 @@
             <ui:Button name="NextPageBut" text="&gt;" class="arrow-button"/>
         </ui:VisualElement>
         <ui:VisualElement class="footer-container">
-            <ui:VisualElement style="flex-direction: row; align-items: center; flex-grow: 1;">
+            <ui:VisualElement class="footer-spacer" style="flex-direction: row; align-items: center; flex-grow: 1;">
                 <ui:VisualElement class="instruction-icon-placeholder" style="width: 60px; height: 60px; margin-right: 20px;"/>
             </ui:VisualElement>
             <ui:Button text="GOOD LUCK!" name="GoodLuckBut" class="button" style="height: 80px; font-size: 40px; border-radius: 10px; background-color: rgb(160, 82, 45); color: white; padding: 15px;"/>

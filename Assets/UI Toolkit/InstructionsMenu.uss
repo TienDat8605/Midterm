@@ -14,6 +14,14 @@
     background-color: rgba(0, 0, 0, 0.7);
 }
 
+.tutorial-gameplay-overlay .footer-container {
+    justify-content: center;
+}
+
+.tutorial-gameplay-overlay .footer-spacer {
+    display: none;
+}
+
 .instructions-title {
     font-size: 60px;
     -unity-font-definition: resource("Fonts & Materials/pixelFont-7-8x14-sproutLands");

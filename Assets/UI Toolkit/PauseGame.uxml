@@ -37,4 +37,5 @@
         <ui:Label text="TUTORIAL" name="TutorialOverlayLabel" picking-mode="Ignore" style="flex-grow: 1; margin-left: 86px; font-size: 30px; -unity-text-align: middle-center; white-space: nowrap;"/>
         <ui:Image name="TutorialTabImage" picking-mode="Ignore" source="project://database/Assets/Sprites/UI/Controls/kb_light_symbols.png?fileID=2104194379806597190&amp;guid=fee296bad03fc4b40bd235fd68d814c9&amp;type=3#kb_light_symbols_16" style="position: absolute; right: 177px; bottom: 20px; width: 76px; height: 45px; z-index: 1; -unity-background-scale-mode: scale-to-fit;"/>
     </ui:Button>
+    <ui:Button text="BACK" name="TutorialExitButton" class="button tutorial-exit-button"/>
 </ui:UXML>
