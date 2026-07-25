@@ -627,6 +627,34 @@ public class PlayerControllerWithPhysics : MonoBehaviourPun, IPunObservable
         rb.AddForce(yankImpulse, ForceMode2D.Impulse);
     }
 
+    public void RequestBounce(float upwardSpeed)
+    {
+        if (photonView != null && photonView.ViewID != 0)
+        {
+            photonView.RPC(nameof(ApplyBounceRpc), RpcTarget.All, upwardSpeed);
+            return;
+        }
+
+        ApplyBounce(upwardSpeed);
+    }
+
+    [PunRPC]
+    public void ApplyBounceRpc(float upwardSpeed)
+    {
+        ApplyBounce(upwardSpeed);
+    }
+
+    private void ApplyBounce(float upwardSpeed)
+    {
+        if (!HasInputAuthority)
+            return;
+
+        if (rb == null)
+            rb = GetComponent<Rigidbody2D>();
+        if (rb != null && rb.bodyType == RigidbodyType2D.Dynamic)
+            rb.linearVelocity = new Vector2(rb.linearVelocity.x, upwardSpeed);
+    }
+
     protected virtual void PrepareForTetherYank() { }
 
     private void ClearIncomingTether()
@@ -663,6 +691,13 @@ public class PlayerControllerWithPhysics : MonoBehaviourPun, IPunObservable
 
         anim.SetBool("isGrounded", networkIsGrounded);
         anim.SetBool("isCharging", networkIsChargingJump);
+
+        if (networkIsGrounded &&
+            !networkIsChargingJump &&
+            !anim.GetCurrentAnimatorStateInfo(0).IsName("Idle"))
+        {
+            anim.Play("Idle");
+        }
     }
 
     public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)

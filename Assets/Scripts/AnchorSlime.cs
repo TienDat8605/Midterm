@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using Photon.Pun;
 
 public class AnchorSlime : PlayerControllerWithPhysics, IBraceable
 {
@@ -60,7 +61,7 @@ public class AnchorSlime : PlayerControllerWithPhysics, IBraceable
         {
             if (isStone)
                 EndStone();
-            else if (isGrounded)
+            else if (!isGrounded)
                 StartStone();
         }
     }
@@ -88,28 +89,42 @@ public class AnchorSlime : PlayerControllerWithPhysics, IBraceable
 
     private void StartStone()
     {
-        isStone = true;
         savedBodyType = rb.bodyType;
         rb.bodyType = RigidbodyType2D.Kinematic;
-        if (spriteRenderer != null)
-            spriteRenderer.color = stoneColor;
-        if (anim)
-        {
-            anim.speed = 0f;
-            anim.SetBool("isBraced", true);
-        }
+        rb.linearVelocity = Vector2.zero;
+        rb.angularVelocity = 0f;
+        SetStoneVisual(true);
+        SyncStoneVisual(true);
     }
 
     private void EndStone()
     {
-        isStone = false;
         rb.bodyType = savedBodyType;
+        SetStoneVisual(false);
+        SyncStoneVisual(false);
+    }
+
+    private void SyncStoneVisual(bool active)
+    {
+        if (photonView != null && photonView.ViewID != 0)
+            photonView.RPC(nameof(RpcSetStoneVisual), RpcTarget.Others, active);
+    }
+
+    [PunRPC]
+    public void RpcSetStoneVisual(bool active)
+    {
+        SetStoneVisual(active);
+    }
+
+    private void SetStoneVisual(bool active)
+    {
+        isStone = active;
         if (spriteRenderer != null)
-            spriteRenderer.color = originalColor;
+            spriteRenderer.color = active ? stoneColor : originalColor;
         if (anim)
         {
-            anim.speed = 1f;
-            anim.SetBool("isBraced", false);
+            anim.SetBool("isBraced", active);
+            anim.speed = active ? 0f : 1f;
         }
     }
 
