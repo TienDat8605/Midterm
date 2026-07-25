@@ -372,6 +372,6 @@ public class PauseMenuController : MonoBehaviour
         if (PhotonNetwork.InRoom)
             PhotonNetwork.LeaveRoom();
 
-        SceneManager.LoadScene("Main");
+        SceneTransition.LoadScene("Main");
     }
 }

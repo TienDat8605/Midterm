@@ -277,7 +277,7 @@ public abstract class NetworkManagerCore : MonoBehaviourPunCallbacks
         });
 
         SetConnectionState(NetworkConnectionState.LoadingGame);
-        PhotonNetwork.LoadLevel(selectedMap.SceneName);
+        SceneTransition.LoadPhotonLevel(selectedMap.SceneName);
     }
 
     public void MarkLocalPlayerLoaded()

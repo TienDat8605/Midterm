@@ -39,7 +39,7 @@ public static class SinglePlayerSession
     public static void StartGame()
     {
         if (IsActive)
-            SceneManager.LoadScene(SelectedSceneName);
+            SceneTransition.LoadScene(SelectedSceneName);
     }
 
     public static void StartTutorial()
@@ -47,7 +47,7 @@ public static class SinglePlayerSession
         IsActive = true;
         SelectedRole = SlimeRole.Anchor;
         SelectedSceneName = TutorialSceneName;
-        SceneManager.LoadScene(TutorialSceneName);
+        SceneTransition.LoadScene(TutorialSceneName);
     }
 
     public static void Stop()

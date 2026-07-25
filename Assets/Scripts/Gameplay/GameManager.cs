@@ -175,7 +175,7 @@ public class GameManager : MonoBehaviour
 
     public void LoadScene(string sceneName)
     {
-        SceneManager.LoadScene(sceneName);
+        SceneTransition.LoadScene(sceneName);
     }
 
     private void OnDrawGizmos()

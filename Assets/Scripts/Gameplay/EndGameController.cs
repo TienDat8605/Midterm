@@ -108,11 +108,11 @@ public sealed class EndGameController : MonoBehaviour
             if (!PhotonNetwork.IsMasterClient)
                 return;
 
-            PhotonNetwork.LoadLevel(nextLevelSceneName);
+            SceneTransition.LoadPhotonLevel(nextLevelSceneName);
             return;
         }
 
-        SceneManager.LoadScene(nextLevelSceneName);
+        SceneTransition.LoadScene(nextLevelSceneName);
     }
 
     public void ReturnToMainMenu()
@@ -130,7 +130,7 @@ public sealed class EndGameController : MonoBehaviour
             PhotonNetwork.LeaveRoom();
         }
 
-        SceneManager.LoadScene(mainMenuSceneName);
+        SceneTransition.LoadScene(mainMenuSceneName);
     }
 
     private static void StopLocalPlayers()
