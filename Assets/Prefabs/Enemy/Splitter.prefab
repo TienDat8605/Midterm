@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 8206730800696914766}
   - component: {fileID: 4544373054600485658}
   - component: {fileID: 2176502664859532463}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: SplitterAnimator
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -126,7 +126,7 @@ GameObject:
   - component: {fileID: 1992244431201426242}
   - component: {fileID: 3711503476828090717}
   - component: {fileID: 5553977181164795407}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Splitter
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -142,7 +142,7 @@ Transform:
   m_GameObject: {fileID: 3586604125825054967}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -3.07, y: -2.62, z: 0}
+  m_LocalPosition: {x: -2.61, y: -2.52, z: 0}
   m_LocalScale: {x: 4, y: 4, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -184,16 +184,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6d4411e95a9dd40c8b2490c5af34e9c3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Splitter
-  knockbackForce: 15
+  knockbackForce: 10
   disableDuration: 3
   projectilePrefabName: SplitterProjectile
   firePoint: {fileID: 6701719259102354441}
   fireInterval: 4.68
-  projectileSpeed: 6
-  detectionRadius: 8
+  projectileSpeed: 3
+  detectionRadius: 15
   playerLayer:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 128
 --- !u!58 &5553977181164795407
 CircleCollider2D:
   m_ObjectHideFlags: 0
@@ -229,7 +229,7 @@ CircleCollider2D:
   m_CompositeOperation: 0
   m_CompositeOrder: 0
   m_Offset: {x: 0, y: 0}
-  m_Radius: 0.5
+  m_Radius: 0.1
 --- !u!1 &6600500884879976559
 GameObject:
   m_ObjectHideFlags: 0
@@ -239,7 +239,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5338157667355353051}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Visual
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -256,7 +256,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: -1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 8206730800696914766}
@@ -271,7 +271,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6701719259102354441}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: FirePoint
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -287,7 +287,7 @@ Transform:
   m_GameObject: {fileID: 8532771766534469241}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.13, y: -0.06, z: 0}
+  m_LocalPosition: {x: 0.067, y: -0.045, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

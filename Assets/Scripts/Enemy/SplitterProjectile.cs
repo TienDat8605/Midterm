@@ -8,6 +8,7 @@ public class SplitterProjectile : MonoBehaviourPun
 {
     [SerializeField] private float debuffSlowMultiplier = 0.4f;
     [SerializeField] private float debuffDuration = 3f;
+    [SerializeField] private float knockbackForce = 10f;
     [SerializeField] private float lifetime = 5f;
 
     private Rigidbody2D rb;
@@ -17,9 +18,9 @@ public class SplitterProjectile : MonoBehaviourPun
         rb = GetComponent<Rigidbody2D>();
     }
 
-    public void Init(Vector2 direction, float speed)
+    public void Init(Vector2 velocity)
     {
-        rb.linearVelocity = direction * speed;
+        rb.linearVelocity = velocity;
         StartCoroutine(LifetimeExpire());
     }
 
@@ -41,6 +42,11 @@ public class SplitterProjectile : MonoBehaviourPun
         PlayerControllerWithPhysics player = other.GetComponent<PlayerControllerWithPhysics>();
         if (player != null)
         {
+            Vector2 knockDir = new Vector2(rb.linearVelocity.x, 0f).normalized;
+            if (knockDir == Vector2.zero) knockDir = Vector2.right;
+            Vector2 force = knockDir * knockbackForce;
+            Debug.Log($"Knockback force={force}, playerRb={player.GetComponent<Rigidbody2D>()?.linearVelocity}");
+            player.ApplyKnockback(force);
             player.ApplyDebuff(debuffSlowMultiplier, debuffDuration);
             DestroyProjectile();
             return;

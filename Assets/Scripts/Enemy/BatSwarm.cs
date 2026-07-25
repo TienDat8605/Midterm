@@ -15,6 +15,7 @@ public class BatSwarm : EnemyBase
     [SerializeField] private float dashSpeed = 12f;
     [SerializeField] private float maxDashDistance = 8f;
     [SerializeField] private float preDashDelay = 0.4f;
+    [SerializeField] private LayerMask wallLayer;
 
     private enum BatState { Patrolling, PreDash, Dashing }
     private BatState batState = BatState.Patrolling;
@@ -42,7 +43,16 @@ public class BatSwarm : EnemyBase
                 }
                 break;
             case BatState.Dashing:
-                transform.position += (Vector3)(dashDirection * dashSpeed * Time.deltaTime);
+                float stepDist = dashSpeed * Time.deltaTime;
+                RaycastHit2D wallHit = Physics2D.Raycast(transform.position, dashDirection, stepDist + 0.1f, wallLayer);
+                if (wallHit.collider != null)
+                {
+                    EndDash();
+                    break;
+                }
+                transform.position += (Vector3)(dashDirection * stepDist);
+                if (dashDirection.x != 0f)
+                    FlipX(dashDirection.x < 0f);
                 if (Vector3.Distance(transform.position, dashOrigin) >= maxDashDistance)
                     EndDash();
                 break;
@@ -54,9 +64,29 @@ public class BatSwarm : EnemyBase
         if (waypoints == null || waypoints.Length == 0)
             return;
         Transform target = waypoints[waypointIndex];
+        Vector3 dir = target.position - transform.position;
         transform.position = Vector3.MoveTowards(transform.position, target.position, patrolSpeed * Time.deltaTime);
+        if (dir.x != 0f)
+            FlipX(dir.x < 0f);
         if (Vector3.Distance(transform.position, target.position) < 0.1f)
             waypointIndex = (waypointIndex + 1) % waypoints.Length;
+    }
+
+    private Transform visual;
+
+    protected override void Start()
+    {
+        base.Start();
+        visual = transform.Find("Visual");
+        Debug.Log($"BatSwarm Start: visual={(visual != null ? visual.name : "NULL")}");
+    }
+
+    private void FlipX(bool facingLeft)
+    {
+        if (visual == null) { Debug.Log("FlipX: visual is null"); return; }
+        Vector3 s = visual.localScale;
+        visual.localScale = new Vector3(facingLeft ? -Mathf.Abs(s.x) : Mathf.Abs(s.x), s.y, s.z);
+        Debug.Log($"FlipX: facingLeft={facingLeft} scale={visual.localScale}");
     }
 
     private void TryDetectPlayer()

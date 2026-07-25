@@ -302,7 +302,7 @@ public class PlayerControllerWithPhysics : MonoBehaviourPun, IPunObservable
             playerCollider.sharedMaterial = isGrounded ? groundedMaterial : airborneMaterial;
         if (anim) anim.SetBool("isGrounded", isGrounded);
 
-        if (isGrounded && !hasJumped)
+        if (isGrounded && !hasJumped && !isKnockedBack)
         {
             if (isChargingJump)
             {
@@ -727,12 +727,23 @@ public class PlayerControllerWithPhysics : MonoBehaviourPun, IPunObservable
         networkPosition = receivedPosition + networkVelocity * lag;
     }
 
+    private bool isKnockedBack;
+
     public void ApplyKnockback(Vector2 force)
     {
         isChargingJump = false;
         jumpCharge = 0f;
         rb.linearVelocity = Vector2.zero;
         rb.AddForce(force, ForceMode2D.Impulse);
+        if (isKnockedBack) StopCoroutine(nameof(KnockbackCooldown));
+        StartCoroutine(nameof(KnockbackCooldown));
+    }
+
+    private System.Collections.IEnumerator KnockbackCooldown()
+    {
+        isKnockedBack = true;
+        yield return new WaitForSeconds(0.3f);
+        isKnockedBack = false;
     }
 
     public void ApplyDebuff(float slowMultiplier, float duration)

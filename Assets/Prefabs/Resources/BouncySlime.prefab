@@ -9,7 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2000000000000000005}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: GroundCheck
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -47,7 +47,7 @@ GameObject:
   - component: {fileID: 2000000000000000006}
   - component: {fileID: 2000000000000000007}
   - component: {fileID: 5482524227240292176}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: BouncySlime
   m_TagString: Player
   m_Icon: {fileID: 0}
