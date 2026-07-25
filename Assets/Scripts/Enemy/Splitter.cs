@@ -14,19 +14,21 @@ public class Splitter : EnemyBase
     [SerializeField] private LayerMask playerLayer;
 
     private float fireTimer;
-    private SpriteRenderer visualRenderer;
+    private Transform visual;
 
     protected override void Start()
     {
         base.Start();
-        Transform v = transform.Find("Visual");
-        if (v != null) visualRenderer = v.GetComponentInChildren<SpriteRenderer>();
+        visual = transform.Find("Visual");
     }
 
     private void FaceTarget(Vector2 targetPos)
     {
-        if (visualRenderer == null) return;
-        visualRenderer.flipX = targetPos.x < transform.position.x;
+        if (visual == null) return;
+        bool playerIsRight = targetPos.x > transform.position.x;
+        Vector3 s = visual.localScale;
+        // default scale x=1 faces left, so flip (x=-1) when player is right
+        visual.localScale = new Vector3(playerIsRight ? -Mathf.Abs(s.x) : Mathf.Abs(s.x), s.y, s.z);
     }
 
     protected override void UpdateBehavior()
@@ -61,12 +63,8 @@ public class Splitter : EnemyBase
         if (firePoint == null)
             return;
 
-        Vector2 toTarget = (Vector2)targetPos - (Vector2)firePoint.position;
-        float g = Mathf.Abs(Physics2D.gravity.y);
-        float timeToTarget = Mathf.Max(Mathf.Abs(toTarget.x) / projectileSpeed, 0.1f);
-        float vx = toTarget.x / timeToTarget;
-        float vy = (toTarget.y + 0.5f * g * timeToTarget * timeToTarget) / timeToTarget;
-        Vector2 launchVelocity = new Vector2(vx, vy);
+        float dirX = Mathf.Sign(targetPos.x - firePoint.position.x);
+        Vector2 launchVelocity = new Vector2(dirX * projectileSpeed, 0f);
 
         GameObject proj;
         if (PhotonNetwork.InRoom)

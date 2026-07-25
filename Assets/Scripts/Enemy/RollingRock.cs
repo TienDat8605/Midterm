@@ -30,14 +30,14 @@ public class RollingRock : EnemyBase
 
         bool seen = IsSeenByAnyPlayer();
 
-        if (seen && !isFrozen)
+        if (!seen && !isFrozen)
         {
             savedVelocity = rb.linearVelocity;
             rb.linearVelocity = Vector2.zero;
             rb.bodyType = RigidbodyType2D.Kinematic;
             isFrozen = true;
         }
-        else if (!seen && isFrozen)
+        else if (seen && isFrozen)
         {
             rb.bodyType = RigidbodyType2D.Dynamic;
             if (savedVelocity.magnitude > 0.1f)
