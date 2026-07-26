@@ -61,15 +61,15 @@ public class BatSwarm : EnemyBase
 
     private void Patrol()
     {
-        if (waypoints == null || waypoints.Length == 0)
+        if (!TryGetCurrentWaypoint(out Transform target))
             return;
-        Transform target = waypoints[waypointIndex];
+
         Vector3 dir = target.position - transform.position;
         transform.position = Vector3.MoveTowards(transform.position, target.position, patrolSpeed * Time.deltaTime);
         if (dir.x != 0f)
             FlipX(dir.x < 0f);
         if (Vector3.Distance(transform.position, target.position) < 0.1f)
-            waypointIndex = (waypointIndex + 1) % waypoints.Length;
+            MoveToNextValidWaypoint();
     }
 
     private Transform visual;
@@ -78,15 +78,17 @@ public class BatSwarm : EnemyBase
     {
         base.Start();
         visual = transform.Find("Visual");
-        Debug.Log($"BatSwarm Start: visual={(visual != null ? visual.name : "NULL")}");
+        if (visual == null)
+            Debug.LogWarning("[BatSwarm] Visual child is missing; sprite flipping is disabled.", this);
     }
 
     private void FlipX(bool facingLeft)
     {
-        if (visual == null) { Debug.Log("FlipX: visual is null"); return; }
+        if (visual == null)
+            return;
+
         Vector3 s = visual.localScale;
         visual.localScale = new Vector3(facingLeft ? -Mathf.Abs(s.x) : Mathf.Abs(s.x), s.y, s.z);
-        Debug.Log($"FlipX: facingLeft={facingLeft} scale={visual.localScale}");
     }
 
     private void TryDetectPlayer()
@@ -125,12 +127,57 @@ public class BatSwarm : EnemyBase
         float minDist = float.MaxValue;
         for (int i = 0; i < waypoints.Length; i++)
         {
+            if (waypoints[i] == null)
+                continue;
+
             float d = Vector3.Distance(transform.position, waypoints[i].position);
             if (d >= minDist)
                 continue;
             minDist = d;
             waypointIndex = i;
         }
+    }
+
+    private bool TryGetCurrentWaypoint(out Transform waypoint)
+    {
+        waypoint = null;
+        if (waypoints == null || waypoints.Length == 0)
+            return false;
+
+        waypointIndex = Mathf.Clamp(waypointIndex, 0, waypoints.Length - 1);
+        if (waypoints[waypointIndex] != null)
+        {
+            waypoint = waypoints[waypointIndex];
+            return true;
+        }
+
+        return MoveToNextValidWaypoint(out waypoint);
+    }
+
+    private void MoveToNextValidWaypoint()
+    {
+        MoveToNextValidWaypoint(out _);
+    }
+
+    private bool MoveToNextValidWaypoint(out Transform waypoint)
+    {
+        waypoint = null;
+        if (waypoints == null || waypoints.Length == 0)
+            return false;
+
+        for (int offset = 1; offset <= waypoints.Length; offset++)
+        {
+            int candidateIndex = (waypointIndex + offset) % waypoints.Length;
+            Transform candidate = waypoints[candidateIndex];
+            if (candidate == null)
+                continue;
+
+            waypointIndex = candidateIndex;
+            waypoint = candidate;
+            return true;
+        }
+
+        return false;
     }
 
     private void OnDrawGizmosSelected()

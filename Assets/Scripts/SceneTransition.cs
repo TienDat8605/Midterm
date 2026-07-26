@@ -15,8 +15,9 @@ public sealed class SceneTransition : MonoBehaviour, IOnEventCallback
     private const string OverlayName = "SceneTransitionOverlay";
     private const string OverlayResourcePath = "SceneTransition";
     private const float FadeDuration = 0.45f;
+    private const float PhotonSceneLoadTimeout = 15f;
     private const float TransitionSortingOrder = 10000f;
-    private const byte PhotonFadeEventCode = 201;
+    private const byte PhotonFadeEventCode = 199;
 
     private static SceneTransition instance;
 
@@ -24,7 +25,6 @@ public sealed class SceneTransition : MonoBehaviour, IOnEventCallback
     private UIDocument transitionDocument;
     private VisualElement overlay;
     private bool isTransitioning;
-    private bool loadInitiatedLocally;
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
     private static void CreateInstance()
@@ -81,11 +81,9 @@ public sealed class SceneTransition : MonoBehaviour, IOnEventCallback
         if (!isTransitioning)
         {
             EnsureOverlay();
+            SetOverlayOpacity(0f);
             return;
         }
-
-        if (!loadInitiatedLocally)
-            StartCoroutine(FadeInAfterExternalSceneLoad());
     }
 
     public void OnEvent(EventData photonEvent)
@@ -97,7 +95,14 @@ public sealed class SceneTransition : MonoBehaviour, IOnEventCallback
             return;
         }
 
-        BeginRemotePhotonFade();
+        string sceneName = photonEvent.CustomData as string;
+        if (string.IsNullOrEmpty(sceneName))
+        {
+            Debug.LogWarning("[SceneTransition] Ignoring Photon fade event without a scene name.");
+            return;
+        }
+
+        BeginRemotePhotonFade(sceneName);
     }
 
     private void BeginTransition(System.Func<AsyncOperation> loadScene)
@@ -119,11 +124,13 @@ public sealed class SceneTransition : MonoBehaviour, IOnEventCallback
             return;
         }
 
-        PhotonNetwork.RaiseEvent(
+        bool eventQueued = PhotonNetwork.RaiseEvent(
             PhotonFadeEventCode,
-            null,
-            new RaiseEventOptions { Receivers = ReceiverGroup.All },
+            sceneName,
+            new RaiseEventOptions { Receivers = ReceiverGroup.Others },
             SendOptions.SendReliable);
+        if (!eventQueued)
+            Debug.LogWarning("[SceneTransition] Photon fade event could not be queued.");
 
         BeginTransition(() =>
         {
@@ -132,12 +139,19 @@ public sealed class SceneTransition : MonoBehaviour, IOnEventCallback
         });
     }
 
-    private void BeginRemotePhotonFade()
+    private void BeginRemotePhotonFade(string sceneName)
     {
         if (isTransitioning)
             return;
 
-        StartCoroutine(FadeToBlackForPhotonSceneLoad());
+        if (SceneManager.GetActiveScene().name == sceneName)
+        {
+            EnsureOverlay();
+            SetOverlayOpacity(0f);
+            return;
+        }
+
+        StartCoroutine(RemotePhotonTransitionRoutine(sceneName));
     }
 
     private IEnumerator TransitionRoutine(System.Func<AsyncOperation> loadScene)
@@ -153,7 +167,6 @@ public sealed class SceneTransition : MonoBehaviour, IOnEventCallback
 
         yield return FadeTo(1f);
 
-        loadInitiatedLocally = true;
         AsyncOperation operation = loadScene();
         if (operation != null)
             yield return operation;
@@ -163,10 +176,9 @@ public sealed class SceneTransition : MonoBehaviour, IOnEventCallback
         yield return FadeTo(0f);
 
         isTransitioning = false;
-        loadInitiatedLocally = false;
     }
 
-    private IEnumerator FadeToBlackForPhotonSceneLoad()
+    private IEnumerator RemotePhotonTransitionRoutine(string sceneName)
     {
         isTransitioning = true;
         EnsureOverlay();
@@ -178,10 +190,20 @@ public sealed class SceneTransition : MonoBehaviour, IOnEventCallback
         }
 
         yield return FadeTo(1f);
-    }
 
-    private IEnumerator FadeInAfterExternalSceneLoad()
-    {
+        float timeoutAt = Time.realtimeSinceStartup + PhotonSceneLoadTimeout;
+        while (SceneManager.GetActiveScene().name != sceneName &&
+               Time.realtimeSinceStartup < timeoutAt)
+        {
+            yield return null;
+        }
+
+        if (SceneManager.GetActiveScene().name != sceneName)
+        {
+            Debug.LogWarning(
+                $"[SceneTransition] Timed out waiting for Photon scene '{sceneName}'. Restoring the display.");
+        }
+
         yield return null;
         EnsureOverlay();
 
@@ -244,6 +266,12 @@ public sealed class SceneTransition : MonoBehaviour, IOnEventCallback
         overlay = resolvedOverlay;
         if (overlay != null)
             overlay.style.opacity = 0f;
+    }
+
+    private void SetOverlayOpacity(float opacity)
+    {
+        if (overlay != null)
+            overlay.style.opacity = opacity;
     }
 
     private IEnumerator FadeTo(float targetOpacity)
